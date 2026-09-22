@@ -4,7 +4,7 @@
 # M = 3, R = 3; 100 replications per cell; plus a misspecification arm with
 # t(df = 4) random effects at dependence 1, N = 300, P = 5.
 # Competitors: majority vote, Dawid-Skene (EM), CRE-LCM (variant VARIANT).
-# CRE-LCM chains: 2 x 1000 (500 warmup); cells with R-hat > 1.05 are flagged.
+# CRE-LCM chains: 2 x 1500 (750 warmup); cells with R-hat > 1.05 are flagged.
 #
 # Resumable: each replication is written to results/grid/reps/<cell>_r<rep>.rds
 # as soon as it finishes and is skipped on the next run. Seeds:
@@ -27,7 +27,7 @@ if (is.na(VARIANT) || VARIANT == "") {
 }
 N_REPS   <- as.integer(Sys.getenv("GRID_REPS", unset = "100"))
 WORKERS  <- as.integer(Sys.getenv("GRID_WORKERS", unset = as.character(N_CORES)))
-CHAINS <- 2; WARMUP <- 500; SAMPLING <- 500
+CHAINS <- 2; WARMUP <- 750; SAMPLING <- 750
 ANCHOR_FRAC <- 0.05
 stan_file <- switch(VARIANT,
   base = "stan/crossed_lcre.stan",
