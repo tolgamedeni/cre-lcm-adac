@@ -1,0 +1,30 @@
+[ident] fitting base: common scale for theta ...
+[ident] reuse results/identifiability/draws_base.rds
+[ident] base done: 10.3 min, 0 divergences
+[ident] fitting (a) class-specific scale for theta ...
+[ident] reuse results/identifiability/draws_a.rds
+[ident] a done: 11.2 min, 0 divergences
+[ident] fitting (b) theta omitted ...
+[ident] reuse results/identifiability/draws_b.rds
+[ident] b done: 12.7 min, 0 divergences
+[ident] fitting (c) anchoring: 15 items (5%) with known labels ...
+[ident] reuse results/identifiability/draws_c.rds
+[ident] c done: 2.9 min, 0 divergences
+[ident] fitting (d) half-normal(0, 0.5) prior on s_th ...
+[ident] reuse results/identifiability/draws_d.rds
+[ident] d done: 11.6 min, 0 divergences
+[ident] fitting (e) base model, chains initialised from Dawid-Skene ...
+[ident] reuse results/identifiability/draws_e.rds
+[ident] e done: 2.4 min, 0 divergences
+[ident] done:  results/identifiability/comparison.md 
+Warning messages:
+1: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+ 
+2: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+ 
+3: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+ 
+4: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+ 
+5: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+ 

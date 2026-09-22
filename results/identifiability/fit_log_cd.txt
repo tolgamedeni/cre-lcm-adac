@@ -14,3 +14,27 @@ Chain 4 Exception: binomial_logit_lpmf: Probability parameter is inf, but must b
 Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 4 
+[ident] c done: 2.9 min, 0 divergences
+[ident] fitting (d) half-normal(0, 0.5) prior on s_th ...
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: binomial_logit_lpmf: Probability parameter is -inf, but must be finite! (in '/tmp/RtmpvlFeQk/model-1cf72c985b64.stan', line 60, column 10 to column 86)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: binomial_logit_lpmf: Probability parameter is inf, but must be finite! (in '/tmp/RtmpvlFeQk/model-1cf72c985b64.stan', line 60, column 10 to column 86)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: binomial_logit_lpmf: Probability parameter is -inf, but must be finite! (in '/tmp/RtmpvlFeQk/model-1cf72c985b64.stan', line 60, column 10 to column 86)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: binomial_logit_lpmf: Probability parameter is inf, but must be finite! (in '/tmp/RtmpvlFeQk/model-1cf72c985b64.stan', line 60, column 10 to column 86)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+[ident] d done: 11.6 min, 0 divergences
+EXIT 0

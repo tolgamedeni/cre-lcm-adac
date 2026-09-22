@@ -13,7 +13,7 @@
 # Aggregate output: results/grid/grid_cells.csv (per-cell metrics),
 #                   results/grid/grid_reps.csv (per-replication metrics).
 # Usage:  Rscript R/05_grid.R                (or via run_all.R --steps=4)
-#   env GRID_VARIANT = base|a|b|c|d (default: value in results/identifiability/chosen_variant.txt)
+#   env GRID_VARIANT = base|a|b|c|d|e (default: value in results/identifiability/chosen_variant.txt)
 #   env GRID_REPS    = number of replications (default 100)
 #   env GRID_WORKERS = parallel workers (default N_CORES)
 # =============================================================================
@@ -35,6 +35,7 @@ stan_file <- switch(VARIANT,
   b = "stan/crossed_lcre_b_notheta.stan",
   c = "stan/crossed_lcre_c_anchor.stan",
   d = "stan/crossed_lcre_d_infprior.stan",
+  e = "stan/crossed_lcre.stan",      # base model, chains initialised at Dawid-Skene
   stop("unknown GRID_VARIANT: ", VARIANT))
 rep_dir <- "results/grid/reps"; dir.create(rep_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -102,9 +103,15 @@ run_rep <- function(cell_row, rep, mod) {
                          anchor_lab = sim$c_true[anchor_idx]))
   }
   t0 <- Sys.time()
-  s <- tryCatch(sample_stan(mod, data = data, chains = CHAINS, iter_warmup = WARMUP,
+  extra <- list()
+  if (VARIANT == "e") extra$init <- function() list(
+    pi1 = ds$pi1, mu = c(qlogis(1 - mean(ds$sp)), qlogis(mean(ds$se))),
+    a_raw = matrix(0, sim$M - 1, 2), b_z = matrix(0, sim$P, 2), tau_b = c(0.3, 0.3),
+    s_th = 0.5, s_ph = 0.5, s_ps = 0.5, th_z = rep(0, sim$N),
+    ph_z = matrix(0, sim$N, sim$M), ps_z = matrix(0, sim$N, sim$P))
+  s <- tryCatch(do.call(sample_stan, c(list(mod = mod, data = data, chains = CHAINS, iter_warmup = WARMUP,
                             iter_sampling = SAMPLING, seed = seed, adapt_delta = 0.9,
-                            parallel_chains = 1), error = function(e) e)
+                            parallel_chains = 1), extra)), error = function(e) e)
   cre <- NULL; diag <- NULL
   if (!inherits(s, "error")) {
     gv <- c("pi1", "mu", "a", "b", "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run")

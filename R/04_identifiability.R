@@ -58,7 +58,17 @@ variants <- list(
               label = sprintf("(c) anchoring: %d items (%.0f%%) with known labels",
                               length(anchor_idx), 100 * ANCHOR_FRAC)),
   d    = list(file = "stan/crossed_lcre_d_infprior.stan",   data = base_data,
-              label = "(d) half-normal(0, 0.5) prior on s_th"))
+              label = "(d) half-normal(0, 0.5) prior on s_th"),
+  # (e) computational check, not a model change: base model with every chain
+  # initialised at the Dawid-Skene solution (does the merged-class mode persist?)
+  e    = list(file = "stan/crossed_lcre.stan", data = base_data,
+              label = "(e) base model, chains initialised from Dawid-Skene",
+              init = function() list(pi1 = ds$pi1,
+                                     mu = c(qlogis(1 - mean(ds$sp)), qlogis(mean(ds$se))),
+                                     a_raw = matrix(0, sim$M - 1, 2), b_z = matrix(0, sim$P, 2),
+                                     tau_b = c(0.3, 0.3), s_th = 0.5, s_ph = 0.5, s_ps = 0.5,
+                                     th_z = rep(0, sim$N), ph_z = matrix(0, sim$N, sim$M),
+                                     ps_z = matrix(0, sim$N, sim$P))))
 
 gvars <- c("pi1", "mu", "a", "tau_b", "s_th", "s_ph", "s_ps",
            "share_item", "share_model", "share_prompt", "share_run", "lp__")
@@ -76,8 +86,9 @@ fit_variant <- function(v, spec) {
               runtime_sec = fit$time()$total)
   } else {
     mod <- compile_stan(spec$file)
-    s <- sample_stan(mod, data = spec$data, chains = CHAINS, iter_warmup = WARMUP,
-                     iter_sampling = SAMPLING, seed = SEED, adapt_delta = 0.9)
+    extra <- if (!is.null(spec$init)) list(init = spec$init) else list()
+    s <- do.call(sample_stan, c(list(mod = mod, data = spec$data, chains = CHAINS, iter_warmup = WARMUP,
+                                     iter_sampling = SAMPLING, seed = SEED, adapt_delta = 0.9), extra))
     fpath <- file.path(out_dir, "fits", paste0("fit_", v, ".rds"))
     if (!protect(fpath)) {
       if (STAN_BACKEND == "cmdstanr") s$fit$save_object(fpath) else saveRDS(s$fit, fpath)
@@ -143,7 +154,7 @@ labels <- rbind(
 write.csv(labels, file.path(out_dir, "labels.csv"), row.names = FALSE)
 
 # --- 3. LOO (same data and likelihood only: base, a, b, d) ----------------------
-loo_list <- lapply(fits[c("base", "a", "b", "d")], function(f) {
+loo_list <- lapply(fits[c("base", "a", "b", "d", "e")], function(f) {
   ll <- f$log_lik
   r_eff <- loo::relative_eff(exp(ll), chain_id = f$chain_id)
   loo::loo(ll, r_eff = r_eff)
@@ -155,9 +166,10 @@ loo_tab <- do.call(rbind, lapply(names(loo_list), function(v) {
              p_loo = l$estimates["p_loo", "Estimate"],
              n_k_gt_0.7 = sum(loo::pareto_k_values(l) > 0.7))
 }))
-cmp <- loo::loo_compare(loo_list)
-loo_tab$elpd_diff <- cmp[loo_tab$variant, "elpd_diff"]
-loo_tab$se_diff   <- cmp[loo_tab$variant, "se_diff"]
+# elpd difference to the best variant (SE of the difference omitted: with
+# most Pareto k > 0.7 the PSIS estimates themselves are unreliable, see notes)
+loo_tab$elpd_diff <- loo_tab$elpd_loo - max(loo_tab$elpd_loo)
+loo_tab$frac_k_gt_0.7 <- loo_tab$n_k_gt_0.7 / sim$N
 write.csv(loo_tab, file.path(out_dir, "loo.csv"), row.names = FALSE)
 
 # --- 4. diagnostics -------------------------------------------------------------
@@ -205,12 +217,14 @@ md <- c("# Identifiability variants: comparison on scenario-B data",
         "", "Note: in (a) `share_item` uses the prevalence-weighted item variance (1-pi1) s_th[1]^2 + pi1 s_th[2]^2; ",
         "in (b) `s_th` and `share_item` are 0 by construction, so the remaining shares are relative to a smaller total.",
         "", "## 2. Posterior labels", "", md_table(labels),
-        "", "## 3. PSIS-LOO (base, a, b, d only: same data and likelihood; c conditions on known labels and is not comparable)", "",
+        "", "## 3. PSIS-LOO (base, a, b, d, e: same data and likelihood; c conditions on known labels and is not comparable)", "",
         md_table(loo_tab),
         "", "## 4. MCMC diagnostics", "",
         md_table(diagnostics[, c("variant", "runtime_sec", "divergences", "max_treedepth_hits",
                                  "max_rhat_global", "min_ess_bulk_global", "min_ess_tail_global", "max_rhat_post1")]),
-        "", "## 5. Recommendation", "", "[to be written after inspection]")
+        "", "## 5. Recommendation and reasoning", "",
+        if (file.exists(file.path(out_dir, "recommendation.md")))
+          readLines(file.path(out_dir, "recommendation.md")) else "[to be written after inspection]")
 writeLines(md, file.path(out_dir, "comparison.md"))
 saveRDS(list(recovery = recovery, labels = labels, loo = loo_tab, diagnostics = diagnostics,
              anchor_idx = anchor_idx, truth = truth_vec), file.path(out_dir, "comparison_tables.rds"))
