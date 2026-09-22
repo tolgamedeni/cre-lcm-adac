@@ -42,4 +42,4 @@ SMJ version (2026, 47(3), 699–725, 10.1002/smj.70023); Egami2024 = working pap
 
 ## Added by hand on 2026-09-22 (no PDF in refs/)
 
-Carpenter2017 (Stan, JSS 76(1)), Vehtari2017 (PSIS-LOO, Stat. Comput. 27), Vehtari2021 (rank-normalised R-hat, Bayesian Anal. 16), Gilardi2023 (PNAS 120(30)). DOIs entered from the publishers' records; verify once more at submission.
+Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehtari2017 (PSIS-LOO, Stat. Comput. 27), Vehtari2021 (rank-normalised R-hat, Bayesian Anal. 16), Gilardi2023 (PNAS 120(30)). DOIs entered from the publishers' records; verify once more at submission.

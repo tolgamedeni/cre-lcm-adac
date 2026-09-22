@@ -1,2 +1,21 @@
 \section{Discussion}\label{sec:discussion}
-% [to be written]
+
+[To be completed with the grid results.] Three practical recommendations follow from the
+model and the simulations. First, an annotation ensemble should be analysed with a model
+whose dependence structure matches the design that produced it; treating configurations as
+independent raters overstates accuracy and biases prevalence, and the bias grows with the
+strength of shared item effects. Second, the variance shares are a design diagnostic:
+when the model and prompt shares dominate the run share, further decoding runs of the
+same configuration add little, and the budget is better spent on additional models and
+prompts. Third, a small anchored subset of labelled items is inexpensive insurance
+against the merged-class mode and sharpens every estimate.
+
+Limitations include the binary outcome, Gaussian random effects (the $t_4$ arm gives a
+first robustness check), the computational cost of full Bayesian estimation for large
+$N$, and the temporal drift of model versions, which the model treats as fixed. Natural
+extensions are covariates on the class intercepts as in \citet{Zhang2025}, ordinal and
+multiclass outcomes, and item-level text features that explain part of $\theta_i$.
+
+\section{Conclusion}\label{sec:conclusion}
+
+[Half a page, after results.]

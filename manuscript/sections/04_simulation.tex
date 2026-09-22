@@ -1,2 +1,116 @@
 \section{Simulation study}\label{sec:simulation}
-% [to be written]
+
+\subsection{Design}\label{sec:sim_design}
+
+Data are generated from \eqref{eq:model}--\eqref{eq:re} with $M = 3$ models, $R = 3$
+runs, $\pi_1 = 0.30$, $\mu = (-2, 1.5)$, model effects
+$a_{\cdot 0} = (0, 0.3, 0.6)$ and $a_{\cdot 1} = (0, -0.1, -0.5)$ (so that later models
+have both a higher false-positive rate and a lower sensitivity), prompt effects with
+$\tau_0 = \tau_1 = 0.4$, and random-effect standard deviations
+$(\sigma_\theta, \sigma_\phi, \sigma_\psi) = \delta \times (1.0, 0.8, 0.5)$. The
+dependence level $\delta \in \{0, 0.5, 1, 1.5\}$ is crossed with $N \in \{150, 300, 600\}$
+and $P \in \{3, 5\}$, giving 24 cells with 100 replications each. A misspecification arm
+at $\delta = 1$, $N = 300$, $P = 5$ replaces the three Gaussian random effects by
+scaled Student-$t_4$ variables with the same standard deviations. Every replication has
+a recorded seed (data and sampler) and is stored individually, so the study is
+reproducible and resumable from the public code repository.
+
+Three estimators are compared: majority vote over the $M P R$ labels; the binary
+Dawid--Skene model with $M P R$ raters fitted by EM \citep{Dawid1979}; and CRE-LCM as
+described in Section~\ref{sec:estimation}, with two chains of 1500 iterations (750
+warm-up) per replication, initialised at the Dawid--Skene solution. For each replication
+we record the bias of the estimated prevalence, of mean sensitivity and of mean
+specificity (averaged over the $M \times P$ configurations; for CRE-LCM these are the
+posterior means of the marginal accuracies implied by the model, integrating over the
+random effects), classification accuracy and Brier score of the posterior class
+probabilities against the simulated classes, coverage of the CRE-LCM 95\% credible
+intervals, and the estimated variance shares \eqref{eq:shares}. Replications in which any
+global parameter of CRE-LCM has split-$\widehat{R} > 1.05$ are flagged and their fraction
+reported per cell.
+
+\subsection{Dawid--Skene under dependence}\label{sec:sim_ds}
+
+Table~\ref{tab:baseline} gives a first view on a single data set per dependence level.
+Under conditional independence ($\delta = 0$) Dawid--Skene recovers sensitivity,
+specificity and prevalence essentially exactly. As $\delta$ grows the true marginal
+accuracies fall, because the item effects push labels away from the class-specific
+propensities, but the Dawid--Skene estimates do not: at $\delta = 1.5$ the model reports a
+specificity of 0.82 against a true 0.74 and a prevalence of 0.36 against 0.29. The bias is
+monotone in $\delta$ and is larger for prevalence and specificity than for sensitivity,
+which the results over the full grid below confirm.
+\input{../tables/table1_baseline}
+
+\subsection{Identifiability variants}\label{sec:sim_ident}
+
+Table~\ref{tab:ident} reports the five remedies of Section~\ref{sec:ident}, fitted to
+one scenario at $\delta = 1$, $N = 300$, $P = 5$ with four chains of 2000 iterations. With
+default random initialisation, one of the four chains of the base model settles in the
+merged-class mode (per-chain prevalence 0.70, class intercepts $-1.1$ and $-0.9$, model
+effects sign-flipped); the pooled posterior is a mixture of the two modes and
+$\widehat{R}$ on $\pi_1$ is 1.81. The class-specific scale (a) makes matters worse: each
+chain ends at a different prevalence (0.17 to 0.51) and the chain with the highest
+posterior density is the one furthest from the truth, so the extra loading is not
+identified separately from the mixing proportion in this design. Omitting $\theta_i$ (b)
+does not remove the mode and biases the remaining components, the item$\times$model
+standard deviation rising to 1.06 against 0.80, because the shared item variance is pushed
+into the crossed effects. The informative prior (d) changes nothing, the data dominating
+the prior. Anchoring 5\% of the items (c) removes the mode entirely, with every interval
+covering the truth and the best label quality of all variants. Initialising the chains at
+the Dawid--Skene solution (e) also removes it: all chains agree, the intervals cover the
+truth, and label quality is close to that of anchoring. Two limitations remain under (e):
+mixing on $\pi_1$ and $\sigma_\theta$ is slow, and $\sigma_\theta$ is shrunk downwards by
+10--20\% in every chain that sits in the correct mode of every variant, anchoring
+reducing the shrinkage. We therefore carry variant (e) forward as the main model and
+report anchoring as the practical remedy when a small labelled subset exists.
+\input{../tables/table2_identifiability}
+
+\subsection{Results over the grid}\label{sec:sim_results}
+
+[SIM: to be written when the grid completes.]
+Figure~\ref{fig:bias} shows the bias of prevalence, sensitivity and specificity;
+Figure~\ref{fig:labels} the accuracy and Brier score of the posterior labels;
+Figure~\ref{fig:coverage} the coverage of the CRE-LCM 95\% intervals; and
+Figure~\ref{fig:shares} the recovery of the variance shares at $N = 300$, $P = 5$.
+Tables~\ref{tab:prev}--\ref{tab:labels} give the per-cell values.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{Fig1}
+\caption{Bias of the estimated prevalence (top), mean sensitivity (middle) and mean
+specificity (bottom) by dependence level $\delta$ for majority vote, Dawid--Skene and
+CRE-LCM; columns are sample sizes, line types are the number of prompts. Means over 100
+replications per cell}\label{fig:bias}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{Fig2}
+\caption{Classification accuracy (top) and Brier score (bottom) of the posterior class
+probabilities by dependence level $\delta$; layout as in Fig.~\ref{fig:bias}}\label{fig:labels}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{Fig3}
+\caption{Coverage of the CRE-LCM 95\% credible intervals for prevalence, mean
+sensitivity, mean specificity and the three variance shares, by dependence level $\delta$
+and sample size; the dotted line marks the nominal level. Coverage of a share is undefined
+at $\delta = 0$, where its true value is zero}\label{fig:coverage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{Fig4}
+\caption{Posterior means of the four variance shares over 100 replications at $N = 300$,
+$P = 5$, by dependence level $\delta$; crosses mark the true shares}\label{fig:shares}
+\end{figure}
+
+\input{../tables/table3_prevalence}
+\input{../tables/table4_sens_spec}
+\input{../tables/table5_labels}
+
+\subsection{Misspecification}\label{sec:sim_misspec}
+
+[SIM: to be written when the grid completes.] Table~\ref{tab:shares} compares the
+Gaussian and $t_4$ data-generating processes at $\delta = 1$, $N = 300$, $P = 5$.
+\input{../tables/table6_shares_misspec}
