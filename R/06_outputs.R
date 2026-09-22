@@ -83,18 +83,19 @@ if (file.exists("results/identifiability/comparison_tables.rds")) {
   sth <- function(v) if (v == "a") sprintf("%s / %s", fmt(rec$mean[rec$variant=="a" & rec$variable=="s_th[1]"], 2),
                                            fmt(rec$mean[rec$variant=="a" & rec$variable=="s_th[2]"], 2)) else cell(v, "s_th")
   t2 <- do.call(rbind, lapply(names(vlab), function(v) data.frame(
-    variant = vlab[[v]], pi1 = cell(v, "pi1"), mu1 = cell(v, "mu[1]"), mu2 = cell(v, "mu[2]"),
+    variant = vlab[[v]], pi1 = cell(v, "pi1"),
+    mu = sprintf("%s, %s", fmt(rec$mean[rec$variant == v & rec$variable == "mu[1]"], 2), fmt(rec$mean[rec$variant == v & rec$variable == "mu[2]"], 2)),
     s_th = sth(v), acc = fmt(lab$accuracy[lab$variant == v]), brier = fmt(lab$brier[lab$variant == v]),
     rhat = fmt(dg$max_rhat_global[dg$variant == v], 2))))
-  t2 <- rbind(data.frame(variant = "Majority vote", pi1 = "--", mu1 = "--", mu2 = "--", s_th = "--",
+  t2 <- rbind(data.frame(variant = "Majority vote", pi1 = "--", mu = "--", s_th = "--",
                          acc = fmt(lab$accuracy[lab$variant == "majority vote"]), brier = fmt(lab$brier[lab$variant == "majority vote"]), rhat = "--"),
-              data.frame(variant = "Dawid--Skene", pi1 = "--", mu1 = "--", mu2 = "--", s_th = "--",
+              data.frame(variant = "Dawid--Skene", pi1 = "--", mu = "--", s_th = "--",
                          acc = fmt(lab$accuracy[lab$variant == "Dawid-Skene"]), brier = fmt(lab$brier[lab$variant == "Dawid-Skene"]), rhat = "--"), t2)
   write_booktabs(t2, "tables/table2_identifiability.tex",
-    caption = "Identifiability variants fitted to one scenario-B data set ($N = 300$, $\\sigma_\\theta = 1$, $\\sigma_\\phi = 0.8$, $\\sigma_\\psi = 0.5$, true $\\pi_1 = 0.30$, $\\mu = (-2, 1.5)$; four chains of 2000 iterations). Posterior means with 95\\% credible intervals; $\\widehat{R}$ is the largest split-$\\widehat{R}$ over the global parameters",
+    caption = "Identifiability variants fitted to one scenario-B data set ($N = 300$, $\\sigma_\\theta = 1$, $\\sigma_\\phi = 0.8$, $\\sigma_\\psi = 0.5$, true $\\pi_1 = 0.30$, $\\mu = (-2, 1.5)$; four chains of 2000 iterations). Posterior means, with 95\\% credible intervals for $\\pi_1$ and $\\sigma_\\theta$; $\\widehat{R}$ is the largest split-$\\widehat{R}$ over the global parameters",
     label = "tab:ident",
-    header = "Variant & $\\pi_1$ & $\\mu_0$ & $\\mu_1$ & $\\sigma_\\theta$ & Acc. & Brier & max $\\widehat{R}$",
-    align = "lllllrrr", size = "\\scriptsize", colsep = "3pt",
+    header = "Variant & $\\pi_1$ & $\\mu_0, \\mu_1$ & $\\sigma_\\theta$ & Acc. & Brier & max $\\widehat{R}$",
+    align = "llllrrr", size = "\\scriptsize", colsep = "3pt",
     note = "In (a) the two entries are $\\sigma_{\\theta,0}$ / $\\sigma_{\\theta,1}$. Accuracy and Brier score of the posterior class probabilities against the simulated true classes (all 300 items; for (c) the 15 anchored items are included).")
 }
 
