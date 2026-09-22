@@ -1,21 +1,19 @@
+% Source: manuscript_draft_v5.md, Sections 6 and 7 (author's prose, converted to LaTeX; not paraphrased).
+% [SIM] markers from the draft are kept as TODO-AUTHOR comments.
 \section{Discussion}\label{sec:discussion}
 
-[To be completed with the grid results.] Three practical recommendations follow from the
-model and the simulations. First, an annotation ensemble should be analysed with a model
-whose dependence structure matches the design that produced it; treating configurations as
-independent raters overstates accuracy and biases prevalence, and the bias grows with the
-strength of shared item effects. Second, the variance shares are a design diagnostic:
-when the model and prompt shares dominate the run share, further decoding runs of the
-same configuration add little, and the budget is better spent on additional models and
-prompts. Third, a small anchored subset of labelled items is inexpensive insurance
-against the merged-class mode and sharpens every estimate.
+\emph{What the variance decomposition is for.} The three random-effect shares answer a question that agreement statistics cannot: where should the next unit of annotation budget go? Decoding runs only reduce the residual share; they cannot touch item, model or prompt variance. When the item-by-model share dominates, a fourth model family is worth more than any number of re-runs; when the item-by-prompt share dominates, the prompt family should be widened. The shared item share is the ceiling: it is the part of disagreement that reflects genuine ambiguity in the text and is reduced only by better coding rules or human adjudication. We therefore recommend that studies using LLM annotation report the three shares with their intervals next to the customary $\kappa$, and that ``temperature 0, single prompt, single model'' be treated as a design with no replication rather than as a deterministic instrument.
 
-Limitations include the binary outcome, Gaussian random effects (the $t_4$ arm gives a
-first robustness check), the computational cost of full Bayesian estimation for large
-$N$, and the temporal drift of model versions, which the model treats as fixed. Natural
-extensions are covariates on the class intercepts as in \citet{Zhang2025}, ordinal and
-multiclass outcomes, and item-level text features that explain part of $\theta_i$.
+\emph{Relation to bounds and to design-based correction.} \citet{Chen2026} show that if the dependence among LLM annotators is left unrestricted, only bounds on prevalence are available. Our results locate the price of that generality: with the dependence structured by the annotation design, point estimates are recovered, at the cost of an assumption (crossed Gaussian effects) that we check by misspecification. Design-based methods \citep{Egami2024,Angelopoulos2023} reach validity from the opposite direction, by spending a labelled subsample on a doubly robust correction; our anchoring variant shows that a subsample of the same order also removes the estimation difficulties of the latent class model, and the two approaches are complementary rather than competing---one supplies a measurement model, the other a downstream-inference correction.
+
+\emph{Accuracy is not enough.} \citet{Carlson2025} found that a configuration with 88\% first-stage accuracy produced a downstream coefficient of the wrong sign while one with 56\% accuracy did not, because the direction of error was correlated with the outcome. Our model does not solve that problem, but it makes its ingredients visible: the class-specific model effects $a_{mk}$ show which configurations err asymmetrically, and the posterior class probabilities carry the residual uncertainty into any downstream analysis instead of discarding it.
+
+\emph{Limitations.} The main model is binary; the multiclass extension is sketched and left for future work. The random effects are Gaussian and crossed; our misspecification arm shows
+% TODO-AUTHOR: [SIM] fill in the t_4 result from Table 6 (results/grid/misspecification_summary.csv) when the grid completes.
+[SIM] but other departures (bimodal ambiguity, model-by-prompt interactions) are untested. The shared item scale is shrunk by 10--20\% at $N = 300$ in the correct mode, which propagates into the item share; anchoring reduces the shrinkage and larger $N$
+% TODO-AUTHOR: [SIM] state whether the shrinkage of sigma_theta decreases with N (from grid Table 6 / Fig. 4).
+[SIM]. Estimation by MCMC takes minutes per fit; an EM algorithm with quadrature would make the method routine. Finally, LLM versions change: the annotations we report are tied to the version strings and dates in the supplementary material, and the model's parameters should be understood as properties of those versions, not of the model families.
 
 \section{Conclusion}\label{sec:conclusion}
 
-[Half a page, after results.]
+An LLM annotation ensemble is a designed experiment with three crossed factors, and its errors inherit that design. Treating each configuration as an independent rater, as Dawid--Skene does, overstates how good the configurations are and, as dependence grows, biases what they measure. Giving the latent class model the structure of the design restores point identification without human labels, decomposes annotation noise into components that map onto concrete design decisions, and produces class probabilities that are better calibrated than majority vote or Dawid--Skene. The main practical obstacles---a merged-class posterior mode and slow mixing on the prevalence---are addressed by initialising at the Dawid--Skene solution or by anchoring a small labelled subset. Code, prompts, model versions and all annotations are provided for reuse.

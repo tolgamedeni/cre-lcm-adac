@@ -43,3 +43,10 @@ SMJ version (2026, 47(3), 699–725, 10.1002/smj.70023); Egami2024 = working pap
 ## Added by hand on 2026-09-22 (no PDF in refs/)
 
 Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehtari2017 (PSIS-LOO, Stat. Comput. 27), Vehtari2021 (rank-normalised R-hat, Bayesian Anal. 16), Gilardi2023 (PNAS 120(30)). DOIs entered from the publishers' records; verify once more at submission.
+
+## 2026-09-22, later: applied the author's open items from manuscript_draft_v5.md
+
+- JSTOR DOIs added to Dawid1979, Qu1996, Vacek1985 (values supplied by the author in the v5 key map).
+- Liu2026 changed to @misc arXiv:2604.16413 with its DOI (supplied by the author).
+- Raykar2012 (JMLR 13:491-518) and Barrie2025 (working paper, no URL yet: TODO-AUTHOR) added because Sections 1-2 cite them.
+- Not added (listed in v5 as candidates but not cited in the current text): Stephens2000, Bacci2014, Fibbi2024, Babu2025.
