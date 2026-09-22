@@ -107,7 +107,8 @@ writeLines(c("# Simulation grid: convergence summary", "",
              md_tab(flag_tab), "",
              "A merged-class mode is inferred when the two chains' posterior means of pi1 differ by more than 0.15;",
              "slow mixing when they agree but at least one global parameter has R-hat > 1.05 (low ESS).",
-             "Replications fitted before per-chain means were recorded cannot be classified.",
+             sprintf("%d replications (the first grid run, before per-chain means were recorded on 2026-09-22 22:05) have no per-chain record and cannot be classified; %d of them are flagged for R-hat.",
+                     sum(is.na(reps$pi1_chain1)), sum(is.na(reps$pi1_chain1) & reps$flagged)),
              "", "## By cell", "", md_tab(as.data.frame(lapply(flag_cell, function(x) if (is.numeric(x)) round(x, 1) else x)))),
            "results/grid/summary.md")
 write.csv(reps, "results/grid/grid_reps.csv", row.names = FALSE)

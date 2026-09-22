@@ -1,1 +1,1 @@
-[grid] variant=e cells=25 reps=100 todo=2500 workers=9
+[grid] variant=e cells=25 reps=100 todo=2418 workers=9
