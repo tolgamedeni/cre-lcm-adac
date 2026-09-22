@@ -39,3 +39,7 @@ SMJ version (2026, 47(3), 699–725, 10.1002/smj.70023); Egami2024 = working pap
   (arXiv:2606.19544); Messing2026 = "Hidden measurement error in LLM pipelines" (arXiv:2604.11581);
   Xu2026 = "Enhancing LLM-based data annotation with error decomposition" (arXiv:2601.11920);
   these replace the placeholder `Anonymous` entries. The manuscript skeleton's citation keys must use these stems.
+
+## Added by hand on 2026-09-22 (no PDF in refs/)
+
+Carpenter2017 (Stan, JSS 76(1)), Vehtari2017 (PSIS-LOO, Stat. Comput. 27), Vehtari2021 (rank-normalised R-hat, Bayesian Anal. 16), Gilardi2023 (PNAS 120(30)). DOIs entered from the publishers' records; verify once more at submission.

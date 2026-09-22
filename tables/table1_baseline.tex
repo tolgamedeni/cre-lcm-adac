@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Dawid--Skene under crossed dependence: one simulated data set per dependence level ($N = 300$, $M = 3$, $P = 5$, $R = 3$, seed 2026). Dependence level $\delta$ scales the three random-effect standard deviations $(\sigma_\theta, \sigma_\phi, \sigma_\psi) = \delta \times (1.0, 0.8, 0.5)$. Sensitivity and specificity are averaged over the $M \times P$ configurations}\label{tab:baseline}
+\begin{tabular}{lrrrrrrr}
+\toprule
+$\delta$ & \multicolumn{2}{c}{Sensitivity} & \multicolumn{2}{c}{Specificity} & \multicolumn{3}{c}{Prevalence} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-8}
+ & true & DS & true & DS & true & DS & MV \\
+\midrule
+0.0 & 0.710 & 0.710 & 0.853 & 0.856 & 0.290 & 0.290 & 0.290 \\
+0.5 & 0.696 & 0.720 & 0.832 & 0.832 & 0.290 & 0.287 & 0.280 \\
+1.0 & 0.666 & 0.703 & 0.787 & 0.822 & 0.290 & 0.327 & 0.287 \\
+1.5 & 0.638 & 0.714 & 0.741 & 0.819 & 0.290 & 0.359 & 0.307 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,2 +1,105 @@
 \section{Model}\label{sec:model}
-% [to be written]
+
+\subsection{Setting and notation}
+
+Items $i = 1, \dots, N$ have an unobserved binary class $c_i \in \{0, 1\}$ with prevalence
+$\pi_1 = \Pr(c_i = 1)$. Each item is annotated by every configuration $(m, p, r)$ of
+$M$ models, $P$ prompts and $R$ decoding runs, giving binary labels $Y_{impr}$. Runs are
+exchangeable within a model--prompt pair, so the sufficient statistic is the count
+$S_{imp} = \sum_{r} Y_{impr} \in \{0, \dots, R\}$.
+
+\subsection{The crossed random-effects latent class model}
+
+Conditional on the class and on three item-level random effects, the labels are
+independent Bernoulli variables with
+\begin{equation}\label{eq:model}
+  \operatorname{logit} \Pr(Y_{impr} = 1 \mid c_i = k, \theta_i, \phi_{im}, \psi_{ip})
+  = \mu_k + a_{mk} + b_{pk} + \theta_i + \phi_{im} + \psi_{ip},
+\end{equation}
+where $\mu_0 < \mu_1$ are class intercepts (the ordering identifies the labels),
+$a_{mk}$ are fixed model effects with $a_{1k} = 0$, $b_{pk} \sim \mathrm{N}(0, \tau_k^2)$
+are prompt effects, and
+\begin{equation}\label{eq:re}
+  \theta_i \sim \mathrm{N}(0, \sigma_\theta^2), \qquad
+  \phi_{im} \sim \mathrm{N}(0, \sigma_\phi^2), \qquad
+  \psi_{ip} \sim \mathrm{N}(0, \sigma_\psi^2)
+\end{equation}
+are mutually independent. The effect $\theta_i$ is the ambiguity of item $i$ as seen by
+every configuration; $\phi_{im}$ is the idiosyncratic reading of item $i$ by model $m$,
+shared across the prompts and runs of that model; $\psi_{ip}$ is the idiosyncratic
+reading induced by prompt $p$, shared across models and runs. Given the effects,
+$S_{imp} \mid c_i = k \sim \mathrm{Binomial}(R, \operatorname{expit}(\eta_{impk}))$ with
+$\eta_{impk}$ the right-hand side of \eqref{eq:model}, and the marginal likelihood of
+item $i$ is
+\begin{equation}\label{eq:lik}
+  L_i = \sum_{k=0}^{1} \pi_k \int \prod_{m=1}^{M} \prod_{p=1}^{P}
+  \binom{R}{S_{imp}} \operatorname{expit}(\eta_{impk})^{S_{imp}}
+  \bigl(1 - \operatorname{expit}(\eta_{impk})\bigr)^{R - S_{imp}} \,
+  \mathrm{d}F(\theta_i, \boldsymbol{\phi}_i, \boldsymbol{\psi}_i).
+\end{equation}
+With $\sigma_\theta = \sigma_\phi = \sigma_\psi = 0$, \eqref{eq:model} is the
+Dawid--Skene model with $M \times P$ raters whose sensitivities and specificities are
+$\operatorname{expit}(\mu_1 + a_{m1} + b_{p1})$ and
+$1 - \operatorname{expit}(\mu_0 + a_{m0} + b_{p0})$; with $\sigma_\phi = \sigma_\psi = 0$
+it is the one-factor random-effects model of \citet{Qu1996} with a common
+loading. The binomial reduction over runs is exact because runs are conditionally
+independent given the effects; it is the only place where the run dimension enters.
+
+\subsection{Variance components}
+
+On the latent logistic scale the total variance of the label propensity of an item, over
+configurations and runs, decomposes as
+$\sigma_\theta^2 + \sigma_\phi^2 + \sigma_\psi^2 + \pi^2/3$, the last term being the
+variance of the standard logistic distribution that generates the run-level Bernoulli
+outcome. The shares
+\begin{equation}\label{eq:shares}
+  s_{\mathrm{item}} = \frac{\sigma_\theta^2}{V}, \quad
+  s_{\mathrm{model}} = \frac{\sigma_\phi^2}{V}, \quad
+  s_{\mathrm{prompt}} = \frac{\sigma_\psi^2}{V}, \quad
+  s_{\mathrm{run}} = \frac{\pi^2/3}{V}, \qquad
+  V = \sigma_\theta^2 + \sigma_\phi^2 + \sigma_\psi^2 + \pi^2/3,
+\end{equation}
+measure the fraction of annotation noise attributable to item ambiguity, to model
+idiosyncrasy, to prompt idiosyncrasy and to decoding stochasticity. They have a direct
+design reading: noise in the model and prompt components is reduced by adding models and
+prompts, noise in the run component by adding runs, and item ambiguity by none of these.
+A large $s_{\mathrm{model}}$ with a small $s_{\mathrm{run}}$ says that repeating the same
+configuration is wasted effort.
+
+\subsection{Identifiability}\label{sec:ident}
+
+The model is identified up to the usual label permutation, which the ordering
+$\mu_0 < \mu_1$ removes, provided $M \ge 2$, $P \ge 2$ and $R \ge 2$: the
+item$\times$model effect is identified because the same item is seen under $P$ prompts
+within a model, the item$\times$prompt effect because it is seen under $M$ models within a
+prompt, and the run-level variance because the $R$ runs replicate a fixed configuration.
+The shared effect $\theta_i$ is the delicate component. An item on which every
+configuration returns 1 is consistent both with $c_i = 1$ and with $c_i = 0$ and a large
+$\theta_i$; the two explanations differ only through the prior on $\theta_i$ and the
+class-specific intercepts. In finite samples this creates a second posterior mode in which
+the two class intercepts nearly coincide, the mixing proportion drifts towards the
+majority class and all heterogeneity is carried by $\theta_i$. We call this the
+\emph{merged-class} mode. Section~\ref{sec:sim_ident} documents it and compares five
+remedies: (a) a class-specific scale $\sigma_{\theta,k}$ in the manner of
+\citet{Qu1996}; (b) omitting $\theta_i$; (c) anchoring a small random subset of
+items with known labels; (d) an informative prior on $\sigma_\theta$; and (e) initialising
+the sampler at the Dawid--Skene solution.
+
+\subsection{Estimation}\label{sec:estimation}
+
+We fit the model in Stan \citep{Carpenter2017} with the No-U-Turn sampler, marginalising
+the discrete class as in \eqref{eq:lik} and integrating the random effects by sampling
+them, in a non-centred parameterisation. Priors are weakly informative:
+$\pi_1 \sim \mathrm{Beta}(1, 1)$, $\mu_k \sim \mathrm{N}(0, 2^2)$,
+$a_{mk} \sim \mathrm{N}(0, 1)$, half-normal$(0, 0.5^2)$ on $\tau_k$ and half-normal$(0, 1)$
+on $\sigma_\theta$, $\sigma_\phi$, $\sigma_\psi$. Posterior class probabilities
+$\Pr(c_i = 1 \mid \mathbf{S})$ are computed in the generated quantities from the same
+marginalisation. Following the analysis of Section~\ref{sec:ident}, all chains are
+initialised at the Dawid--Skene solution (prevalence and the logits of mean sensitivity and
+one minus mean specificity; random effects at zero) and convergence is assessed with
+split-$\widehat{R}$ and bulk and tail effective sample sizes \citep{Vehtari2021},
+together with per-chain posterior means of $\pi_1$ and $\mu$, which expose the
+merged-class mode directly. Leave-one-out cross-validation \citep{Vehtari2017} is not
+usable for comparing variants here: each item carries $1 + M + P$ of its own random
+effects, so leaving an item out changes the posterior substantially and almost all Pareto
+$k$ diagnostics exceed 0.7. The Stan programs are listed in Appendix~\ref{app:stan}.

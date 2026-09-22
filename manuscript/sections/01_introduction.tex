@@ -1,2 +1,57 @@
-\section{Introduction}\label{sec:introduction}
-% [to be written]
+\section{Introduction}\label{sec:intro}
+
+Large language models (LLMs) are now used routinely to label text at a scale and cost that
+human coding cannot match, in political science, management research and public
+administration among other fields \citep{Gilardi2023,Carlson2025}. Each label, however, is
+not the output of ``the model'' but of a \emph{configuration}: a particular model, a
+particular prompt and a particular stochastic decoding run. Semantically equivalent prompts
+change accuracy by tens of percentage points \citep{Barrie2024,Chen2026}, nominally
+deterministic decoding is not deterministic \citep{Atil2024}, and the choice of model,
+prompt and temperature can flip the substantive conclusions of a downstream analysis
+\citep{Baumann2025}. Treating LLM output as a fixed measurement therefore hides a large
+and structured source of error.
+
+The natural response is to annotate every item with several configurations and aggregate.
+The dominant aggregation model, due to \citet{Dawid1979}, treats each annotator as an
+independent noisy channel with its own class-conditional error rates and estimates true
+labels and error rates jointly without a gold standard. Its assumption of conditional
+independence given the true class was reasonable for human coders working separately. It
+is not reasonable for an LLM ensemble: configurations that share a model share its
+representation of the text; configurations that share a prompt share its reading of the
+task; and all configurations share the training corpora and alignment procedures of the
+model families that produced them. The diagnostic-testing literature learned decades ago
+that ignoring such dependence overstates the accuracy of the individual tests and biases
+prevalence estimates \citep{Vacek1985,Qu1996}.
+
+This paper proposes a latent class model in which the dependence between LLM annotations
+is not assumed away, nor left arbitrary, but derived from the factorial design of the
+annotation ensemble. Conditional on the true class, the log-odds of a positive label is
+decomposed into class-specific model and prompt effects plus three item-level random
+effects: an item-ambiguity effect shared by every configuration, an item$\times$model
+effect and an item$\times$prompt effect; repeated decoding runs are conditionally
+independent given these effects. We call this the crossed random-effects latent class
+model (CRE-LCM). It nests the Dawid--Skene model and the one-factor random-effects model
+of \citet{Qu1996} as special cases, and it returns, in addition to posterior
+class probabilities, a decomposition of annotation noise into item, model, prompt and run
+components on a common scale.
+
+Our contributions are threefold. First, we show by simulation that under crossed
+dependence of realistic size the Dawid--Skene estimator overstates specificity and
+inflates prevalence, and that the bias grows monotonically with the strength of
+dependence. Second, we analyse the identifiability of the CRE-LCM. The crossed
+item$\times$model and item$\times$prompt effects are identified by the replication
+structure of the design, but the shared item-ambiguity effect competes with the latent
+class itself and produces a second, merged-class posterior mode. We compare five remedies
+and show that the mode is avoided by initialising the sampler at the Dawid--Skene
+solution, and removed altogether by anchoring a small random subset of items with known
+labels. Third, we quantify, over a grid of dependence levels, sample sizes and numbers of
+prompts, how CRE-LCM compares with majority vote and Dawid--Skene in prevalence bias,
+accuracy and calibration of posterior labels, interval coverage and recovery of the
+variance shares, including a misspecified data-generating process with heavy-tailed
+random effects.
+
+Section~\ref{sec:background} reviews the three literatures the paper connects.
+Section~\ref{sec:model} defines the model, its interpretation and its estimation, and
+presents the identifiability analysis. Section~\ref{sec:simulation} reports the
+simulation study. Section~\ref{sec:application} outlines the application and
+Section~\ref{sec:discussion} discusses design implications and limitations.

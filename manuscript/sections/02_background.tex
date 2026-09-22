@@ -1,2 +1,65 @@
 \section{Background and related work}\label{sec:background}
-% [to be written]
+
+\subsection{Aggregating noisy labels without a gold standard}
+
+\citet{Dawid1979} modelled each rater by a class-conditional confusion matrix and
+estimated true labels and rater accuracies jointly by the EM algorithm. The model remains
+the foundation of crowdsourcing and unsupervised ensemble aggregation. Extensions add item
+difficulty \citep{Whitehill2009}, Bayesian priors and hierarchical structure, and
+model-based agreement coefficients \citep{Warrens2010,Warrens2013}; latent class models
+with local dependence have been studied in this journal in the context of model
+selection and classification \citep{Oberski2013,Marbac2016,Oberski2016}. In the LLM setting the
+usual recommendation is to treat each model, or each model--prompt pair, as an annotator
+and apply Dawid--Skene or a descendant \citep{Camuffo2026}. This mapping inherits the
+assumption of conditional independence given the true class, which LLM configurations
+violate in a structured way.
+
+\subsection{Conditional dependence in latent class models}
+
+The diagnostic-testing literature encountered the same violation: multiple tests applied
+to the same subject share unmeasured subject characteristics, so the conditionally
+independent latent class model fits poorly and biases accuracy estimates
+\citep{Vacek1985}. \citet{Qu1996} introduced a subject-level Gaussian random
+effect with a class-specific loading, and gave diagnostics for residual dependence.
+Subsequent work compared log-linear and Gaussian random-effects formulations
+\citep{Xu2019}, studied crossed subject$\times$rater random effects for ordinal ratings
+without a gold standard together with robustness to a misspecified random-effects
+distribution \citep{Xie2014}, and produced software \citep{Beath2017}. In all of this work
+the rater is a single unit. In an LLM ensemble the rater has a known factorial structure,
+model$\times$prompt$\times$run, which allows the dependence to be specified from the
+design rather than assumed or estimated pairwise.
+
+\subsection{LLM annotation: variability, measurement error and remedies}
+
+Three strands are relevant. The first documents instability: prompt paraphrases that
+preserve meaning change classification accuracy substantially \citep{Barrie2024,Chen2026},
+decoding is not deterministic even at nominally deterministic settings \citep{Atil2024},
+and LLM judges agree with each other more than with task-specific human annotation
+\citep{Bavaresco2025,Norman2026}. The second traces the consequences downstream:
+\citet{Baumann2025} replicated 37 annotation tasks with 18 models and showed that
+implementation choices produce Type I, II, S and M errors; \citet{Egami2024} and
+\citet{Camuffo2026} formalise the measurement-error argument, showing that annotation
+error correlated with covariates yields inconsistent regression estimates regardless of
+average accuracy, and that model choice can account for the bulk of annotation variance;
+\citet{Messing2026} extend this to evaluation pipelines and \citet{Carlson2025} give
+guidelines for management research. The third strand proposes statistical remedies.
+\citet{Zhang2025} reframe LLM stochasticity as measurement error and propose a Bayesian
+generalised-linear version of Dawid--Skene with covariates on the latent state; their
+raters remain conditionally independent. \citet{Chen2026} take the opposite route:
+because LLMs share corpora and alignment their errors may be arbitrarily dependent, so
+point identification is abandoned in favour of bounds on prevalence.
+Prediction-powered inference \citep{Angelopoulos2023} offers a design-based route that
+requires a labelled subsample. Variance-aware protocols \citep{Camuffo2026} and
+error-decomposition frameworks \citep{Xu2026,Nguyen2023} recommend prompt ensembles,
+replication and noise-aware aggregation but do not supply a model in which the dependence
+between configurations is estimated.
+
+\subsection{Positioning}
+
+The literature therefore offers independence-based aggregators known to be misspecified
+for LLM ensembles, bounds that discard the information in the ensemble's design, and
+protocols without an accompanying inferential model. CRE-LCM occupies the middle ground:
+dependence is given the structure implied by how the annotations were generated. This
+yields point identification under conditions we state, interpretable variance components
+that translate into annotation-design decisions, and a natural home for the covariate and
+multiclass extensions of the existing approaches.

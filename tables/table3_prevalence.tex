@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Prevalence estimation over the simulation grid ($M = 3$, $R = 3$; $n$ replications per cell): bias and root mean squared error of majority vote (MV), Dawid--Skene (DS) and CRE-LCM, and coverage of the CRE-LCM 95\% credible interval}\label{tab:prev}
+\begin{tabular}{lllrrrrrrrr}
+\toprule
+$P$ & $N$ & $\delta$ & $n$ & \multicolumn{2}{c}{MV} & \multicolumn{2}{c}{DS} & \multicolumn{3}{c}{CRE-LCM} \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-11}
+ & & & & bias & RMSE & bias & RMSE & bias & RMSE & cov. \\
+\midrule
+3 & 150 & 0.0 & 1 & 0.000 & 0.000 & -0.000 & 0.000 & 0.003 & 0.003 & 1.00 \\
+ &  & 0.5 & 1 & -0.027 & 0.027 & -0.007 & 0.007 & -0.002 & 0.002 & 1.00 \\
+ &  & 1.0 & 1 & -0.053 & 0.053 & -0.041 & 0.041 & -0.043 & 0.043 & 1.00 \\
+ &  & 1.5 & 1 & 0.007 & 0.007 & 0.030 & 0.030 & 0.047 & 0.047 & 1.00 \\
+ & 300 & 0.0 & 1 & 0.000 & 0.000 & -0.000 & 0.000 & 0.002 & 0.002 & 1.00 \\
+ &  & 1.0 & 1 & -0.010 & 0.010 & 0.025 & 0.025 & 0.032 & 0.032 & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
