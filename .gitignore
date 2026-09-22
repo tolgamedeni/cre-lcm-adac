@@ -1,0 +1,28 @@
+# --- large / raw results (kept locally, archived on Zenodo) ---
+results/pilot/fit_*.rds
+results/pilot/csv/
+results/identifiability/fits/
+results/identifiability/csv/
+results/grid/reps/
+*.csv.gz
+# --- Stan compiled executables and rstan caches ---
+stan/*
+!stan/*.stan
+
+*.rds.bak
+# --- renv ---
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+# --- LaTeX build ---
+manuscript/*.aux manuscript/*.log manuscript/*.out manuscript/*.bbl manuscript/*.blg
+manuscript/*.fdb_latexmk manuscript/*.fls manuscript/*.synctex.gz manuscript/*.spl
+# --- misc ---
+.Rhistory
+.RData
+.Rproj.user/
+*.swp

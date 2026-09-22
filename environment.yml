@@ -1,0 +1,26 @@
+# Conda/micromamba environment used for the reported results (linux-aarch64;
+# the same spec resolves on linux-64 and osx). Alternative to renv.lock when
+# no system R is available:  micromamba create -n adac -f environment.yml
+name: adac
+channels: [conda-forge]
+dependencies:
+  - r-base=4.5
+  - r-cmdstanr=0.9
+  - cmdstan=2.40
+  - cxx-compiler
+  - make
+  - r-ggplot2
+  - r-dplyr
+  - r-tidyr
+  - r-purrr
+  - r-posterior
+  - r-bayesplot
+  - r-loo
+  - r-furrr
+  - r-future
+  - r-renv
+  - r-mvtnorm
+  - r-jsonlite
+  - r-data.table
+  - r-scales
+  - r-stringr

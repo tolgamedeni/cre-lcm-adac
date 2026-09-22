@@ -1,0 +1,9 @@
+Package: crelcm
+Type: Project
+Title: CRE-LCM: Crossed random-effects latent class model for LLM annotation ensembles
+Version: 0.1.0
+Description: Simulation code for the ADAC manuscript (not an installable package;
+    the DESCRIPTION file lists dependencies for renv::snapshot(type = "explicit")).
+License: MIT
+Imports: cmdstanr, ggplot2, dplyr, tidyr, purrr, posterior, bayesplot, loo,
+    furrr, future, mvtnorm, jsonlite, renv
