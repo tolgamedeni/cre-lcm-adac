@@ -50,3 +50,11 @@ Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehta
 - Liu2026 changed to @misc arXiv:2604.16413 with its DOI (supplied by the author).
 - Raykar2012 (JMLR 13:491-518) and Barrie2025 (working paper; URL https://arthurspirling.org/documents/BarriePalmerSpirling_TrustMeBro.pdf found 2026-09-22, no arXiv/SSRN record located; check for a journal version before submission) added because Sections 1-2 cite them.
 - Not added (listed in v5 as candidates but not cited in the current text): Stephens2000, Bacci2014, Fibbi2024, Babu2025.
+
+## Note fields removed from references.bib (2026-09-22, so they do not print)
+
+- Dawid1979: DOI from JSTOR stable id, supplied by the author
+- Qu1996: DOI from JSTOR stable id, supplied by the author
+- Vacek1985: DOI from JSTOR stable id, supplied by the author
+- Raykar2012: Added by hand from the v5 key map; verify
+- Raykar2012 confirmed by the author as J. Mach. Learn. Res. 13:491-518.

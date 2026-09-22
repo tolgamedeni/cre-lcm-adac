@@ -136,6 +136,8 @@ run_rep <- function(cell_row, rep, mod) {
     names(cre) <- sub("\\.(2\\.5|97\\.5)%$", "", names(cre))
     names(cre)[grepl("[0-9]$", names(cre)) & !grepl("_(lo|hi)$", names(cre))] <-
       sub("([a-z_]+)([123])$", "\\1_\\2", names(cre)[grepl("[0-9]$", names(cre)) & !grepl("_(lo|hi)$", names(cre))])
+    pc <- posterior::subset_draws(s$draws, variable = c("pi1", "mu"))
+    per_chain <- t(apply(posterior::as_draws_array(pc), c(2, 3), mean))   # rows pi1, mu[1], mu[2]; cols chains
     diag <- c(s$diag, runtime_sec = s$runtime_sec, max_rhat = max(sm$rhat, na.rm = TRUE),
               min_ess_bulk = min(sm$ess_bulk, na.rm = TRUE), min_ess_tail = min(sm$ess_tail, na.rm = TRUE))
   } else {
@@ -143,6 +145,7 @@ run_rep <- function(cell_row, rep, mod) {
   }
   saveRDS(list(cell = cell_row, rep = rep, seed = seed, variant = VARIANT, truth = truth,
                MV = res$MV, DS = res$DS, CRE = cre, diag = diag, anchor_idx = anchor_idx,
+               per_chain = if (exists("per_chain", inherits = FALSE)) per_chain else NULL,
                chains = CHAINS, warmup = WARMUP, sampling = SAMPLING), f)
   invisible(f)
 }

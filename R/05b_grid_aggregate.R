@@ -30,6 +30,13 @@ reps <- do.call(rbind, lapply(files, function(f) {
              CRE_acc = if (ok) r$CRE[["accuracy"]] else NA, CRE_brier = if (ok) r$CRE[["brier"]] else NA,
              CRE_acc_nonanchor = if (ok) r$CRE[["accuracy_nonanchor"]] else NA, CRE_brier_nonanchor = if (ok) r$CRE[["brier_nonanchor"]] else NA,
              max_rhat = if (ok) r$diag[["max_rhat"]] else NA, divergences = if (ok) r$diag[["divergences"]] else NA,
+             min_ess_bulk = if (ok) r$diag[["min_ess_bulk"]] else NA,
+             pi1_chain1 = if (!is.null(r$per_chain)) r$per_chain["pi1", 1] else NA,
+             pi1_chain2 = if (!is.null(r$per_chain)) r$per_chain["pi1", 2] else NA,
+             mu1_chain1 = if (!is.null(r$per_chain)) r$per_chain["mu[1]", 1] else NA,
+             mu1_chain2 = if (!is.null(r$per_chain)) r$per_chain["mu[1]", 2] else NA,
+             mu2_chain1 = if (!is.null(r$per_chain)) r$per_chain["mu[2]", 1] else NA,
+             mu2_chain2 = if (!is.null(r$per_chain)) r$per_chain["mu[2]", 2] else NA,
              runtime_sec = r$diag[["runtime_sec"]], stringsAsFactors = FALSE)
 }))
 write.csv(reps, "results/grid/grid_reps.csv", row.names = FALSE)
@@ -71,3 +78,37 @@ cells_out <- reps |>
 write.csv(cells_out, "results/grid/grid_cells.csv", row.names = FALSE)
 cat(sprintf("[grid] aggregated %d replications into %d cells; %d cells flagged (>10%% reps with R-hat > 1.05)\n",
             nrow(reps), nrow(cells_out), sum(cells_out$flag_rhat)))
+
+# --- convergence-flag classification and summary.md ----------------------------
+# flagged = any global R-hat > 1.05; among flagged, "merged mode" if the two
+# chains' pi1 posterior means differ by more than 0.15, "slow mixing" if they
+# agree; "no per-chain record" for replications fitted before per-chain means
+# were stored.
+reps$flagged <- !is.na(reps$max_rhat) & reps$max_rhat > 1.05
+reps$pi1_gap <- abs(reps$pi1_chain1 - reps$pi1_chain2)
+reps$flag_type <- ifelse(!reps$flagged, "not flagged",
+                  ifelse(is.na(reps$pi1_gap), "flagged, no per-chain record",
+                  ifelse(reps$pi1_gap > 0.15, "flagged: merged-class mode (|pi1 gap| > 0.15)",
+                                              "flagged: slow mixing (chains agree)")))
+flag_tab <- as.data.frame(table(flag_type = reps$flag_type))
+flag_cell <- reps |> dplyr::group_by(cell) |>
+  dplyr::summarise(n = dplyr::n(), flagged = sum(flagged), merged = sum(flag_type == "flagged: merged-class mode (|pi1 gap| > 0.15)"),
+                   slow = sum(flag_type == "flagged: slow mixing (chains agree)"),
+                   no_record = sum(flag_type == "flagged, no per-chain record"),
+                   median_min_ess = median(min_ess_bulk, na.rm = TRUE), .groups = "drop")
+md_tab <- function(df) c(paste0("| ", paste(names(df), collapse = " | "), " |"),
+                         paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|"),
+                         apply(df, 1, function(r) paste0("| ", paste(trimws(format(r)), collapse = " | "), " |")))
+writeLines(c("# Simulation grid: convergence summary", "",
+             sprintf("Generated %s from %d replications in %d cells (variant %s, %d chains x %d iterations).",
+                     format(Sys.time(), "%Y-%m-%d %H:%M"), nrow(reps), length(unique(reps$cell)),
+                     reps$variant[1], 2, 1500),
+             "", "## Replications flagged for R-hat > 1.05, by type", "",
+             md_tab(flag_tab), "",
+             "A merged-class mode is inferred when the two chains' posterior means of pi1 differ by more than 0.15;",
+             "slow mixing when they agree but at least one global parameter has R-hat > 1.05 (low ESS).",
+             "Replications fitted before per-chain means were recorded cannot be classified.",
+             "", "## By cell", "", md_tab(as.data.frame(lapply(flag_cell, function(x) if (is.numeric(x)) round(x, 1) else x)))),
+           "results/grid/summary.md")
+write.csv(reps, "results/grid/grid_reps.csv", row.names = FALSE)
+cat("[grid] convergence summary written to results/grid/summary.md\n")

@@ -39,7 +39,8 @@ save_fig <- function(p, n, width, height) {
          horizontal = FALSE, onefile = FALSE, paper = "special")
   cat(sprintf("[outputs] Fig%d: %.0f x %.0f mm\n", n, width / MM, height / MM))
 }
-fmt <- function(x, d = 3) ifelse(is.na(x), "--", formatC(x, digits = d, format = "f"))
+fmt <- function(x, d = 3) { x <- ifelse(!is.na(x) & abs(x) < 0.5 * 10^-d, 0, x)   # no signed zeros
+  ifelse(is.na(x), "--", formatC(x, digits = d, format = "f")) }
 # Minimal booktabs writer: caption above, label, optional footnote block
 write_booktabs <- function(df, file, caption, label, align = NULL, header = NULL,
                            note = NULL, digits = 3, size = "\\small", colsep = NULL) {
