@@ -1,0 +1,239 @@
+In file included from stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/hypergeometric_pFq.hpp:11,
+                 from stan/lib/stan_math/stan/math/prim/fun/hypergeometric_pFq.hpp:9,
+                 from stan/lib/stan_math/stan/math/prim/fun/hypergeometric_2F1.hpp:19,
+                 from stan/lib/stan_math/stan/math/prim/fun/grad_2F1.hpp:14,
+                 from stan/lib/stan_math/stan/math/prim/fun.hpp:118,
+                 from stan/lib/stan_math/stan/math/prim/constraint.hpp:4,
+                 from stan/lib/stan_math/stan/math/rev/constraint.hpp:24,
+                 from stan/lib/stan_math/stan/math/rev.hpp:11,
+                 from stan/lib/stan_math/stan/math.hpp:19,
+                 from stan/src/stan/model/model_header.hpp:6,
+                 from /tmp/RtmpyPXGxG/model-1cf520fc8908.hpp:2:
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/detail/hypergeometric_pFq_checked_series.hpp: In instantiation of 'std::pair<_ForwardIterator, _ForwardIterator> boost::math::detail::hypergeometric_pFq_checked_series_impl(const Seq&, const Seq&, const Real&, const Policy&, const Terminal&, long long int&) [with Seq = Eigen::Map<Eigen::Matrix<double, -1, 1>, 0, Eigen::Stride<0, 0> >; Real = long double; Policy = boost::math::policies::policy<boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>; Terminal = iteration_terminator]':
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/hypergeometric_pFq.hpp:61:107:   required from 'typename boost::math::tools::promote_args<Real, typename Seq::value_type>::type boost::math::hypergeometric_pFq(const Seq&, const Se
+q&, const Real&, Real*, const Policy&) [with Seq = Eigen::Map<Eigen::Matrix<double, -1, 1>, 0, Eigen::Stride<0, 0> >; Real = double; Policy = policies::policy<policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy>; typename tools::promote_args<Real, typename Seq::value_type>::type = double; typename Seq::value_type = double]'
+   61 |          std::pair<value_type, value_type> r = boost::math::detail::hypergeometric_pFq_checked_series_impl(aj, bj, value_type(z), pol, boost::math::detail::iteration_terminator(boost::math::policies::get_max_series_iterations<forwarding_policy>()), scale);
+      |                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/hypergeometric_pFq.hpp:72:35:   required from 'typename boost::math::tools::promote_args<Real, typename Seq::value_type>::type boost::math::hypergeometric_pFq(const Seq&, const Seq&, const Real&, Real*) [with Seq = Eigen::Map<Eigen::Matrix<double, -1, 1>, 0, Eigen::Stride<0, 0> >; Real = double; typename tools::promote_args<Real, typename Seq::value_type>::type = double; typename Seq::value_type = double]'
+   72 |          return hypergeometric_pFq(aj, bj, z, p_abs_error, boost::math::policies::policy<>());
+      |                 ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/hypergeometric_pFq.hpp:67:43:   required from 'stan::return_type_t<T, L, U> stan::math::hypergeometric_pFq(Ta&&, Tb&&, Tz&&) [with Ta = Eigen::Matrix<double, -1, 1>&; Tb = Eigen::Matrix<double, 
+-1, 1>&; Tz = const double&; stan::require_all_vector_st<std::is_arithmetic, Ta, Tb>* <anonymous> = 0; stan::require_arithmetic_t<Tz>* <anonymous> = 0; stan::return_type_t<T, L, U> = double]'
+   67 |     return boost::math::hypergeometric_pFq(map_a, map_b, z);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/hypergeometric_3F2.hpp:130:28:   required from 'auto stan::math::hypergeometric_3F2(const Ta&, const Tb&, const Tz&) [with Ta = std::vector<double>; Tb = std::vector<double>; Tz = double; stan::require_all_vector_t<T_y, T_high>* <anonymous> = 0; stan::require_stan_scalar_t<T2>* <anonymous> = 0]'
+  130 |   return hypergeometric_pFq(a_ref, b_ref, z);
+      |          ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/hypergeometric_3F2.hpp:154:28:   required from 'auto stan::math::hypergeometric_3F2(const std::initializer_list<_Tp>&, const std::initializer_list<_Value>&, const Tz&) [with Ta = double; Tb = double; Tz = double; stan::require_all_stan_scalar_t<T, L, U>* <anonymous> = 0]'
+  154 |   return hypergeometric_3F2(std::vector<Ta>(a), std::vector<Tb>(b), z);
+      |          ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/rev/fun/inv_inc_beta.hpp:80:37:   required from here
+   80 |             + log(hypergeometric_3F2({a_val, a_val, one_m_b}, {ap1, ap1}, w))
+      |                   ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/detail/hypergeometric_pFq_checked_series.hpp:122:28: note: parameter passing for argument of type 'std::pair<long double, long double>' when C++17 is enabled changed to match C++14 in GCC 10.1
+  122 |      std::pair<Real, Real> hypergeometric_pFq_checked_series_impl(const Seq& aj, const Seq& bj, const Real& z, const Policy& pol, const Terminal& termination, long long& log_scale)
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
+
+In file included from stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/detail/bessel_jy.hpp:16,
+                 from stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/bessel.hpp:26,
+                 from stan/lib/stan_math/stan/math/prim/fun/bessel_first_kind.hpp:6,
+                 from stan/lib/stan_math/stan/math/prim/fun.hpp:31:
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp: In instantiation of 'boost::math::detail::upper_incomplete_gamma_fract<T>::result_type boost::math::detail::upper_incomplete_gamma_fract<T>::operator()() [with T = double; result_type = std::pair<double, double>]':
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp:259:20:   required from 'typename boost::math::tools::detail::fraction_traits<Gen>::result_type boost::math::tools::detail::continued_fraction_a_impl(Gen&, const U&, uintmax_t&) [with Gen = boost::math::detail::upper_incomplete_gamma_fract<double>; U = double; typename fraction_traits<Gen>::result_type = double; uintmax_t = long unsigned int]'
+  259 |    value_type v = g();
+      |                   ~^~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp:311:44:   required from 'typename boost::math::tools::detail::fraction_traits<Gen>::result_type boost::math::tools::continued_fraction_a(Gen&, const U&) [with Gen = boost::math::detail::upper_incomplete_gamma_fract<double>; U = double; typename detail::fraction_traits<Gen>::result_type = double]'
+  311 |    return detail::continued_fraction_a_impl(g, factor, max_iter);
+      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp:378:68:   required from 'T boost::math::detail::upper_gamma_fraction(T, T, T) [with T = double]'
+  378 |    return 1 / (z - a + 1 + boost::math::tools::continued_fraction_a(f, eps));
+      |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+stan/lib/stan_ma
+th/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp:1679:44:   required from 'T boost::math::detail::gamma_incomplete_imp(T, T, bool, bool, const Policy&, T*) [with T = double; Policy = boost::math::policies::policy<boost::math::policies::pole_error<boost::math::policies::errno_on_error>, boost::math::policies::overflow_error<boost::math::policies::errno_on_error>, boost::math::policies::promote_float<false>, boost::math::policies::promote_double<false>, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+ 1679 |          result += log(upper_gamma_fraction(a, x, policies::get_epsilon<T, Policy>()));
+      |                        ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp:2461:35:   required from 'boost::math::tools::promote_args_t<RT1, RT2> boost::math::gamma_p(RT1, RT2, const Policy&) [with RT1 = double; RT2 = double; Policy = policies::policy<policies::overflow_error<boost::math::policies::errno_on_error>, policies::pole_error<boost::math::policies::errno_on_error>, policies::promote_double<false>, policies::digits2<0>, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy>; tools::promote_args_t<RT1, RT2> = double]'
+ 2461 |       detail::gamma_incomplete_imp(static_cast<value_type>(a),
+      |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2462 |       static_cast<value_type>(z), true, false,
+      |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2463 |       forwarding_pol
+icy(), static_cast<value_type*>(nullptr)), "gamma_p<%1%>(%1%, %1%)");
+      |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/gamma_p.hpp:76:30:   required from here
+   76 |   return boost::math::gamma_p(z, a, boost_policy_t<>());
+      |          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp:363:39: note: parameter passing for argument of type 'std::pair<double, double>' when C++17 is enabled changed to match C++14 in GCC 10.1
+  363 |    BOOST_MATH_GPU_ENABLED result_type operator()()
+      |                                       ^~~~~~~~
+
+In file included from stan/lib/stan_math/stan/math/prim/fun/owens_t.hpp:6,
+                 from stan/lib/stan_math/stan/math/prim/fun.hpp:239:
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp: In instantiation of 'std::pair<_FIter, _FIter> boost::math::detail::owens_t_T1_accelerated(T, T, const Policy&) [with T = long double; Policy = boost::math::policies::policy<boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]':
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:874:46:   required from 'RealType boost::math::detail::owens_t_dispatch(RealType, RealType, RealType, const Policy&, const std::integral_constant<int, 65>&) [with RealType = long double; Policy = boost::math::policies::policy<boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+  874 |                   p1 = owens_t_T1_accelerated(h, a, forwarding_policy());
+      |                        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:979:36:   required from 'RealType boost::math::detail::owens_t_dispatch(RealType, RealType, RealType, const Policy&) [with RealType = long double; Policy = boost::math::policies::policy<boost::math:
+:policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+  979 |             return owens_t_dispatch(h, a, ah, pol, tag_type());
+      |                    ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:1000:38:   required from 'RealType boost::math::detail::owens_t(RealType, RealType, const Policy&) [with RealType = long double; Policy = boost::math::policies::policy<boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+ 1000 |                val = owens_t_dispatch(h, fabs_a, fabs_ah, pol);
+      |                      ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:1072:86:   required from 'boost::math::tools::promote_args_t<RT1, RT2> boost::math::owens_t(T1, T2, const Policy&) [with T1 = double; T2 = double; Policy = policies::policy<policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy>; tools::promote_args_t<RT1, RT2> = double]'
+ 1072 |          return policies::check
+ed_narrowing_cast<result_type, Policy>(detail::owens_t(static_cast<value_type>(h), static_cast<value_type>(a), pol), "boost::math::owens_t<%1%>(%1%,%1%)");
+      |                                                                       ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:1078:24:   required from 'boost::math::tools::promote_args_t<RT1, RT2> boost::math::owens_t(T1, T2) [with T1 = double; T2 = double; tools::promote_args_t<RT1, RT2> = double]'
+ 1078 |          return owens_t(h, a, policies::policy<>());
+      |                 ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/owens_t.hpp:62:30:   required from here
+   62 |   return boost::math::owens_t(h, a);
+      |          ~~~~~~~~~~~~~~~~~~~~^~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/owens_t.hpp:543:26: note: parameter passing for argument of type 'std::pair<long double, long double>' when C++17 is enabled changed to match C++14 in GCC 10.1
+  543 |          std::pair<T, T> owens_t_T1_accelerated(T h, T a, const Policy& pol)
+      |                          ^~~~~~~~~~~~~~~~~~~~~~
+
+In file included from stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/binomial.hpp:17,
+                 from stan/lib/stan_math/stan/math/prim/fun/choose.hpp:7,
+                 from stan/lib/stan_math/stan/math/prim/fun.hpp:42:
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/beta.hpp: In instantiation of 'boost::math::detail::ibeta_fraction2_t<T>::result_type boost::math::detail::ibeta_fraction2_t<T>::operator()() [with T = double; result_type = std::pair<double, double>]':
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp:134:20:   required from 'typename boost::math::tools::detail::fraction_traits<Gen>::result_type boost::math::tools::detail::continued_fraction_b_impl(Gen&, const U&, uintmax_t&) [with Gen = boost::math::detail::ibeta_fraction2_t<double>; U = double; typename fraction_traits<Gen>::result_type = double; uintmax_t = long unsigned int]'
+  134 |    value_type v = g();
+      |                   ~^~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp:184:44:   required from 'typename boost::math::tools::detail::fraction_traits<Gen>::result_type boost::math::tools::continued_fraction_b(Gen&, const U&) [with Gen = boost::math::detail::ibeta_fraction2_t<double>; U = double; typename detail::fraction_traits<Gen>::result_type = double]'
+  184 |    return detail::continued_fraction_b_impl(g, factor, max_terms);
+      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/beta.hpp:847:54:   required from 'T boost::math::detail::ibeta_fraction2(T, T, T, T, const Policy&, bool, T*) [with T = double; Policy = boost::math::policies::policy<boost::math::policies::pole_error<boost::math::policies::errno_on_error>, boost::math::policies::overflow_error<boost::math::policies::errno_on_error>, boost::math::policies::promote_float<false>, boost::math::policies::promote_double<false>, boost::math::policies::default_policy, boost::m
+ath::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+  847 |    T fract = boost::math::tools::continued_fraction_b(f, boost::math::policies::get_epsilon<T, Policy>());
+      |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/beta.hpp:1499:36:   required from 'T boost::math::detail::ibeta_imp(T, T, T, const Policy&, bool, bool, T*) [with T = double; Policy = boost::math::policies::policy<boost::math::policies::pole_error<boost::math::policies::errno_on_error>, boost::math::policies::overflow_error<boost::math::policies::errno_on_error>, boost::math::policies::promote_float<false>, boost::math::policies::promote_double<false>, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+ 1499 |             fract = ibeta_fraction2(a, b, x, y, pol, normalised, p_derivative);
+      |                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/beta.hpp:1536:20:   required from 'T boost::math::detail::ibeta_imp(T, T, T, const Policy&, bool, bool) [with T = double; Policy = boost::math::policies::policy<boost::math::policies::pole_error<boost::math::policies::errno_on_error>, boost::math::policies::overflow_error<boost::math::policies::errno_on_error>, boost::math::policies::promote_float<false>, boost::math::policies::promote_double<fal
+se>, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy, boost::math::policies::default_policy>]'
+ 1536 |    return ibeta_imp(a, b, x, pol, inv, normalised, static_cast<T*>(nullptr));
+      |           ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/beta.hpp:1690:93:   required from 'boost::math::tools::promote_args_t<RT1, RT2, A> boost::math::ibeta(RT1, RT2, RT3, const Policy&) [with RT1 = double; RT2 = double; RT3 = double; Policy = policies::policy<policies::overflow_error<boost::math::policies::errno_on_error>, policies::pole_error<boost::math::policies::errno_on_error>, policies::promote_double<false>, policies::digits2<0>, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy, policies::default_policy>; tools::promote_args_t<RT1, RT2, A> = double]'
+ 1690 |    return policies::checked_narrowing_cast<result_type, forwarding_policy>(detail::ibeta_imp(static_cast<value_type>(a), static_cast<value_type>(b), static_cast<value_type>(x), forwarding_policy(), false, true), "boost::math::ibeta<%1%>(%1%,%1%,%1%)");
+      |                                                                            ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/stan/math/prim/fun/inc_beta.hpp:29:28:   required from here
+   29 |   return boost::math::ibeta(a, b, x, boost_policy_t<>());
+      |          ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/s
+pecial_functions/beta.hpp:810:39: note: parameter passing for argument of type 'std::pair<double, double>' when C++17 is enabled changed to match C++14 in GCC 10.1
+  810 |    BOOST_MATH_GPU_ENABLED result_type operator()()
+      |                                       ^~~~~~~~
+
+In file included from stan/lib/stan_math/lib/boost_1.87.0/boost/math/special_functions/gamma.hpp:19:
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp: In function 'typename boost::math::tools::detail::fraction_traits<Gen>::result_type boost::math::tools::detail::continued_fraction_a_impl(Gen&, const U&, uintmax_t&) [with Gen = boost::math::detail::upper_incomplete_gamma_fract<long double>; U = long double]':
+stan/lib/stan_math/lib/boost_1.87.0/boost/math/tools/fraction.hpp:259:15: note: parameter passing for argument of type 'std::pair<long double, long double>' when C++17 is enabled changed to match C++14 in GCC 10.1
+  259 |    value_type v = g();
+      |               ^
+
+
+==============================================================
+Scenario: A: conditional independence  (s_th = 0 , s_ph = 0 , s_ps = 0 )
+==============================================================
+        method pi_hat accuracy brier mean_sens_hat mean_spec_hat
+         TRUTH   0.29        1     0          0.71         0.853
+ Majority vote   0.29        1     0            NA            NA
+   Dawid-Skene   0.29        1     0          0.71         0.856
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: binomial_logit_lpmf: Probability parameter is -inf, but must be finite! (in '/tmp/RtmpyPXGxG/model-1cf520fc8908.stan', line 57, column 10 to column 86)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: binomial_logit_lpmf: Probability parameter is inf, but must be finite! (in '/tmp/RtmpyPXGxG/model-1cf520fc8908.stan', line 57, column 10 to column 86)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: binomial_logit_lpmf: Probability parameter is -inf, but must be finite! (in '/tmp/RtmpyPXGxG/model-1cf520fc8908.stan', line 57, column 10 to column 86)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: binomial_logit_lpmf: Probability parameter is inf, but must be finite! (in '/tmp/RtmpyPXGxG/model-1cf520fc8908.stan', line 57, column 10 to column 86)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+
+==============================================================
+Scenario: B: crossed dependence  (s_th = 1 , s_ph = 0.8 , s_ps = 0.5 )
+==============================================================
+             method pi_hat accuracy     brier mean_sens_hat mean_spec_hat
+              TRUTH  0.290    1.000     0.000         0.666         0.787
+      Majority vote  0.287    0.890     0.110            NA            NA
+        Dawid-Skene  0.327    0.887     0.109         0.703         0.822
+ CRE-LCM (proposed)  0.422    0.888 14034.796            NA            NA
+
+Variance components (CRE-LCM):
+     variable   mean   q2.5  q97.5 rhat   true
+         s_th 0.8613 0.6853 1.0883 1.46 1.0000
+         s_ph 0.8369 0.7431 0.9295 1.02 0.8000
+         s_ps 0.5048 0.4128 0.5976 1.01 0.5000
+   share_item 0.1495 0.0984 0.2192 1.46 0.1931
+  share_model 0.1405 0.1117 0.1700 1.09 0.1236
+ share_prompt 0.0514 0.0344 0.0705 1.04 0.0483
+    share_run 0.6586 0.6039 0.7026 1.28 0.6351
+
+Diagnostics:
+ divergences max_treedepth_hits runtime_sec chains iter_warmup iter_sampling
+           0                  0    621.3752      4        1000          1000
+ seed  backend post1_max_rhat post1_min_ess_bulk global_max_rhat
+ 2026 cmdstanr       3.824921           4.537294        1.813769
+ global_min_ess_bulk global_min_ess_tail
+            5.822202            26.22358
+
+Full summary:
+     variable      mean       sd      q2.5     q97.5 rhat ess_bulk ess_tail
+          pi1  4.22e-01  0.16483  2.71e-01  7.40e-01 1.81     5.82     26.2
+        mu[1] -1.84e+00  0.75553 -2.47e+00  9.22e-01 1.24    12.63     50.9
+        mu[2]  6.48e-01  1.09657 -1.94e+00  1.60e+00 1.44     8.13     28.5
+       a[1,1]  0.00e+00  0.00000  0.00e+00  0.00e+00   NA       NA       NA
+       a[2,1]  1.94e-01  0.13553 -7.12e-02  4.57e-01 1.03   865.53   1027.9
+       a[3,1]  2.26e-01  0.35478 -5.63e-01  6.32e-01 1.55     7.02     29.3
+       a[1,2]  0.00e+00  0.00000  0.00e+00  0.00e+00   NA       NA       NA
+       a[2,2]  3.13e-03  0.15657 -3.20e-01  2.95e-01 1.07    37.97    129.7
+       a[3,2] -1.51e-01  0.32614 -6.13e-01  5.00e-01 1.57     6.93     34.9
+     tau_b[1]  5.80e-01  0.53700  1.47e-01  1.96e+00 1.37     9.12     31.6
+     tau_b[2]  4.33e-01  0.38148  1.37e-01  1.73e+00 1.09    34.14     42.3
+         s_th  8.61e-01  0.10608  6.85e-01  1.09e+00 1.46     7.80     31.0
+         s_ph  8.37e-01  0.04689  7.43e-01  9.29e-01 1.02   806.17   2471.3
+         s_ps  5.05e-01  0.04740  4.13e-01  5.98e-01 1.01   842.59   1905.4
+   share_item  1.50e-01  0.03196  9.84e-02  2.19e-01 1.46     7.78     30.6
+  share_model  1.40e-01  0.01503  1.12e-01  1.70e-01 1.09    30.28    961.5
+ share_prompt  5.14e-02  0.00935  3.44e-02  7.05e-02 1.04    83.01   1701.9
+    share_run  6.59e-01  0.02540  6.04e-01  7.03e-01 1.28    10.67     38.8
+         lp__ -5.27e+03 48.57565 -5.36e+03 -5.17e+03 1.01   902.78   1718.9
+    true
+  0.3000
+ -2.0000
+  1.5000
+  0.0000
+  0.3000
+  0.6000
+  0.0000
+ -0.1000
+ -0.5000
+  0.4000
+  0.4000
+  1.0000
+  0.8000
+  0.5000
+  0.1931
+  0.1236
+  0.0483
+  0.6351
+      NA
+[pilot] done: results in results/pilot 
+Warning messages:
+1: In (post > 0.5) == c_true :
+  longer object length is not a multiple of shorter object length
+2: In post - c_true :
+  longer object length is not a multiple of shorter object length
+EXIT 0

@@ -1,0 +1,2 @@
+"divergences","max_treedepth_hits","runtime_sec","chains","iter_warmup","iter_sampling","seed","backend","post1_max_rhat","post1_min_ess_bulk","global_max_rhat","global_min_ess_bulk","global_min_ess_tail"
+0,0,618.249663352966,4,1000,1000,2026,"cmdstanr",3.82492078105797,4.53729392382411,1.81376898797562,5.82220219934426,26.2235820661914

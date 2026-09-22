@@ -22,7 +22,12 @@ simulate_lcre <- function(N = 300, M = 3, P = 5, R = 3,
                           a    = NULL,                    # M x 2 model effects
                           tau_b = c(0.4, 0.4),            # prompt effect SDs
                           s_th = 1.0, s_ph = 0.8, s_ps = 0.5,
-                          seed = 1) {
+                          seed = 1, re_dist = c("normal", "t4")) {
+  # re_dist = "t4": item random effects theta, phi, psi follow a scaled
+  # Student-t with 4 df (misspecification arm); scaled so that the SD equals
+  # s_th, s_ph, s_ps as in the normal case. Default "normal" is unchanged.
+  re_dist <- match.arg(re_dist)
+  rre <- function(n, s) if (re_dist == "normal") rnorm(n, 0, s) else s * rt(n, df = 4) / sqrt(2)
   set.seed(seed)
   if (is.null(a)) {
     a <- cbind(seq(0, 0.6, length.out = M),               # FPR worsens
@@ -32,9 +37,9 @@ simulate_lcre <- function(N = 300, M = 3, P = 5, R = 3,
   b <- cbind(rnorm(P, 0, tau_b[1]), rnorm(P, 0, tau_b[2]))
 
   c_true <- rbinom(N, 1, pi1)
-  theta  <- rnorm(N, 0, s_th)
-  phi    <- matrix(rnorm(N * M, 0, s_ph), N, M)
-  psi    <- matrix(rnorm(N * P, 0, s_ps), N, P)
+  theta  <- rre(N, s_th)
+  phi    <- matrix(rre(N * M, s_ph), N, M)
+  psi    <- matrix(rre(N * P, s_ps), N, P)
 
   # S[i, m, p] = number of runs (out of R) labelled 1
   S <- array(0L, c(N, M, P))
@@ -48,7 +53,7 @@ simulate_lcre <- function(N = 300, M = 3, P = 5, R = 3,
 
   list(S = S, c_true = c_true, N = N, M = M, P = P, R = R,
        truth = list(pi1 = pi1, mu = mu, a = a, b = b,
-                    s_th = s_th, s_ph = s_ph, s_ps = s_ps))
+                    s_th = s_th, s_ph = s_ph, s_ps = s_ps, re_dist = re_dist))
 }
 
 # Expand counts into a binary rating matrix: rows = items,
@@ -69,7 +74,9 @@ expand_ratings <- function(sim) {
 # integrating over the item random effects by Monte Carlo.
 true_marginal_accuracy <- function(sim, nmc = 20000) {
   tr <- sim$truth
-  z <- rnorm(nmc, 0, sqrt(tr$s_th^2 + tr$s_ph^2 + tr$s_ps^2))
+  z <- if (is.null(tr$re_dist) || tr$re_dist == "normal")
+    rnorm(nmc, 0, sqrt(tr$s_th^2 + tr$s_ph^2 + tr$s_ps^2))
+  else (tr$s_th * rt(nmc, 4) + tr$s_ph * rt(nmc, 4) + tr$s_ps * rt(nmc, 4)) / sqrt(2)
   out <- expand.grid(m = 1:sim$M, p = 1:sim$P)
   out$sens <- mapply(function(m, p) mean(plogis(tr$mu[2] + tr$a[m, 2] + tr$b[p, 2] + z)),
                      out$m, out$p)

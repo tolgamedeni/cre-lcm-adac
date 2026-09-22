@@ -1,4 +1,7 @@
-// crossed_lcre.stan
+// crossed_lcre_d_infprior.stan  -- variant (d)
+// As crossed_lcre.stan but with an INFORMATIVE half-normal(0, 0.5) prior on the
+// item ambiguity SD s_th (base model: half-normal(0, 1)). Everything else equal.
+// (derived from crossed_lcre.stan)
 // Binary latent class model with crossed random effects for
 // LLM annotation ensembles (model x prompt x run).
 // The discrete class c_i is marginalised out.
@@ -40,7 +43,7 @@ model {
   to_vector(a_raw) ~ normal(0, 1);
   to_vector(b_z) ~ std_normal();
   tau_b ~ normal(0, 0.5);
-  s_th ~ normal(0, 1);
+  s_th ~ normal(0, 0.5);           // informative half-normal(0, 0.5)
   s_ph ~ normal(0, 1);
   s_ps ~ normal(0, 1);
   th_z ~ std_normal();
