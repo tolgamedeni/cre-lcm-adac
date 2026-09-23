@@ -1,3 +1,13 @@
 \section{Stan code}\label{app:stan}
 \lstset{showstringspaces=false, breaklines=true, basicstyle=\ttfamily\footnotesize, columns=fullflexible}
+
+\subsection{Main model: shared item effect integrated by Gauss--Hermite quadrature}\label{app:stan_quad}
+The program used for the simulation study (Section~\ref{sec:estimation}); the nodes and
+log-weights of the standard-normal Gauss--Hermite rule are passed as data.
+\lstinputlisting[language=C]{../stan/crossed_lcre_q_quad.stan}
+
+\subsection{Variant with sampled item effect}\label{app:stan_sampled}
+The program with $\theta_i$ sampled, used for the identifiability comparison of
+Section~\ref{sec:ident} (variants (a)--(e) modify its prior, parameterisation, data or
+initialisation as described there) and for the $\delta \le 0.5$ cells of the grid.
 \lstinputlisting[language=C]{../stan/crossed_lcre.stan}

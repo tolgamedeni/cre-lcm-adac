@@ -81,8 +81,50 @@ Two questions arise. Are the parameters of CRE-LCM identified without a gold sta
 % TODO-AUTHOR: v5 says "decide after simulation". Placeholder only.
 [To be decided after the simulation study.]
 
-% Source: manuscript_draft_v5.md, Section 3.6 (author's prose; not paraphrased).
+% Source: author's replacement text for Section 3.6 (24 Sept 2026), converted to LaTeX.
+% Numbers checked against results/ (see references in the TODO-AUTHOR comment at the end).
 \subsection{Estimation}\label{sec:estimation}
 
-We marginalise the discrete class and sample the continuous parameters with the no-U-turn sampler \citep[Stan via cmdstanr;][]{Carpenter2017}, using a non-centred parameterisation for all random effects, weakly informative priors ($\mu_k \sim \mathrm{N}(0, 2)$ ordered; model effects $\mathrm{N}(0, 1)$; half-normal$(0, 1)$ on the three SDs; half-normal$(0, 0.5)$ on the prompt-effect SDs $\tau_k$; Beta$(1, 1)$ on the prevalence), and adapt\_delta $= 0.9$. Chains are initialised at the Dawid--Skene EM solution for the class prevalence and intercepts, with random effects at zero; convergence is assessed per chain with split-$\widehat{R}$ and bulk and tail effective sample sizes \citep{Vehtari2021}, and a merged-class mode is diagnosed by a chain whose prevalence and intercepts depart from the others. Posterior class probabilities $\Pr(c_i = 1 \mid \text{data})$ and the variance shares are computed in generated quantities. Mixing on the prevalence and $\sigma_\theta$ is slow (bulk ESS of roughly 13--15 per 4,000 draws at $N = 300$), so we recommend at least 1,500 iterations per chain for these two parameters; all other parameters mix well. Runtime is about 70 seconds per chain per 1,000 iterations at $N = 300$ on one core. An EM algorithm with adaptive quadrature over the item effects would be a faster alternative and is left for future work. The leave-one-out diagnostics of Section~\ref{sec:ident} use Pareto-smoothed importance sampling \citep{Vehtari2017}. The Stan programs for the main model and the variants of Section~\ref{sec:ident} are listed in Appendix~\ref{app:stan}.
-% TODO-AUTHOR: the tau_k prior clause, the Vehtari et al. citations and the Appendix pointer were merged into the v5 paragraph above.
+We marginalise the discrete class analytically and the shared item effect $\theta_i$
+numerically, by Gauss--Hermite quadrature with 15 nodes, inside the likelihood of each
+item; the crossed effects $\phi_{im}$ and $\psi_{ip}$ are sampled. The continuous
+parameters are then drawn with the no-U-turn sampler \citep[Stan via
+cmdstanr;][]{Carpenter2017} under a non-centred parameterisation, weakly informative
+priors ($\mu_k \sim \mathrm{N}(0, 2)$ ordered; model effects $\mathrm{N}(0, 1)$;
+half-normal$(0, 1)$ on the three SDs; half-normal$(0, 0.5)$ on the prompt-effect SDs
+$\tau_k$; Beta$(1, 1)$ on the prevalence) and adapt\_delta $= 0.9$, with chains
+initialised at the Dawid--Skene EM solution.
+
+Integrating $\theta_i$ out is not a refinement but a necessity. When $\theta_i$ is
+sampled alongside the class, the $N$ item parameters are strongly coupled with the mixing
+proportion and the class intercepts, and the coupling stiffens with the strength of
+dependence: in the design of Section~\ref{sec:simulation} the median, over replications,
+of the smallest bulk effective sample size among the global parameters (typically that of
+the prevalence or of $\sigma_\theta$) falls from 135--290 at $\delta = 0$ to 90--130 at
+$\delta = 0.5$ and to 5--12 at $\delta \ge 1$, irrespective of $N$ and $P$, so that chains
+of 1,500 iterations do not move away from their starting values. Quadrature removes the
+coupled parameters: on the scenario-B data the bulk effective sample size for the
+prevalence rises from 13 to about 2,600 per 4,000 post-warm-up draws (four chains of
+2,000 iterations), split-$\widehat{R}$ is 1.00, the chains agree to three decimals, and
+recovery improves (prevalence 0.28 [0.22, 0.35] for 0.30; Brier 0.059). Each gradient
+evaluation costs about five times more, but effective samples per minute increase
+forty-fold; 10, 15 and 20 nodes agree to within 0.002 on the prevalence and 0.003 on
+$\sigma_\theta$, and at $\delta = 0.5$ the quadrature and sampled-$\theta$ estimates
+coincide, so the same estimator is used across the whole simulation study. Two chains of
+600 iterations then suffice. This is, in effect, the estimation strategy of \citet{Qu1996}
+for the shared subject effect, retained here for $\theta_i$ while the crossed effects
+remain in the sampler. Posterior class probabilities $\Pr(c_i = 1 \mid \text{data})$ and
+the variance shares are computed in generated quantities; convergence is summarised by
+split-$\widehat{R}$ and bulk and tail effective sample sizes \citep{Vehtari2021}. The
+Stan programs are listed in Appendix~\ref{app:stan}.
+% TODO-AUTHOR: corrections made to the supplied text after checking results/:
+%  - "per 8,000 draws" -> "per 4,000 post-warm-up draws (four chains of 2,000 iterations)"
+%    (results/identifiability/quadrature_test.md: ESS 2585 from 4000 post-warm-up draws; (e): 13.4).
+%  - "about 250 at delta = 0 ... about 100 at delta = 0.5" -> "135-290 ... 90-130": summary.md records,
+%    per cell, the median over replications of the smallest bulk ESS among the global parameters
+%    (delta = 0: 134.5-290.5; delta = 0.5: 90.5-129.0; delta >= 1: 4.6-12.4), not the prevalence ESS alone.
+%  - "at delta <= 0.5 ... coincide" -> "at delta = 0.5": the consistency check was run at delta = 0.5 only
+%    (results/grid/quad_consistency.md; N = 300, P = 3 and 5, 10 replications each).
+%  - interval filled: pi1 95% CI [0.219, 0.353] from the 15-node fit (draws_q.rds); mean 0.283.
+%  - verified unchanged: 4.75x runtime (11.4 vs 2.4 min), 40x ESS per minute (226.8 vs 5.6), Brier 0.059,
+%    node agreement 0.285/0.283/0.283 (prevalence) and 0.946/0.946/0.943 (sigma_theta).
