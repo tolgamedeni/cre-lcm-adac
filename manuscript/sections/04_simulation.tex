@@ -23,8 +23,16 @@ reproducible and resumable from the public code repository.
 
 Three estimators are compared: majority vote over the $M P R$ labels; the binary
 Dawid--Skene model with $M P R$ raters fitted by EM \citep{Dawid1979}; and CRE-LCM as
-described in Section~\ref{sec:estimation}, with two chains of 1500 iterations (750
-warm-up) per replication, initialised at the Dawid--Skene solution. For each replication
+described in Section~\ref{sec:estimation}, initialised at the Dawid--Skene solution. At
+$\delta \le 0.5$ the item effects are sampled (two chains of 1500 iterations, 750
+warm-up); at $\delta \ge 1$, where the sampled chains do not mix (see below), the shared
+item effect is integrated out by 15-node Gauss--Hermite quadrature (two chains of 600
+iterations, 300 warm-up). The two routes target the same posterior: on 20 replications at
+$\delta = 0.5$, $N = 300$ fitted both ways, the prevalence estimates differ by $-0.001$ on
+average (SD 0.002, correlation 0.995) and every other quantity agrees within Monte Carlo
+error, and 10, 15 and 20 nodes give identical results on the scenario-B data.
+% TODO-AUTHOR: sentence on the two estimation routes added by Claude (results/grid/quad_consistency.md,
+% results/identifiability/quadrature_test*.md). For each replication
 we record the bias of the estimated prevalence, of mean sensitivity and of mean
 specificity (averaged over the $M \times P$ configurations; for CRE-LCM these are the
 posterior means of the marginal accuracies implied by the model, integrating over the

@@ -104,8 +104,24 @@ if (file.exists("results/identifiability/comparison_tables.rds")) {
 # Grid outputs (work on whatever replications are finished)
 # =============================================================================
 if (file.exists("results/grid/grid_cells.csv")) {
-  gc <- read.csv("results/grid/grid_cells.csv")
-  gr <- read.csv("results/grid/grid_reps.csv")
+  # Final grid = sampled-theta fits (variant e, 2 x 1500) for dependence <= 0.5 and
+  # quadrature fits (variant q, 2 x 600, 15 nodes) for dependence >= 1, where the
+  # sampled-theta chains do not mix (results/grid/summary.md); the two routes agree
+  # where both converge (results/grid/quad_consistency.md).
+  gc <- read.csv("results/grid/grid_cells.csv"); gc$estimation <- "sampled theta"
+  gr <- read.csv("results/grid/grid_reps.csv");  gr$estimation <- "sampled theta"
+  if (file.exists("results/grid/grid_cells_q.csv")) {
+    gq <- read.csv("results/grid/grid_cells_q.csv"); gq$estimation <- "quadrature"
+    rq <- read.csv("results/grid/grid_reps_q.csv");  rq$estimation <- "quadrature"
+    gq <- gq[gq$dep >= 1, ]; rq <- rq[rq$dep >= 1, ]
+    gc <- rbind(gc[gc$dep < 1, names(gc)], gq[, names(gc)])
+    gr <- rbind(gr[gr$dep < 1, names(gr)], rq[, names(gr)])
+    cat(sprintf("[outputs] grid: %d cells sampled-theta (dep <= 0.5) + %d cells quadrature (dep >= 1; %s reps/cell)\n",
+                sum(gc$estimation == "sampled theta"), sum(gc$estimation == "quadrature"),
+                paste(range(gq$n_reps), collapse = "-")))
+  }
+  write.csv(gc, "results/grid/grid_cells_final.csv", row.names = FALSE)
+  write.csv(gr, "results/grid/grid_reps_final.csv", row.names = FALSE)
   gn <- gc[gc$re_dist == "normal", ]
   gn$Nlab <- factor(paste0("N = ", gn$N), levels = paste0("N = ", c(150, 300, 600)))
   gn$Plab <- factor(paste0("P = ", gn$P))
@@ -219,7 +235,7 @@ if (file.exists("results/grid/grid_cells.csv")) {
               rh = fmt(frac_rhat_gt_1.05, 2), rt = fmt(mean_runtime_min, 1))
   t5$P <- t3$P; t5$N <- t3$N
   write_booktabs(t5, "tables/table5_labels.tex",
-    caption = "Posterior label quality: classification accuracy and Brier score of the item-level class probabilities (MV and DS: EM posterior; CRE-LCM: posterior mean), the fraction of replications with any split-$\\widehat{R} > 1.05$ among the CRE-LCM global parameters, and mean CRE-LCM runtime per replication (minutes, two chains of 1500 iterations on one core)",
+    caption = "Posterior label quality: classification accuracy and Brier score of the item-level class probabilities (MV and DS: EM posterior; CRE-LCM: posterior mean), the fraction of replications with any split-$\\widehat{R} > 1.05$ among the CRE-LCM global parameters, and mean CRE-LCM runtime per replication (minutes on one core; $\\delta \\le 0.5$: sampled item effects, two chains of 1500 iterations; $\\delta \\ge 1$: item effect integrated by 15-node Gauss--Hermite quadrature, two chains of 600 iterations)",
     label = "tab:labels",
     header = "$P$ & $N$ & $\\delta$ & \\multicolumn{3}{c}{Accuracy} & \\multicolumn{3}{c}{Brier} & $\\widehat{R} > 1.05$ & min \\\\\n\\cmidrule(lr){4-6}\\cmidrule(lr){7-9}\n & & & MV & DS & CRE & MV & DS & CRE & &",
     align = "lllrrrrrrrr", size = "\\scriptsize", colsep = "4pt")
