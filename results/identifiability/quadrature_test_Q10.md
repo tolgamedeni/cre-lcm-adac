@@ -35,4 +35,3 @@ Same data (N = 300, seed 2026), same sampler settings (4 chains x 2000, adapt_de
 | s_ph | 0.823 | 0.825 | 0.823 | 0.822 |
 | s_ps | 0.482 | 0.480 | 0.481 | 0.486 |
 | lp__ | -5347.358 | -5345.633 | -5346.132 | -5345.529 |
-EXIT 0
