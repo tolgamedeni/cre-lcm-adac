@@ -100,9 +100,14 @@ all R-hat 1.00; prevalence 0.285 / 0.283 / 0.283 for a true 0.30, s_th 0.946 / 0
 Brier 0.059 vs 0.084; runtime 9.9 / 11.4 / 16.9 min vs 2.4 min for 4 x 2000) -- 15 nodes adopted (`R/04b_quadrature_test.R`, results in
 `results/identifiability/quadrature_test*.md`); (ii) consistency check, 10 replications each in
 dep0.5_N300_P3 and dep0.5_N300_P5 refitted with (q) and compared with the (e) estimates, so that
-one model can be used across the grid; (iii) rerun of the 13 dep >= 1 cells with (q)
-(`GRID_VARIANT=q GRID_CELLS="dep1.0_,dep1.5_"`, outputs in `results/grid/reps_q/`,
-`grid_cells_q.csv`, `summary_q.md`; runtime per replication and node count recorded). Runtime of the present grid:
+one model can be used across the grid; (ii) consistency check done: 10 replications each in dep0.5_N300_P3 and dep0.5_N300_P5 refitted
+with (q) at 2 x 600 agree with (e) at 2 x 1500 (prevalence difference -0.001, SD 0.002, correlation
+0.995; all quantities within Monte Carlo error; `results/grid/quad_consistency.md`); (iii) rerun of the
+13 dep >= 1 cells with (q) launched 23 Sept 2026 23:08: 100 replications, 2 chains x 600 (300 warmup),
+15 nodes, 9 workers, expected about 48 h
+(`GRID_VARIANT=q GRID_CELLS="dep1.0_,dep1.5_" GRID_WARMUP=300 GRID_SAMPLING=300 Rscript R/05_grid.R`,
+resumable; outputs in `results/grid/reps_q/`, `grid_cells_q.csv`, `summary_q.md`; runtime per
+replication and node count recorded). Runtime of the present grid:
 about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per replication).
 
 ## Manuscript

@@ -1,0 +1,1 @@
+[grid] variant=q cells=25 reps=100 todo=1300 workers=9
