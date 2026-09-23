@@ -5,7 +5,9 @@
 # while the grid is still running (partial cells are labelled by n_reps).
 # =============================================================================
 if (!exists("STAN_BACKEND")) source("R/00_setup.R")
-rep_dir <- "results/grid/reps"
+AGG_VARIANT <- Sys.getenv("GRID_VARIANT", unset = "e")
+rep_dir <- if (AGG_VARIANT == "e") "results/grid/reps" else paste0("results/grid/reps_", AGG_VARIANT)
+out_suffix <- if (AGG_VARIANT == "e") "" else paste0("_", AGG_VARIANT)
 # --- aggregate ------------------------------------------------------------------
 files <- list.files(rep_dir, pattern = "\\.rds$", full.names = TRUE)
 reps <- do.call(rbind, lapply(files, function(f) {
@@ -37,9 +39,11 @@ reps <- do.call(rbind, lapply(files, function(f) {
              mu1_chain2 = if (!is.null(r$per_chain)) r$per_chain["mu[1]", 2] else NA,
              mu2_chain1 = if (!is.null(r$per_chain)) r$per_chain["mu[2]", 1] else NA,
              mu2_chain2 = if (!is.null(r$per_chain)) r$per_chain["mu[2]", 2] else NA,
-             runtime_sec = r$diag[["runtime_sec"]], stringsAsFactors = FALSE)
+             runtime_sec = r$diag[["runtime_sec"]], chains = r$chains, warmup = r$warmup, sampling = r$sampling,
+             quad_Q = if (!is.null(r$quad_Q)) r$quad_Q else NA_integer_,
+             stringsAsFactors = FALSE)
 }))
-write.csv(reps, "results/grid/grid_reps.csv", row.names = FALSE)
+write.csv(reps, paste0("results/grid/grid_reps", out_suffix, ".csv"), row.names = FALSE)
 
 cov <- function(lo, hi, tr) mean(tr >= lo & tr <= hi, na.rm = TRUE)
 # variance shares are positive parameters: when the true share is exactly 0
@@ -73,9 +77,9 @@ cells_out <- reps |>
     share_model_rmse = sqrt(mean((CRE_share_model - true_share_model)^2, na.rm = TRUE)),
     share_prompt_rmse = sqrt(mean((CRE_share_prompt - true_share_prompt)^2, na.rm = TRUE)),
     frac_rhat_gt_1.05 = mean(max_rhat > 1.05, na.rm = TRUE), mean_divergences = mean(divergences, na.rm = TRUE),
-    mean_runtime_min = mean(runtime_sec, na.rm = TRUE) / 60, .groups = "drop") |>
+    mean_runtime_min = mean(runtime_sec, na.rm = TRUE) / 60, quad_Q = if (all(is.na(quad_Q))) NA_integer_ else max(quad_Q, na.rm = TRUE), .groups = "drop") |>
   dplyr::mutate(flag_rhat = frac_rhat_gt_1.05 > 0.10)
-write.csv(cells_out, "results/grid/grid_cells.csv", row.names = FALSE)
+write.csv(cells_out, paste0("results/grid/grid_cells", out_suffix, ".csv"), row.names = FALSE)
 cat(sprintf("[grid] aggregated %d replications into %d cells; %d cells flagged (>10%% reps with R-hat > 1.05)\n",
             nrow(reps), nrow(cells_out), sum(cells_out$flag_rhat)))
 
@@ -102,7 +106,7 @@ md_tab <- function(df) c(paste0("| ", paste(names(df), collapse = " | "), " |"),
 writeLines(c("# Simulation grid: convergence summary", "",
              sprintf("Generated %s from %d replications in %d cells (variant %s, %d chains x %d iterations).",
                      format(Sys.time(), "%Y-%m-%d %H:%M"), nrow(reps), length(unique(reps$cell)),
-                     reps$variant[1], 2, 1500),
+                     reps$variant[1], reps$chains[1], reps$warmup[1] + reps$sampling[1]),
              "", "## Replications flagged for R-hat > 1.05, by type", "",
              md_tab(flag_tab), "",
              "A merged-class mode is inferred when the two chains' posterior means of pi1 differ by more than 0.15;",
@@ -110,6 +114,6 @@ writeLines(c("# Simulation grid: convergence summary", "",
              sprintf("%d replications (the first grid run, before per-chain means were recorded on 2026-09-22 22:05) have no per-chain record and cannot be classified; %d of them are flagged for R-hat.",
                      sum(is.na(reps$pi1_chain1)), sum(is.na(reps$pi1_chain1) & reps$flagged)),
              "", "## By cell", "", md_tab(as.data.frame(lapply(flag_cell, function(x) if (is.numeric(x)) round(x, 1) else x)))),
-           "results/grid/summary.md")
-write.csv(reps, "results/grid/grid_reps.csv", row.names = FALSE)
+           paste0("results/grid/summary", out_suffix, ".md"))
+write.csv(reps, paste0("results/grid/grid_reps", out_suffix, ".csv"), row.names = FALSE)
 cat("[grid] convergence summary written to results/grid/summary.md\n")

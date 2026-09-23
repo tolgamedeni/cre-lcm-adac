@@ -13,7 +13,7 @@
 # Aggregate output: results/grid/grid_cells.csv (per-cell metrics),
 #                   results/grid/grid_reps.csv (per-replication metrics).
 # Usage:  Rscript R/05_grid.R                (or via run_all.R --steps=4)
-#   env GRID_VARIANT = base|a|b|c|d|e (default: value in results/identifiability/chosen_variant.txt)
+#   env GRID_VARIANT = base|a|b|c|d|e|q (default: value in results/identifiability/chosen_variant.txt)
 #   env GRID_REPS    = number of replications (default 100)
 #   env GRID_WORKERS = parallel workers (default N_CORES)
 # =============================================================================
@@ -36,8 +36,18 @@ stan_file <- switch(VARIANT,
   c = "stan/crossed_lcre_c_anchor.stan",
   d = "stan/crossed_lcre_d_infprior.stan",
   e = "stan/crossed_lcre.stan",      # base model, chains initialised at Dawid-Skene
+  q = "stan/crossed_lcre_q_quad.stan", # theta integrated by Gauss-Hermite, Dawid-Skene init
   stop("unknown GRID_VARIANT: ", VARIANT))
-rep_dir <- "results/grid/reps"; dir.create(rep_dir, showWarnings = FALSE, recursive = TRUE)
+QUAD_Q <- as.integer(Sys.getenv("GRID_QUAD_Q", unset = "15"))
+gauss_hermite_normal <- function(Q) {   # probabilists' Hermite, weights sum to 1
+  J <- matrix(0, Q, Q); off <- sqrt(seq_len(Q - 1))
+  J[cbind(1:(Q - 1), 2:Q)] <- off; J[cbind(2:Q, 1:(Q - 1))] <- off
+  e <- eigen(J, symmetric = TRUE); list(x = e$values, w = e$vectors[1, ]^2)
+}
+rep_dir <- if (VARIANT == "e") "results/grid/reps" else paste0("results/grid/reps_", VARIANT)
+dir.create(rep_dir, showWarnings = FALSE, recursive = TRUE)
+# optional cell filter, e.g. GRID_CELLS="dep1.0_,dep1.5_" fits only cells whose name contains one of these
+CELL_FILTER <- Sys.getenv("GRID_CELLS", unset = "")
 
 # --- cells --------------------------------------------------------------------
 cells <- expand.grid(dep = c(0, 0.5, 1, 1.5), N = c(150, 300, 600), P = c(3, 5),
@@ -104,6 +114,14 @@ run_rep <- function(cell_row, rep, mod) {
   }
   t0 <- Sys.time()
   extra <- list()
+  if (VARIANT == "q") {
+    gh <- gauss_hermite_normal(QUAD_Q)
+    data <- c(data, list(Q = QUAD_Q, x_q = gh$x, log_w_q = log(gh$w)))
+    extra$init <- function() list(
+      pi1 = ds$pi1, mu = c(qlogis(1 - mean(ds$sp)), qlogis(mean(ds$se))),
+      a_raw = matrix(0, sim$M - 1, 2), b_z = matrix(0, sim$P, 2), tau_b = c(0.3, 0.3),
+      s_th = 0.5, s_ph = 0.5, s_ps = 0.5, ph_z = matrix(0, sim$N, sim$M), ps_z = matrix(0, sim$N, sim$P))
+  }
   if (VARIANT == "e") extra$init <- function() list(
     pi1 = ds$pi1, mu = c(qlogis(1 - mean(ds$sp)), qlogis(mean(ds$se))),
     a_raw = matrix(0, sim$M - 1, 2), b_z = matrix(0, sim$P, 2), tau_b = c(0.3, 0.3),
@@ -146,12 +164,18 @@ run_rep <- function(cell_row, rep, mod) {
   saveRDS(list(cell = cell_row, rep = rep, seed = seed, variant = VARIANT, truth = truth,
                MV = res$MV, DS = res$DS, CRE = cre, diag = diag, anchor_idx = anchor_idx,
                per_chain = if (exists("per_chain", inherits = FALSE)) per_chain else NULL,
+               quad_Q = if (VARIANT == "q") QUAD_Q else NA_integer_,
                chains = CHAINS, warmup = WARMUP, sampling = SAMPLING), f)
   invisible(f)
 }
 
 # --- run in parallel (each worker: one replication at a time, chains serial) --
-jobs <- expand.grid(rep = seq_len(N_REPS), cell_id = cells$cell_id)
+cells_run <- cells
+if (nzchar(CELL_FILTER)) {
+  pat <- strsplit(CELL_FILTER, ",")[[1]]
+  cells_run <- cells[Reduce(`|`, lapply(pat, function(x) grepl(x, cells$cell, fixed = TRUE))), ]
+}
+jobs <- expand.grid(rep = seq_len(N_REPS), cell_id = cells_run$cell_id)
 jobs <- jobs[order(jobs$rep, jobs$cell_id), ]        # rep 1 of every cell first
 todo <- jobs[!file.exists(file.path(rep_dir, sprintf("%s_r%03d.rds",
                                        cells$cell[jobs$cell_id], jobs$rep))), ]
@@ -166,7 +190,7 @@ if (nrow(todo)) {
     run_rep(cells[todo$cell_id[j], ], todo$rep[j], mod_w)
   }, .options = furrr::furrr_options(seed = NULL, globals = c("cells", "todo", "stan_file",
                      "rep_dir", "run_rep", "implied_accuracy", "VARIANT", "CHAINS", "WARMUP",
-                     "SAMPLING", "ANCHOR_FRAC"), scheduling = Inf), .progress = TRUE)
+                     "SAMPLING", "ANCHOR_FRAC", "QUAD_Q", "gauss_hermite_normal"), scheduling = Inf), .progress = TRUE)
   future::plan(future::sequential)
 }
 

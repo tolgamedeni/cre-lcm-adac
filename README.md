@@ -77,24 +77,30 @@ by 10-20 % in every correct-mode chain; anchoring reduces it.
 
 - Dawid-Skene prevalence bias: +0.003 (dep 0.5), +0.05 (dep 1), +0.10 to +0.11 (dep 1.5),
   independent of N and P; specificity bias +0.04 / +0.09 at dep 1 / 1.5.
-- CRE-LCM, P = 3: prevalence bias +0.017 / +0.010 / +0.004 at dep 1 for N = 150 / 300 / 600,
-  coverage >= 0.95 at dep <= 1; Brier lower than Dawid-Skene in every cell; shares recovered.
-- **CRE-LCM, P = 5, dep >= 1: not converged.** 83-97 % of replications flagged (R-hat > 1.05),
-  median bulk ESS 5-9 from 1500 draws; chains agree with each other (merged mode in only 41 of
-  2418 classifiable replications) but stay within 0.02 of the Dawid-Skene initial value, so the
-  reported CRE-LCM bias (+0.05 at dep 1, +0.10 to +0.13 at dep 1.5) reflects the initialisation,
-  not the estimator. The 4 x 2000 fit of the same design in step 3 gave bias +0.02. These cells
-  need either much longer chains or a better-mixing parameterisation (see "Open issue").
+- CRE-LCM at dep <= 0.5: unbiased for every quantity, coverage 1.00, Brier below Dawid-Skene in
+  every cell; convergence fine (<= 20 % flagged, median ESS > 90).
+- **CRE-LCM at dep >= 1 (every cell, P = 3 and P = 5, t4 included): not converged.** 75-99 % of
+  replications flagged (R-hat > 1.05), median bulk ESS 5-12 from 1500 draws; chains agree with each
+  other (merged mode in only 41 of 2418 classifiable replications) but stay near the Dawid-Skene
+  initial value: at P = 5 within 0.02 of it (so the reported CRE-LCM bias equals Dawid-Skene's),
+  at P = 3 drifting 0.04-0.05 towards the truth but equally unconverged. The 4 x 2000 fit of the
+  same design in step 3 gave bias +0.02. These 13 cells are being refitted with theta integrated
+  out by Gauss-Hermite quadrature (see "Open issue").
 - Misspecification (t4 random effects, dep 1, N 300, P 5): CRE-LCM bias +0.034 vs +0.055
   Gaussian, accuracy 0.929 vs 0.905, Brier 0.064 vs 0.083; no degradation.
 
-### Open issue (decision pending)
+### Open issue (in progress, decided 23 Sept 2026)
 
 Slow mixing of pi1 and s_th at dep >= 1 (the theta/class trade-off of the identifiability
-analysis) makes 2 x 1500 chains insufficient, especially at P = 5. Candidate remedies:
-integrate theta_i out by Gauss-Hermite quadrature inside the class sum (removes N strongly
-coupled latent parameters; phi and psi stay sampled) and rerun the 13 affected cells; or
-report the P = 3 results and the flagged cells as lower bounds. Runtime of the present grid:
+analysis) makes 2 x 1500 chains insufficient in every dep >= 1 cell, P = 3 and P = 5 alike.
+Remedy chosen: variant (q), `stan/crossed_lcre_q_quad.stan`, integrates theta_i out by
+Gauss-Hermite quadrature inside the class sum (phi and psi stay sampled). Plan: (i) scenario-B
+test against (e) with 10, 15 and 20 nodes (`R/04b_quadrature_test.R`, results in
+`results/identifiability/quadrature_test*.md`); (ii) consistency check, 10 replications each in
+dep0.5_N300_P3 and dep0.5_N300_P5 refitted with (q) and compared with the (e) estimates, so that
+one model can be used across the grid; (iii) rerun of the 13 dep >= 1 cells with (q)
+(`GRID_VARIANT=q GRID_CELLS="dep1.0_,dep1.5_"`, outputs in `results/grid/reps_q/`,
+`grid_cells_q.csv`, `summary_q.md`; runtime per replication and node count recorded). Runtime of the present grid:
 about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per replication).
 
 ## Manuscript

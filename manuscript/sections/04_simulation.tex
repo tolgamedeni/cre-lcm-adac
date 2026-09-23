@@ -91,34 +91,36 @@ the bias is a property of the misspecification, not of the sample size. Sensitiv
 much less affected (at most $+0.03$). Majority vote is less biased for prevalence
 (at most $+0.05$) but has no accuracy estimates.
 
-\emph{CRE-LCM with $P = 3$.} With three prompts the model removes most of the bias:
-prevalence bias $+0.017$, $+0.010$ and $+0.004$ at $\delta = 1$ for $N = 150$, 300 and
-600 (against $+0.05$ for Dawid--Skene), specificity bias below $0.02$ in absolute value,
-and coverage of the prevalence interval $0.95$ or above at $\delta \le 1$. At
-$\delta = 1.5$ the bias is about $+0.05$ to $+0.07$, roughly half of Dawid--Skene's,
-and coverage falls to $0.73$ to $0.98$. The Brier score of the posterior labels is lower
-than Dawid--Skene's in every cell (for example $0.070$ against $0.100$ at $\delta = 1$,
-$N = 300$) and the item, model and prompt shares are recovered with small bias and
-coverage of $0.80$ to $0.95$.
+\emph{CRE-LCM at $\delta \le 0.5$.} Under conditional independence and weak dependence
+CRE-LCM is unbiased for every quantity: prevalence bias at most $0.004$, sensitivity and
+specificity bias below $0.004$, coverage of the prevalence interval $1.00$, and Brier
+scores below Dawid--Skene's in every cell. Convergence is unproblematic (at most 20\% of
+replications flagged at $\delta = 0.5$, median bulk ESS above 90).
 
-\emph{CRE-LCM with $P = 5$ at $\delta \ge 1$: a sampler, not an estimator, result.}
-With five prompts and strong dependence the CRE-LCM prevalence bias is not smaller than
-Dawid--Skene's ($+0.044$ to $+0.055$ at $\delta = 1$; $+0.10$ to $+0.13$ at
-$\delta = 1.5$) and the coverage of its prevalence interval collapses (to $0.02$ at
-$\delta = 1.5$, $N = 600$). The convergence record explains this. In these cells 83\% to
-97\% of replications have a global parameter with split-$\widehat{R} > 1.05$, the
-median bulk effective sample size of the worst parameter is 5 to 9 from 1500 draws, the
-two chains agree with each other (a merged-class mode is detected in only 41 of 2418
-classifiable replications), and the CRE-LCM prevalence estimate is within $0.02$ of the
-Dawid--Skene value that initialised the chains and correlates with it at $0.7$ to $0.9$.
-The chains have not moved away from their starting point within 1500 iterations. With
-$P = 3$ the same cells show the estimate drifting away from the initial value towards the
-truth ($-0.04$ to $-0.05$ relative to Dawid--Skene) but still with low effective sample
-sizes. The identifiability fits of Section~\ref{sec:ident} (four chains of 2000
-iterations, the same $\delta = 1$, $N = 300$, $P = 5$ design) gave a prevalence bias of
-$+0.02$, so the discrepancy is a matter of chain length, and the grid results for
-CRE-LCM at $\delta \ge 1$ are lower bounds on its performance rather than estimates of
-it. Section~\ref{sec:discussion} returns to this.
+\emph{CRE-LCM at $\delta \ge 1$: a sampler, not an estimator, result.} With strong
+dependence the grid does not measure the estimator. In every cell with $\delta \ge 1$,
+for both $P = 3$ and $P = 5$ and including the $t_4$ arm, 75\% to 99\% of replications
+have a global parameter with split-$\widehat{R} > 1.05$ and the median bulk effective
+sample size of the worst parameter is 5 to 12 from 1500 draws. The two chains agree with
+each other (a merged-class mode is detected in only 41 of 2418 classifiable
+replications), so this is slow mixing of $\pi_1$ and $\sigma_\theta$, the
+theta/class trade-off of Section~\ref{sec:ident}, not multimodality. Its consequence is
+that the estimates inherit the initial values: with $P = 5$ the CRE-LCM prevalence stays
+within $0.02$ of the Dawid--Skene value that initialised the chains and correlates with it
+at $0.7$ to $0.9$, so the reported bias ($+0.05$ at $\delta = 1$, $+0.10$ to $+0.13$ at
+$\delta = 1.5$) equals Dawid--Skene's; with $P = 3$ the chains drift $0.04$ to $0.05$
+away from the initial value towards the truth (bias $+0.004$ to $+0.017$ at
+$\delta = 1$, $+0.05$ to $+0.07$ at $\delta = 1.5$) but are equally far from
+convergence, and the item share is likewise held near its starting value. The
+identifiability fits of Section~\ref{sec:ident} (four chains of 2000 iterations, the
+$\delta = 1$, $N = 300$, $P = 5$ design) gave a prevalence bias of $+0.02$. The
+$\delta \ge 1$ cells of the grid are therefore being refitted with the shared item
+effect integrated out by Gauss--Hermite quadrature (Section~\ref{sec:estimation}), which
+removes the slowly mixing latent parameters; the tables and figures will be replaced by
+those results, and a consistency check at $\delta = 0.5$ verifies that the two
+estimation routes agree so that one model is used across the grid.
+% TODO-AUTHOR: replace the previous paragraph with the quadrature results once the
+% rerun of the 13 dependence >= 1 cells (all P, t4 included) is complete.
 
 \begin{figure}[htbp]
 \centering
@@ -164,8 +166,7 @@ $\delta = 1$, $N = 300$, $P = 5$. Heavy-tailed random effects do not degrade CRE
 relative to the Gaussian case: prevalence bias $+0.034$ against $+0.055$, accuracy
 $0.929$ against $0.905$, Brier $0.064$ against $0.083$, and coverage of the prevalence
 interval $0.87$ against $0.60$; Dawid--Skene moves in the same direction
-($+0.037$ against $+0.054$). The $t_4$ cell is also less affected by the slow mixing just
-described (75\% flagged against 92\%). The misspecification arm therefore shows
+($+0.037$ against $+0.054$). The $t_4$ cell is subject to the same slow mixing (75\% flagged) and is included in the quadrature rerun. The misspecification arm therefore shows
 robustness of the point estimates and labels to the tail behaviour of the random
 effects at this design size, with the same caveat on chain length.
 \input{../tables/table6_shares_misspec}
