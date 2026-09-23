@@ -16,6 +16,8 @@
 #   env GRID_VARIANT = base|a|b|c|d|e|q (default: value in results/identifiability/chosen_variant.txt)
 #   env GRID_REPS    = number of replications (default 100)
 #   env GRID_WORKERS = parallel workers (default N_CORES)
+#   env GRID_WARMUP / GRID_SAMPLING = iterations per chain (default 750 / 750)
+#   env GRID_QUAD_Q = Gauss-Hermite nodes for variant q (default 15)
 # =============================================================================
 if (!exists("STAN_BACKEND")) source("R/00_setup.R")
 source("R/01_simulate.R"); source("R/02_baselines.R")
@@ -27,7 +29,9 @@ if (is.na(VARIANT) || VARIANT == "") {
 }
 N_REPS   <- as.integer(Sys.getenv("GRID_REPS", unset = "100"))
 WORKERS  <- as.integer(Sys.getenv("GRID_WORKERS", unset = as.character(N_CORES)))
-CHAINS <- 2; WARMUP <- 750; SAMPLING <- 750
+CHAINS <- 2
+WARMUP   <- as.integer(Sys.getenv("GRID_WARMUP",   unset = "750"))   # variant e run used 750/750
+SAMPLING <- as.integer(Sys.getenv("GRID_SAMPLING", unset = "750"))   # variant q: see README (shorter chains suffice)
 ANCHOR_FRAC <- 0.05
 stan_file <- switch(VARIANT,
   base = "stan/crossed_lcre.stan",
