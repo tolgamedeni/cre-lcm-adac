@@ -10,6 +10,7 @@ if (!exists("STAN_BACKEND")) source("R/00_setup.R")
 fq <- list.files("results/grid/reps_q", pattern = "^dep0\\.5_N300_.*\\.rds$", full.names = TRUE)
 stopifnot(length(fq) > 0)
 get <- function(f) { r <- readRDS(f); c(cell = r$cell$cell, rep = r$rep, seed = r$seed, variant = r$variant,
+  chains = r$chains, warmup = r$warmup, sampling = r$sampling,
   quad_Q = if (is.null(r$quad_Q)) NA else r$quad_Q, runtime_min = r$diag$runtime_sec / 60,
   max_rhat = r$diag$max_rhat, min_ess = r$diag$min_ess_bulk,
   prev = r$CRE[["prev_1"]], prev_lo = r$CRE[["prev_2"]], prev_hi = r$CRE[["prev_3"]],
@@ -20,7 +21,7 @@ get <- function(f) { r <- readRDS(f); c(cell = r$cell$cell, rep = r$rep, seed = 
   true_prev = r$truth[["prev"]]) }
 q <- as.data.frame(do.call(rbind, lapply(fq, get)), stringsAsFactors = FALSE)
 e <- as.data.frame(do.call(rbind, lapply(file.path("results/grid/reps", basename(fq)), get)), stringsAsFactors = FALSE)
-num <- c("rep", "seed", "quad_Q", "runtime_min", "max_rhat", "min_ess", "prev", "prev_lo", "prev_hi", "sens", "spec",
+num <- c("rep", "seed", "chains", "warmup", "sampling", "quad_Q", "runtime_min", "max_rhat", "min_ess", "prev", "prev_lo", "prev_hi", "sens", "spec",
          "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "accuracy", "brier", "true_prev")
 q[num] <- lapply(q[num], as.numeric); e[num] <- lapply(e[num], as.numeric)
 stopifnot(all(q$seed == e$seed))
@@ -35,8 +36,9 @@ md_tab <- function(df, d = 3) { df[] <- lapply(df, function(x) if (is.numeric(x)
   c(paste0("| ", paste(names(df), collapse = " | "), " |"), paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|"),
     apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))) }
 writeLines(c("# Consistency of the quadrature model (q) with the sampled-theta model (e)", "",
-             sprintf("%d replications (same seeds) in %s; (q) uses %d Gauss-Hermite nodes; both 2 chains x %d iterations.",
-                     nrow(q), paste(unique(q$cell), collapse = " and "), max(q$quad_Q, na.rm = TRUE), 1500),
+             sprintf("%d replications (same seeds) in %s; (q) uses %d Gauss-Hermite nodes, %d chains x %d iterations (%d warmup); (e) %d chains x %d iterations (%d warmup).",
+                     nrow(q), paste(unique(q$cell), collapse = " and "), max(q$quad_Q, na.rm = TRUE),
+                     q$chains[1], q$warmup[1] + q$sampling[1], q$warmup[1], e$chains[1], e$warmup[1] + e$sampling[1], e$warmup[1]),
              "", "## Agreement across replications", "", md_tab(agree),
              "", "## Per cell: prevalence bias, runtime (min), convergence", "", md_tab(percell),
              "", "Interpretation: differences of the order of the Monte Carlo error of the posterior means (a few 0.001 for prevalence)",
