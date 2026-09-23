@@ -1,8 +1,3 @@
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: binomial_logit_lpmf: Probability parameter[1] is inf, but must be finite! (in '/tmp/RtmpjjcBmN/model-333b9107e790.stan', line 73, column 8 to line 74, column 75)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 # Quadrature variant (q, Q = 20 nodes) versus (e) on scenario B
 
 Same data (N = 300, seed 2026), same sampler settings (4 chains x 2000, adapt_delta 0.9, Dawid-Skene initialisation).
@@ -40,4 +35,3 @@ Same data (N = 300, seed 2026), same sampler settings (4 chains x 2000, adapt_de
 | s_ph | 0.825 | 0.825 | 0.823 | 0.821 |
 | s_ps | 0.480 | 0.482 | 0.479 | 0.487 |
 | lp__ | -5348.881 | -5347.189 | -5351.726 | -5345.201 |
-EXIT 0

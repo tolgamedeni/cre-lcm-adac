@@ -94,8 +94,10 @@ by 10-20 % in every correct-mode chain; anchoring reduces it.
 Slow mixing of pi1 and s_th at dep >= 1 (the theta/class trade-off of the identifiability
 analysis) makes 2 x 1500 chains insufficient in every dep >= 1 cell, P = 3 and P = 5 alike.
 Remedy chosen: variant (q), `stan/crossed_lcre_q_quad.stan`, integrates theta_i out by
-Gauss-Hermite quadrature inside the class sum (phi and psi stay sampled). Plan: (i) scenario-B
-test against (e) with 10, 15 and 20 nodes (`R/04b_quadrature_test.R`, results in
+Gauss-Hermite quadrature inside the class sum (phi and psi stay sampled). Results so far: (i) scenario-B
+test against (e) with 10, 15 and 20 nodes: mixing fixed (pi1 bulk ESS 2095 / 2585 / 2398 vs 13 for (e);
+all R-hat 1.00; prevalence 0.285 / 0.283 / 0.283 for a true 0.30, s_th 0.946 / 0.946 / 0.943 vs 0.83 for (e);
+Brier 0.059 vs 0.084; runtime 9.9 / 11.4 / 16.9 min vs 2.4 min for 4 x 2000) -- 15 nodes adopted (`R/04b_quadrature_test.R`, results in
 `results/identifiability/quadrature_test*.md`); (ii) consistency check, 10 replications each in
 dep0.5_N300_P3 and dep0.5_N300_P5 refitted with (q) and compared with the (e) estimates, so that
 one model can be used across the grid; (iii) rerun of the 13 dep >= 1 cells with (q)
