@@ -34,9 +34,9 @@ Rscript run_all.R --steps=1,2     # baselines and pilot only
 `R/00_setup.R` selects cmdstanr (preferred) or rstan (fallback), uses all cores but one,
 and records `sessionInfo()` in `results/session_info.txt`. All seeds derive from 2026.
 
-## Findings so far (seed 2026, N = 300, 3 models x 5 prompts x 3 runs)
+## Results (22-23 Sept 2026; all outputs reproducible with `Rscript run_all.R`)
 
-Baselines vs. dependence level (s_th / s_ph / s_ps scaled together):
+### Baseline: Dawid-Skene under crossed dependence (seed 2026, N = 300, 3 models x 5 prompts x 3 runs)
 
 | dep. | true sens | DS sens | true spec | DS spec | true prev. | DS prev. |
 |------|-----------|---------|-----------|---------|------------|----------|
@@ -45,24 +45,66 @@ Baselines vs. dependence level (s_th / s_ph / s_ps scaled together):
 | 1.0  | 0.666 | 0.703 | 0.787 | 0.822 | 0.290 | 0.327 |
 | 1.5  | 0.638 | 0.714 | 0.741 | 0.819 | 0.290 | 0.359 |
 
-=> Dawid-Skene increasingly OVERSTATES accuracy and biases prevalence as dependence grows (RQ1).
+Dawid-Skene increasingly overstates accuracy and inflates prevalence as dependence grows (RQ1).
+`results/baseline_table.csv`, `tables/table1_baseline.tex`.
 
-Preliminary CRE-LCM run (1 chain, 80 post-warmup draws — NOT converged):
-- item x model SD: 0.85 (true 0.80); item x prompt SD: 0.53 (true 0.50) -> recovered well
-- global item SD: 0.77 (true 1.00); prevalence 0.36 (true 0.29) -> NOT recovered
+### Pilot (step 2): 4 chains x 2000, scenario B (s_th = 1, s_ph = 0.8, s_ps = 0.5)
 
-Interpretation: the global item effect theta_i (shared by all raters) is weakly
-identified against the latent class itself. This is the key technical issue.
+The base model is multimodal under random initialisation: one chain of four sits in a
+*merged-class* mode (prevalence 0.70, class intercepts nearly equal, model effects
+sign-flipped); pooled R-hat on pi1 is 1.81. The crossed SDs are recovered by every chain
+(s_ph 0.84 vs 0.80, s_ps 0.50 vs 0.50). `results/pilot/` (fit, summary, per-chain means).
 
-## Task plan for Claude Code
-1. Run the full pilot with 4 chains x 2000 iterations; check R-hat / ESS.
-2. Identifiability fix, compare variants:
-   (a) class-specific scale for theta (Qu, Tan & Kutner 1996 style),
-   (b) drop theta, keep only item x model and item x prompt effects,
-   (c) small gold-standard subset (anchoring) as a practical remedy.
-3. Full simulation grid: dependence {0, 0.5, 1, 1.5} x N {150, 300, 600}
-   x prompts {3, 5}; 100 replications each; run in parallel.
-   Metrics: prevalence bias, sens/spec bias, accuracy, Brier, coverage of 95% CIs.
-4. Multiclass extension (K > 2) for the real-data application
-   (Comparative Agendas Project policy topics).
-5. Figures (ggplot2) and LaTeX tables for the manuscript.
+### Identifiability variants (step 3): `results/identifiability/comparison.md`
+
+| variant | prevalence (true 0.30) | s_th (true 1.0) | accuracy / Brier | chains |
+|---|---|---|---|---|
+| base, random inits | 0.42 [0.27, 0.74] | 0.86 | 0.897 / 0.121 | 1 of 4 in merged mode |
+| (a) class-specific scale | 0.31 [0.14, 0.60] | 1.17 / 0.80 | 0.897 / 0.107 | every chain elsewhere, R-hat 2.67 |
+| (b) theta omitted | 0.41 [0.28, 0.71] | -- | 0.897 / 0.114 | merged mode persists; s_ph inflates to 1.06 |
+| (c) 5 % anchored | 0.31 [0.22, 0.38] | 0.93 | 0.913 / 0.063 | all chains agree |
+| (d) half-normal(0, 0.5) prior | 0.42 [0.27, 0.75] | 0.86 | 0.883 / 0.123 | unchanged |
+| (e) base + Dawid-Skene init | 0.32 [0.26, 0.39] | 0.83 [0.67, 1.00] | 0.913 / 0.084 | all chains agree |
+
+Decision: (e) carried forward; (c) reported as the practical remedy. PSIS-LOO is unusable
+(88-93 % of Pareto k > 0.7: each item has its own 1 + M + P random effects). s_th is shrunk
+by 10-20 % in every correct-mode chain; anchoring reduces it.
+
+### Simulation grid (step 4): 25 cells x 100 replications, variant (e), 2 chains x 1500
+
+`results/grid/grid_cells.csv` (per cell), `grid_reps.csv` (per replication, seeds recorded),
+`summary.md` (convergence), `figures/Fig1-4.{pdf,eps}`, `tables/table3-6*.tex`.
+
+- Dawid-Skene prevalence bias: +0.003 (dep 0.5), +0.05 (dep 1), +0.10 to +0.11 (dep 1.5),
+  independent of N and P; specificity bias +0.04 / +0.09 at dep 1 / 1.5.
+- CRE-LCM, P = 3: prevalence bias +0.017 / +0.010 / +0.004 at dep 1 for N = 150 / 300 / 600,
+  coverage >= 0.95 at dep <= 1; Brier lower than Dawid-Skene in every cell; shares recovered.
+- **CRE-LCM, P = 5, dep >= 1: not converged.** 83-97 % of replications flagged (R-hat > 1.05),
+  median bulk ESS 5-9 from 1500 draws; chains agree with each other (merged mode in only 41 of
+  2418 classifiable replications) but stay within 0.02 of the Dawid-Skene initial value, so the
+  reported CRE-LCM bias (+0.05 at dep 1, +0.10 to +0.13 at dep 1.5) reflects the initialisation,
+  not the estimator. The 4 x 2000 fit of the same design in step 3 gave bias +0.02. These cells
+  need either much longer chains or a better-mixing parameterisation (see "Open issue").
+- Misspecification (t4 random effects, dep 1, N 300, P 5): CRE-LCM bias +0.034 vs +0.055
+  Gaussian, accuracy 0.929 vs 0.905, Brier 0.064 vs 0.083; no degradation.
+
+### Open issue (decision pending)
+
+Slow mixing of pi1 and s_th at dep >= 1 (the theta/class trade-off of the identifiability
+analysis) makes 2 x 1500 chains insufficient, especially at P = 5. Candidate remedies:
+integrate theta_i out by Gauss-Hermite quadrature inside the class sum (removes N strongly
+coupled latent parameters; phi and psi stay sampled) and rerun the 13 affected cells; or
+report the P = 3 results and the flagged cells as lower bounds. Runtime of the present grid:
+about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per replication).
+
+## Manuscript
+
+`manuscript/main.tex` (anonymised, Springer Nature `sn-jnl` with `sn-mathphys-ay`), sections in
+`manuscript/sections/`, `references.bib` (from `refs/` PDFs; provenance in `references_notes.md`),
+`title_page.tex` and `cover_letter.tex` separate. Build: `pdflatex main; bibtex main; pdflatex main; pdflatex main`
+(TeX Live with `sttools`, `ncctools`, `threeparttable`, `float` and the usual AMS packages).
+Passages drafted from results rather than by the author are marked `% TODO-AUTHOR`.
+
+## Original task plan
+1. Full pilot 4 x 2000 -- done. 2. Identifiability variants -- done (a-e). 3. Grid -- done
+(convergence caveat above). 4. Multiclass extension -- not started. 5. Figures and tables -- done.

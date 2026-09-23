@@ -72,12 +72,53 @@ report anchoring as the practical remedy when a small labelled subset exists.
 
 \subsection{Results over the grid}\label{sec:sim_results}
 
-[SIM: to be written when the grid completes.]
+% TODO-AUTHOR: results paragraphs drafted by Claude from results/grid/grid_cells.csv and
+% results/grid/summary.md (2500 replications, variant e, 2 chains x 1500). The convergence
+% finding in the last paragraph is material and must be resolved before submission; see the
+% step-5 report and results/grid/summary.md.
 Figure~\ref{fig:bias} shows the bias of prevalence, sensitivity and specificity;
 Figure~\ref{fig:labels} the accuracy and Brier score of the posterior labels;
 Figure~\ref{fig:coverage} the coverage of the CRE-LCM 95\% intervals; and
 Figure~\ref{fig:shares} the recovery of the variance shares at $N = 300$, $P = 5$.
 Tables~\ref{tab:prev}--\ref{tab:labels} give the per-cell values.
+
+\emph{Dawid--Skene.} The single-data-set pattern of Table~\ref{tab:baseline} holds over
+the grid. Under conditional independence Dawid--Skene is unbiased for every quantity at
+every $N$ and $P$. Its prevalence bias is about $+0.003$ at $\delta = 0.5$, $+0.05$ at
+$\delta = 1$ and $+0.10$ to $+0.11$ at $\delta = 1.5$, and its specificity bias
+$+0.04$ and $+0.09$ at $\delta = 1$ and $1.5$, essentially independent of $N$ and $P$:
+the bias is a property of the misspecification, not of the sample size. Sensitivity is
+much less affected (at most $+0.03$). Majority vote is less biased for prevalence
+(at most $+0.05$) but has no accuracy estimates.
+
+\emph{CRE-LCM with $P = 3$.} With three prompts the model removes most of the bias:
+prevalence bias $+0.017$, $+0.010$ and $+0.004$ at $\delta = 1$ for $N = 150$, 300 and
+600 (against $+0.05$ for Dawid--Skene), specificity bias below $0.02$ in absolute value,
+and coverage of the prevalence interval $0.95$ or above at $\delta \le 1$. At
+$\delta = 1.5$ the bias is about $+0.05$ to $+0.07$, roughly half of Dawid--Skene's,
+and coverage falls to $0.73$ to $0.98$. The Brier score of the posterior labels is lower
+than Dawid--Skene's in every cell (for example $0.070$ against $0.100$ at $\delta = 1$,
+$N = 300$) and the item, model and prompt shares are recovered with small bias and
+coverage of $0.80$ to $0.95$.
+
+\emph{CRE-LCM with $P = 5$ at $\delta \ge 1$: a sampler, not an estimator, result.}
+With five prompts and strong dependence the CRE-LCM prevalence bias is not smaller than
+Dawid--Skene's ($+0.044$ to $+0.055$ at $\delta = 1$; $+0.10$ to $+0.13$ at
+$\delta = 1.5$) and the coverage of its prevalence interval collapses (to $0.02$ at
+$\delta = 1.5$, $N = 600$). The convergence record explains this. In these cells 83\% to
+97\% of replications have a global parameter with split-$\widehat{R} > 1.05$, the
+median bulk effective sample size of the worst parameter is 5 to 9 from 1500 draws, the
+two chains agree with each other (a merged-class mode is detected in only 41 of 2418
+classifiable replications), and the CRE-LCM prevalence estimate is within $0.02$ of the
+Dawid--Skene value that initialised the chains and correlates with it at $0.7$ to $0.9$.
+The chains have not moved away from their starting point within 1500 iterations. With
+$P = 3$ the same cells show the estimate drifting away from the initial value towards the
+truth ($-0.04$ to $-0.05$ relative to Dawid--Skene) but still with low effective sample
+sizes. The identifiability fits of Section~\ref{sec:ident} (four chains of 2000
+iterations, the same $\delta = 1$, $N = 300$, $P = 5$ design) gave a prevalence bias of
+$+0.02$, so the discrepancy is a matter of chain length, and the grid results for
+CRE-LCM at $\delta \ge 1$ are lower bounds on its performance rather than estimates of
+it. Section~\ref{sec:discussion} returns to this.
 
 \begin{figure}[htbp]
 \centering
@@ -117,6 +158,14 @@ $P = 5$, by dependence level $\delta$; crosses mark the true shares}\label{fig:s
 
 \subsection{Misspecification}\label{sec:sim_misspec}
 
-[SIM: to be written when the grid completes.] Table~\ref{tab:shares} compares the
-Gaussian and $t_4$ data-generating processes at $\delta = 1$, $N = 300$, $P = 5$.
+% TODO-AUTHOR: drafted by Claude from results/grid/misspecification_summary.csv.
+Table~\ref{tab:shares} compares the Gaussian and $t_4$ data-generating processes at
+$\delta = 1$, $N = 300$, $P = 5$. Heavy-tailed random effects do not degrade CRE-LCM
+relative to the Gaussian case: prevalence bias $+0.034$ against $+0.055$, accuracy
+$0.929$ against $0.905$, Brier $0.064$ against $0.083$, and coverage of the prevalence
+interval $0.87$ against $0.60$; Dawid--Skene moves in the same direction
+($+0.037$ against $+0.054$). The $t_4$ cell is also less affected by the slow mixing just
+described (75\% flagged against 92\%). The misspecification arm therefore shows
+robustness of the point estimates and labels to the tail behaviour of the random
+effects at this design size, with the same caveat on chain length.
 \input{../tables/table6_shares_misspec}
