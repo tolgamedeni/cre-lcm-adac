@@ -111,7 +111,13 @@ evaluation costs about five times more, but effective samples per minute increas
 forty-fold; 10, 15 and 20 nodes agree to within 0.002 on the prevalence and 0.003 on
 $\sigma_\theta$, and at $\delta = 0.5$ the quadrature and sampled-$\theta$ estimates
 coincide, so the same estimator is used across the whole simulation study. Two chains of
-600 iterations then suffice. This is, in effect, the estimation strategy of \citet{Qu1996}
+600 iterations then suffice. The merged-class mode is not entirely removed at the
+strongest dependence: in the simulation study it recurs in 8\% of replications at
+$\delta = 1.5$, concentrated where the likelihood is sharpest (large $N$, $P = 5$). We
+therefore recommend, as a routine diagnostic, running at least two chains and treating a
+gap above $0.15$ between the chain-wise posterior means of the prevalence as a
+merged-class mode, in which case a small labelled subset should be anchored
+(Section~\ref{sec:ident}). This is, in effect, the estimation strategy of \citet{Qu1996}
 for the shared subject effect, retained here for $\theta_i$ while the crossed effects
 remain in the sampler. Posterior class probabilities $\Pr(c_i = 1 \mid \text{data})$ and
 the variance shares are computed in generated quantities; convergence is summarised by

@@ -112,9 +112,13 @@ $+0.018$ (Dawid--Skene: $+0.05$), the specificity bias $-0.004$ to $-0.015$
 At $\delta = 1.5$ the prevalence bias is $+0.027$ to $+0.065$ against $+0.10$ to $+0.11$
 for Dawid--Skene, with coverage $0.94$ to $0.99$; the largest values occur at $N = 150$.
 The one quantity that CRE-LCM does not recover well is mean sensitivity, which it
-underestimates by $0.01$ to $0.05$ at $N \ge 300$ and by $0.04$ to $0.09$ at $N = 150$,
-against a Dawid--Skene bias of at most $+0.03$; coverage of the sensitivity interval is
-nevertheless $0.89$ to $0.98$. The posterior labels are markedly better calibrated: the
+underestimates by $0.01$ to $0.05$ at $N \ge 300$ and by $0.04$ to $0.09$ at $N = 150$.
+This is a small-sample bias specific to the minority class: with a prevalence of $0.30$
+the class-1 intercept and effects are estimated from few items, the ordered constraint
+and the prior shrink $\mu_1$ towards zero, and the marginal sensitivity falls. It vanishes
+with $N$, coverage of the sensitivity interval stays at $0.89$ to $0.98$, and it is
+conservative and smaller than the Dawid--Skene overstatement ($+0.04$ to $+0.09$ of
+specificity, $+0.03$ of sensitivity) in the opposite direction. The posterior labels are markedly better calibrated: the
 Brier score is $0.05$ to $0.07$ against $0.10$ for Dawid--Skene at $\delta = 1$ and
 $0.12$ to $0.14$ against $0.20$ at $\delta = 1.5$ (a ratio of about $0.65$ in every
 cell), while accuracy is higher by one to four points. The variance shares are recovered:
@@ -125,9 +129,12 @@ the opposite sign to the shrinkage of $\sigma_\theta$ seen when $\theta_i$ is sa
 replications flagged, median smallest bulk ESS 89 to 162 from 600 draws); at $\delta = 1.5$
 mixing remains slower (36\% to 77\% flagged, median smallest ESS 18 to 64) and the
 merged-class mode reappears in 8\% of replications, concentrated at $N = 600$, $P = 5$ (18
-of 100). Excluding the merged-mode replications lowers the $\delta = 1.5$ prevalence bias
-from $+0.043$ to $+0.032$; longer chains, or anchoring as in Section~\ref{sec:ident}, are
-the remedies at this strength of dependence. Runtime per replication with quadrature is
+of 100), that is, where the likelihood is sharpest. We report both figures: over all
+replications the $\delta = 1.5$ prevalence bias is $+0.043$; excluding the merged-mode
+replications, identified by a gap above $0.15$ between the chain-wise posterior means of
+the prevalence, it is $+0.032$. The diagnostic of Section~\ref{sec:estimation}, followed
+by anchoring a small labelled subset as in Section~\ref{sec:ident}, is the remedy at
+this strength of dependence. Runtime per replication with quadrature is
 3.5 and 6 minutes at $N = 150$ ($P = 3$ and $5$), 8 and 14 minutes at $N = 300$, and 21
 and 37 minutes at $N = 600$ on one core.
 % TODO-AUTHOR: paragraph drafted by Claude from results/grid/grid_cells_q.csv and summary_q.md
