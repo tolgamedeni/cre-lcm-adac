@@ -58,3 +58,9 @@ Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehta
 - Vacek1985: DOI from JSTOR stable id, supplied by the author
 - Raykar2012: Added by hand from the v5 key map; verify
 - Raykar2012 confirmed by the author as J. Mach. Learn. Res. 13:491-518.
+
+## 2026-09-25: further note fields removed so that they do not print
+
+- Liu2026: "Working paper, Boston University. DOI not found in PDF" (entry is now the arXiv record 2604.16413 supplied by the author).
+- Whitehill2009: "No DOI (NeurIPS proceedings)" (NeurIPS 22 proceedings have no DOI).
+- Oberski2013: second author corrected to "van Kollenburg, G. H." at the author's request.

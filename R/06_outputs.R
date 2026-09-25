@@ -203,13 +203,31 @@ if (file.exists("results/grid/grid_cells.csv")) {
     save_fig(p4, 4, W2, 65 * MM)
   }
 
+  # ---- merged-mode exclusion for the one cell where it matters ---------------
+  # (N = 600, P = 5, delta = 1.5): statistics excluding replications whose two
+  # chains disagree on the prevalence by more than 0.15 (merged-class mode)
+  mm <- gr[gr$cell == "dep1.5_N600_P5_normal" & !is.na(gr$pi1_chain1), ]
+  mm$merged <- abs(mm$pi1_chain1 - mm$pi1_chain2) > 0.15
+  ex <- mm[!mm$merged, ]
+  ex_stats <- if (nrow(mm) && any(mm$merged)) list(
+    n_merged = sum(mm$merged), n = nrow(mm),
+    prev_bias = mean(ex$CRE_prev - ex$true_prev), prev_rmse = sqrt(mean((ex$CRE_prev - ex$true_prev)^2)),
+    cov_prev = mean(ex$true_prev >= ex$CRE_prev_lo & ex$true_prev <= ex$CRE_prev_hi),
+    sens_bias = mean(ex$CRE_sens - ex$true_sens), spec_bias = mean(ex$CRE_spec - ex$true_spec),
+    cov_sens = mean(ex$true_sens >= ex$CRE_sens_lo & ex$true_sens <= ex$CRE_sens_hi),
+    cov_spec = mean(ex$true_spec >= ex$CRE_spec_lo & ex$true_spec <= ex$CRE_spec_hi)) else NULL
+  mark_cell <- function(df, gn_sorted) { i <- which(gn_sorted$cell == "dep1.5_N600_P5_normal"); if (length(i) && !is.null(ex_stats)) df$dep[i] <- paste0(df$dep[i], "$^{a}$"); df }
+
   # ---- Table 3: prevalence bias and RMSE -------------------------------------
   t3 <- gn |> arrange(P, N, dep) |>
     transmute(P = P, N = N, dep = fmt(dep, 1), n = n_reps,
               mvb = fmt(MV_prev_bias), mvr = fmt(MV_prev_rmse), dsb = fmt(DS_prev_bias), dsr = fmt(DS_prev_rmse),
               crb = fmt(CRE_prev_bias), crr = fmt(CRE_prev_rmse), cov = fmt(CRE_cov_prev, 2))
   t3$P <- ifelse(duplicated(t3$P), "", t3$P); t3$N <- ifelse(duplicated(paste(gn$P[order(gn$P, gn$N, gn$dep)], gn$N[order(gn$P, gn$N, gn$dep)])), "", t3$N)
-  write_booktabs(t3, "tables/table3_prevalence.tex",
+  gn_sorted <- gn[order(gn$P, gn$N, gn$dep), ]; t3 <- mark_cell(t3, gn_sorted)
+  note3 <- if (!is.null(ex_stats)) sprintf("$^{a}$ %d of %d replications in this cell sit in the merged-class mode (chain-wise posterior prevalence differing by more than 0.15); excluding them, the CRE-LCM prevalence bias is %s, the RMSE %s and the coverage %s.",
+                                           ex_stats$n_merged, ex_stats$n, fmt(ex_stats$prev_bias), fmt(ex_stats$prev_rmse), fmt(ex_stats$cov_prev, 2)) else NULL
+  write_booktabs(t3, "tables/table3_prevalence.tex", note = note3,
     caption = "Prevalence estimation over the simulation grid ($M = 3$, $R = 3$; $n$ replications per cell): bias and root mean squared error of majority vote (MV), Dawid--Skene (DS) and CRE-LCM, and coverage of the CRE-LCM 95\\% credible interval",
     label = "tab:prev",
     header = "$P$ & $N$ & $\\delta$ & $n$ & \\multicolumn{2}{c}{MV} & \\multicolumn{2}{c}{DS} & \\multicolumn{3}{c}{CRE-LCM} \\\\\n\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\\cmidrule(lr){9-11}\n & & & & bias & RMSE & bias & RMSE & bias & RMSE & cov.",
@@ -220,8 +238,10 @@ if (file.exists("results/grid/grid_cells.csv")) {
     transmute(P = P, N = N, dep = fmt(dep, 1),
               dss = fmt(DS_sens_bias), crs = fmt(CRE_sens_bias), covs = fmt(CRE_cov_sens, 2),
               dsp = fmt(DS_spec_bias), crp = fmt(CRE_spec_bias), covp = fmt(CRE_cov_spec, 2))
-  t4$P <- t3$P; t4$N <- t3$N
-  write_booktabs(t4, "tables/table4_sens_spec.tex",
+  t4$P <- t3$P; t4$N <- t3$N; t4 <- mark_cell(t4, gn_sorted)
+  note4 <- if (!is.null(ex_stats)) sprintf("$^{a}$ Excluding the %d merged-mode replications (see Table~\\ref{tab:prev}), the CRE-LCM sensitivity bias is %s with coverage %s and the specificity bias %s with coverage %s.",
+                                           ex_stats$n_merged, fmt(ex_stats$sens_bias), fmt(ex_stats$cov_sens, 2), fmt(ex_stats$spec_bias), fmt(ex_stats$cov_spec, 2)) else NULL
+  write_booktabs(t4, "tables/table4_sens_spec.tex", note = note4,
     caption = "Bias of mean sensitivity and mean specificity (averaged over the $M \\times P$ configurations) for Dawid--Skene (DS) and CRE-LCM, with coverage of the CRE-LCM 95\\% intervals",
     label = "tab:sensspec",
     header = "$P$ & $N$ & $\\delta$ & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){4-6}\\cmidrule(lr){7-9}\n & & & DS & CRE & cov. & DS & CRE & cov.",

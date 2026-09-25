@@ -32,8 +32,8 @@ $\delta = 0.5$, $N = 300$ fitted both ways, the prevalence estimates differ by $
 average (SD 0.002, correlation 0.995) and every other quantity agrees within Monte Carlo
 error, and 10, 15 and 20 nodes give identical results on the scenario-B data.
 % TODO-AUTHOR: sentence on the two estimation routes added by Claude (results/grid/quad_consistency.md,
-% results/identifiability/quadrature_test*.md). For each replication
-we record the bias of the estimated prevalence, of mean sensitivity and of mean
+% results/identifiability/quadrature_test*.md).
+For each replication we record the bias of the estimated prevalence, of mean sensitivity and of mean
 specificity (averaged over the $M \times P$ configurations; for CRE-LCM these are the
 posterior means of the marginal accuracies implied by the model, integrating over the
 random effects), classification accuracy and Brier score of the posterior class
@@ -74,8 +74,7 @@ the Dawid--Skene solution (e) also removes it: all chains agree, the intervals c
 truth, and label quality is close to that of anchoring. Two limitations remain under (e):
 mixing on $\pi_1$ and $\sigma_\theta$ is slow, and $\sigma_\theta$ is shrunk downwards by
 10--20\% in every chain that sits in the correct mode of every variant, anchoring
-reducing the shrinkage. We therefore carry variant (e) forward as the main model and
-report anchoring as the practical remedy when a small labelled subset exists.
+reducing the shrinkage. We therefore retain the Dawid--Skene initialisation throughout, integrate $\theta_i$ out by quadrature in the estimator of Section~\ref{sec:estimation}, and report anchoring as the practical remedy when a small labelled subset exists.
 \input{../tables/table2_identifiability}
 
 \subsection{Results over the grid}\label{sec:sim_results}
@@ -103,7 +102,7 @@ much less affected (at most $+0.03$). Majority vote is less biased for prevalenc
 CRE-LCM is unbiased for every quantity: prevalence bias at most $0.004$, sensitivity and
 specificity bias below $0.004$, coverage of the prevalence interval $1.00$, and Brier
 scores below Dawid--Skene's in every cell. Convergence is unproblematic (at most 20\% of
-replications flagged at $\delta = 0.5$, median bulk ESS above 90).
+replications flagged at $\delta = 0.5$, median bulk ESS above 90). A prevalence coverage of $1.00$ indicates that the intervals are conservative at weak dependence.
 
 \emph{CRE-LCM at $\delta \ge 1$.} With the shared item effect integrated out, the model
 removes most of the Dawid--Skene bias. At $\delta = 1$ the prevalence bias is $+0.006$ to
@@ -115,8 +114,7 @@ The one quantity that CRE-LCM does not recover well is mean sensitivity, which i
 underestimates by $0.01$ to $0.05$ at $N \ge 300$ and by $0.04$ to $0.09$ at $N = 150$.
 This is a small-sample bias specific to the minority class: with a prevalence of $0.30$
 the class-1 intercept and effects are estimated from few items, the ordered constraint
-and the prior shrink $\mu_1$ towards zero, and the marginal sensitivity falls. It vanishes
-with $N$, coverage of the sensitivity interval stays at $0.89$ to $0.98$, and it is
+and the prior shrink $\mu_1$ towards zero, and the marginal sensitivity falls. It decreases with $N$ (at $\delta = 1.5$, from $-0.08$ at $N = 150$ to $-0.04$ at $N = 600$ once merged-mode replications are excluded; the exception is the cell $N = 600$, $P = 5$, discussed below), coverage of the sensitivity interval stays at $0.89$ to $0.98$, and it is
 conservative and smaller than the Dawid--Skene overstatement ($+0.04$ to $+0.09$ of
 specificity, $+0.03$ of sensitivity) in the opposite direction. The posterior labels are markedly better calibrated: the
 Brier score is $0.05$ to $0.07$ against $0.10$ for Dawid--Skene at $\delta = 1$ and
@@ -129,10 +127,7 @@ the opposite sign to the shrinkage of $\sigma_\theta$ seen when $\theta_i$ is sa
 replications flagged, median smallest bulk ESS 89 to 162 from 600 draws); at $\delta = 1.5$
 mixing remains slower (36\% to 77\% flagged, median smallest ESS 18 to 64) and the
 merged-class mode reappears in 8\% of replications, concentrated at $N = 600$, $P = 5$ (18
-of 100), that is, where the likelihood is sharpest. We report both figures: over all
-replications the $\delta = 1.5$ prevalence bias is $+0.043$; excluding the merged-mode
-replications, identified by a gap above $0.15$ between the chain-wise posterior means of
-the prevalence, it is $+0.032$. The diagnostic of Section~\ref{sec:estimation}, followed
+of 100), that is, where the likelihood is sharpest. We report both figures: over all replications the $\delta = 1.5$ prevalence bias is $+0.043$; excluding the merged-mode replications, identified by a gap above $0.15$ between the chain-wise posterior means of the prevalence, it is $+0.032$. In the cell $N = 600$, $P = 5$ the 18 merged-mode replications account for the whole difference between the two estimators: over all replications the CRE-LCM prevalence RMSE ($0.112$) exceeds Dawid--Skene's ($0.108$) and the sensitivity bias is $-0.065$; excluding them, the prevalence bias is $+0.016$ with RMSE $0.083$ (Dawid--Skene $+0.102$, $0.106$), the sensitivity bias $-0.036$, the specificity bias $-0.019$, and coverage $0.93$, $0.88$ and $0.89$ for prevalence, sensitivity and specificity (notes to Tables~\ref{tab:prev} and~\ref{tab:sensspec}). The diagnostic of Section~\ref{sec:estimation}, followed
 by anchoring a small labelled subset as in Section~\ref{sec:ident}, is the remedy at
 this strength of dependence. Runtime per replication with quadrature is
 3.5 and 6 minutes at $N = 150$ ($P = 3$ and $5$), 8 and 14 minutes at $N = 300$, and 21
