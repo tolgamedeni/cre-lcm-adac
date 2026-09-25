@@ -8,11 +8,12 @@
 
 \emph{Accuracy is not enough.} \citet{Carlson2025} found that a configuration with 88\% first-stage accuracy produced a downstream coefficient of the wrong sign while one with 56\% accuracy did not, because the direction of error was correlated with the outcome. Our model does not solve that problem, but it makes its ingredients visible: the class-specific model effects $a_{mk}$ show which configurations err asymmetrically, and the posterior class probabilities carry the residual uncertainty into any downstream analysis instead of discarding it.
 
-\emph{Limitations.} The main model is binary; the multiclass extension is sketched and left for future work. The random effects are Gaussian and crossed; our misspecification arm shows
-% TODO-AUTHOR: [SIM] fill in the t_4 result from Table 6 (results/grid/misspecification_summary.csv) when the grid completes.
-[SIM] but other departures (bimodal ambiguity, model-by-prompt interactions) are untested. The shared item scale is shrunk by 10--20\% at $N = 300$ in the correct mode, which propagates into the item share; anchoring reduces the shrinkage and larger $N$
-% TODO-AUTHOR: [SIM] state whether the shrinkage of sigma_theta decreases with N (from grid Table 6 / Fig. 4).
-[SIM]. Estimation by MCMC takes minutes per fit; an EM algorithm with quadrature would make the method routine. Finally, LLM versions change: the annotations we report are tied to the version strings and dates in the supplementary material, and the model's parameters should be understood as properties of those versions, not of the model families.
+\emph{Limitations.} The main model is binary; the multiclass extension is sketched and left for future work. The random effects are Gaussian and crossed; our misspecification arm shows that
+$t_4$ item effects leave prevalence, accuracy and the posterior labels unaffected and
+bias only the item share (Section~\ref{sec:sim_misspec}),
+% TODO-AUTHOR: [SIM] filled by Claude from Table 6.
+but other departures (bimodal ambiguity, model-by-prompt interactions) are untested. The shared item scale is shrunk by 10--20\% at $N = 300$ when $\theta_i$ is sampled, which propagates into the item share; anchoring reduces the shrinkage, and with $\theta_i$ integrated out the item share is instead slightly overestimated, by $0.04$ at $N = 150$ and $0.01$ at $N = 600$ (Section~\ref{sec:sim_results}).
+% TODO-AUTHOR: [SIM] filled by Claude from grid_cells_q.csv (share_item_bias by N at delta = 1). Estimation by MCMC takes minutes per fit; an EM algorithm with quadrature would make the method routine. Finally, LLM versions change: the annotations we report are tied to the version strings and dates in the supplementary material, and the model's parameters should be understood as properties of those versions, not of the model families.
 
 \section{Conclusion}\label{sec:conclusion}
 

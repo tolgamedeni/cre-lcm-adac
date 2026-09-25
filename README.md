@@ -79,17 +79,25 @@ by 10-20 % in every correct-mode chain; anchoring reduces it.
   independent of N and P; specificity bias +0.04 / +0.09 at dep 1 / 1.5.
 - CRE-LCM at dep <= 0.5: unbiased for every quantity, coverage 1.00, Brier below Dawid-Skene in
   every cell; convergence fine (<= 20 % flagged, median ESS > 90).
-- **CRE-LCM at dep >= 1 (every cell, P = 3 and P = 5, t4 included): not converged.** 75-99 % of
-  replications flagged (R-hat > 1.05), median bulk ESS 5-12 from 1500 draws; chains agree with each
-  other (merged mode in only 41 of 2418 classifiable replications) but stay near the Dawid-Skene
-  initial value: at P = 5 within 0.02 of it (so the reported CRE-LCM bias equals Dawid-Skene's),
-  at P = 3 drifting 0.04-0.05 towards the truth but equally unconverged. The 4 x 2000 fit of the
-  same design in step 3 gave bias +0.02. These 13 cells are being refitted with theta integrated
-  out by Gauss-Hermite quadrature (see "Open issue").
-- Misspecification (t4 random effects, dep 1, N 300, P 5): CRE-LCM bias +0.034 vs +0.055
-  Gaussian, accuracy 0.929 vs 0.905, Brier 0.064 vs 0.083; no degradation.
+- CRE-LCM at dep >= 1, sampled theta (variant e, first grid run): not converged in any cell (75-99 %
+  flagged, median ESS 5-12); estimates stayed near the Dawid-Skene initial value. Kept in
+  `grid_cells.csv` / `summary.md` for the record; superseded below.
+- **CRE-LCM at dep >= 1, theta integrated by quadrature (variant q, rerun 23-25 Sept, 100 reps/cell,
+  2 x 600, 15 nodes; `grid_cells_q.csv`, `summary_q.md`):** prevalence bias +0.006 to +0.018 at dep 1
+  (DS +0.05) and +0.027 to +0.065 at dep 1.5 (DS +0.10 to +0.11); prevalence coverage 0.94-1.00;
+  specificity bias -0.004 to -0.047 (DS +0.04 / +0.09); sensitivity underestimated by 0.01-0.09
+  (worst at N = 150); Brier 0.65 x Dawid-Skene's in every cell; item/model/prompt shares recovered
+  (item share bias +0.01 to +0.05, decreasing with N). Convergence: dep 1 5-20 % flagged, median
+  min-ESS 89-162; dep 1.5 36-77 % flagged, median min-ESS 18-64, merged mode in 8 % of reps
+  (18/100 at N = 600, P = 5). Runtime per replication 3.5/6 min (N 150), 8/14 (N 300), 21/37 (N 600)
+  for P = 3/5.
+- Final grid for the paper (`grid_cells_final.csv`): dep <= 0.5 from variant e, dep >= 1 from variant q;
+  the two routes agree where both converge (`quad_consistency.md`).
+- Misspecification (t4 random effects, dep 1, N 300, P 5; quadrature): CRE-LCM prevalence bias +0.009
+  vs +0.001 Gaussian, accuracy 0.94 vs 0.93, Brier 0.046 vs 0.052, prevalence coverage 1.00 vs 0.99;
+  only the item share is affected (bias -0.036, coverage 0.67 vs +0.012, 0.97).
 
-### Open issue (in progress, decided 23 Sept 2026)
+### Slow mixing and its remedy (resolved 25 Sept 2026)
 
 Slow mixing of pi1 and s_th at dep >= 1 (the theta/class trade-off of the identifiability
 analysis) makes 2 x 1500 chains insufficient in every dep >= 1 cell, P = 3 and P = 5 alike.
@@ -103,8 +111,8 @@ dep0.5_N300_P3 and dep0.5_N300_P5 refitted with (q) and compared with the (e) es
 one model can be used across the grid; (ii) consistency check done: 10 replications each in dep0.5_N300_P3 and dep0.5_N300_P5 refitted
 with (q) at 2 x 600 agree with (e) at 2 x 1500 (prevalence difference -0.001, SD 0.002, correlation
 0.995; all quantities within Monte Carlo error; `results/grid/quad_consistency.md`); (iii) rerun of the
-13 dep >= 1 cells with (q) launched 23 Sept 2026 23:08: 100 replications, 2 chains x 600 (300 warmup),
-15 nodes, 9 workers, expected about 48 h
+13 dep >= 1 cells with (q) done 23 Sept 23:08 - 25 Sept 11:06 (36 h): 100 replications, 2 chains x 600
+(300 warmup), 15 nodes, 9 workers
 (`GRID_VARIANT=q GRID_CELLS="dep1.0_,dep1.5_" GRID_WARMUP=300 GRID_SAMPLING=300 Rscript R/05_grid.R`,
 resumable; outputs in `results/grid/reps_q/`, `grid_cells_q.csv`, `summary_q.md`; runtime per
 replication and node count recorded). Runtime of the present grid:

@@ -105,30 +105,33 @@ specificity bias below $0.004$, coverage of the prevalence interval $1.00$, and 
 scores below Dawid--Skene's in every cell. Convergence is unproblematic (at most 20\% of
 replications flagged at $\delta = 0.5$, median bulk ESS above 90).
 
-\emph{CRE-LCM at $\delta \ge 1$: a sampler, not an estimator, result.} With strong
-dependence the grid does not measure the estimator. In every cell with $\delta \ge 1$,
-for both $P = 3$ and $P = 5$ and including the $t_4$ arm, 75\% to 99\% of replications
-have a global parameter with split-$\widehat{R} > 1.05$ and the median bulk effective
-sample size of the worst parameter is 5 to 12 from 1500 draws. The two chains agree with
-each other (a merged-class mode is detected in only 41 of 2418 classifiable
-replications), so this is slow mixing of $\pi_1$ and $\sigma_\theta$, the
-theta/class trade-off of Section~\ref{sec:ident}, not multimodality. Its consequence is
-that the estimates inherit the initial values: with $P = 5$ the CRE-LCM prevalence stays
-within $0.02$ of the Dawid--Skene value that initialised the chains and correlates with it
-at $0.7$ to $0.9$, so the reported bias ($+0.05$ at $\delta = 1$, $+0.10$ to $+0.13$ at
-$\delta = 1.5$) equals Dawid--Skene's; with $P = 3$ the chains drift $0.04$ to $0.05$
-away from the initial value towards the truth (bias $+0.004$ to $+0.017$ at
-$\delta = 1$, $+0.05$ to $+0.07$ at $\delta = 1.5$) but are equally far from
-convergence, and the item share is likewise held near its starting value. The
-identifiability fits of Section~\ref{sec:ident} (four chains of 2000 iterations, the
-$\delta = 1$, $N = 300$, $P = 5$ design) gave a prevalence bias of $+0.02$. The
-$\delta \ge 1$ cells of the grid are therefore being refitted with the shared item
-effect integrated out by Gauss--Hermite quadrature (Section~\ref{sec:estimation}), which
-removes the slowly mixing latent parameters; the tables and figures will be replaced by
-those results, and a consistency check at $\delta = 0.5$ verifies that the two
-estimation routes agree so that one model is used across the grid.
-% TODO-AUTHOR: replace the previous paragraph with the quadrature results once the
-% rerun of the 13 dependence >= 1 cells (all P, t4 included) is complete.
+\emph{CRE-LCM at $\delta \ge 1$.} With the shared item effect integrated out, the model
+removes most of the Dawid--Skene bias. At $\delta = 1$ the prevalence bias is $+0.006$ to
+$+0.018$ (Dawid--Skene: $+0.05$), the specificity bias $-0.004$ to $-0.015$
+(Dawid--Skene: $+0.04$), and the coverage of the prevalence interval $0.96$ to $1.00$.
+At $\delta = 1.5$ the prevalence bias is $+0.027$ to $+0.065$ against $+0.10$ to $+0.11$
+for Dawid--Skene, with coverage $0.94$ to $0.99$; the largest values occur at $N = 150$.
+The one quantity that CRE-LCM does not recover well is mean sensitivity, which it
+underestimates by $0.01$ to $0.05$ at $N \ge 300$ and by $0.04$ to $0.09$ at $N = 150$,
+against a Dawid--Skene bias of at most $+0.03$; coverage of the sensitivity interval is
+nevertheless $0.89$ to $0.98$. The posterior labels are markedly better calibrated: the
+Brier score is $0.05$ to $0.07$ against $0.10$ for Dawid--Skene at $\delta = 1$ and
+$0.12$ to $0.14$ against $0.20$ at $\delta = 1.5$ (a ratio of about $0.65$ in every
+cell), while accuracy is higher by one to four points. The variance shares are recovered:
+the model and prompt shares with bias below $0.02$ and coverage $0.87$ to $0.97$, the item
+share with a positive bias of $0.01$ to $0.05$ that shrinks with $N$ (Fig.~\ref{fig:shares}),
+the opposite sign to the shrinkage of $\sigma_\theta$ seen when $\theta_i$ is sampled
+(Section~\ref{sec:ident}). Convergence at $\delta = 1$ is satisfactory (5\% to 20\% of
+replications flagged, median smallest bulk ESS 89 to 162 from 600 draws); at $\delta = 1.5$
+mixing remains slower (36\% to 77\% flagged, median smallest ESS 18 to 64) and the
+merged-class mode reappears in 8\% of replications, concentrated at $N = 600$, $P = 5$ (18
+of 100). Excluding the merged-mode replications lowers the $\delta = 1.5$ prevalence bias
+from $+0.043$ to $+0.032$; longer chains, or anchoring as in Section~\ref{sec:ident}, are
+the remedies at this strength of dependence. Runtime per replication with quadrature is
+3.5 and 6 minutes at $N = 150$ ($P = 3$ and $5$), 8 and 14 minutes at $N = 300$, and 21
+and 37 minutes at $N = 600$ on one core.
+% TODO-AUTHOR: paragraph drafted by Claude from results/grid/grid_cells_q.csv and summary_q.md
+% (quadrature rerun, 100 replications per cell, 2 x 600 iterations, 15 nodes).
 
 \begin{figure}[htbp]
 \centering
@@ -170,11 +173,16 @@ $P = 5$, by dependence level $\delta$; crosses mark the true shares}\label{fig:s
 
 % TODO-AUTHOR: drafted by Claude from results/grid/misspecification_summary.csv.
 Table~\ref{tab:shares} compares the Gaussian and $t_4$ data-generating processes at
-$\delta = 1$, $N = 300$, $P = 5$. Heavy-tailed random effects do not degrade CRE-LCM
-relative to the Gaussian case: prevalence bias $+0.034$ against $+0.055$, accuracy
-$0.929$ against $0.905$, Brier $0.064$ against $0.083$, and coverage of the prevalence
-interval $0.87$ against $0.60$; Dawid--Skene moves in the same direction
-($+0.037$ against $+0.054$). The $t_4$ cell is subject to the same slow mixing (75\% flagged) and is included in the quadrature rerun. The misspecification arm therefore shows
-robustness of the point estimates and labels to the tail behaviour of the random
-effects at this design size, with the same caveat on chain length.
+$\delta = 1$, $N = 300$, $P = 5$. Heavy-tailed random effects do not degrade CRE-LCM:
+prevalence bias $+0.009$ against $+0.001$ under the Gaussian process (Dawid--Skene:
+$+0.037$ and $+0.054$), accuracy $0.94$ against $0.93$, Brier $0.046$ against $0.052$,
+coverage of the prevalence interval $1.00$ against $0.99$, and 8\% of replications
+flagged against 10\%. The one visible effect of the misspecification is on the item
+share, which is underestimated by $0.036$ with coverage $0.67$ (Gaussian: $+0.012$,
+$0.97$): the Gaussian working model attributes part of the heavy-tailed item variance
+to the crossed effects and to the run-level residual. Point estimates of prevalence and
+accuracy, and the posterior labels, are therefore robust to the tail behaviour of the
+random effects at this design size; the variance decomposition is the quantity to
+interpret with care when heavy tails are suspected.
+% TODO-AUTHOR: drafted by Claude from results/grid/misspecification_summary.csv and grid_cells_q.csv.
 \input{../tables/table6_shares_misspec}
