@@ -1,17 +1,23 @@
 \begin{table}[htbp]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\caption{LLM configurations used in the application: one row per provider. Calls count the $800 \times 5 \times 3$ labels at temperature 0.7 plus the 800-call temperature-0 pass of prompt 1; missing = answers without a 0/1 digit after one retry; cost at list prices from the logged token counts}\label{tab:providers}
-\begin{tabular}{lllllllllrr}
+\small
+\caption{LLM configurations used in the application. Calls count the $800 \times 5 \times 3$ labels at temperature 0.7 plus the 800-call temperature-0 pass of prompt 1; missing = answers without a 0/1 digit after one retry; cost at list prices from the logged token counts}\label{tab:providers}
+\begin{tabular}{llll}
 \toprule
-Provider & Model identifier & Version / digest & Quantisation & Endpoint & $T$ & max tokens & Query dates & Calls & Missing (\%) & Cost (USD) \\
+Provider & Anthropic & Google & Alibaba (open weights) \\
 \midrule
-Anthropic & claude-haiku-4-5-20251001 & API version string & -- & Messages API (api.anthropic.com) & 0.7 (and 0) & 16 & 25 Sept 2026 & 12,800 & 0.00 & 1.63 \\
-Google & gemini-3.5-flash & model\_version as served, thinking disabled & -- & Gemini API (generativelanguage.googleapis.com) & 0.7 (and 0) & 16 & 25--26 Sept 2026 & [9,872 of 12,800 to date] & [0.10 to date] & [to fill] \\
-Alibaba (open weights) & qwen2.5:7b-instruct & digest 845dbda0ea48 & Q4\_K\_M (7.6B) & Ollama 0.34.4, local (virtual machine) & 0.7 (and 0) & 16 & 25 Sept 2026 & 12,800 & 0.00 & 0 \\
+Model identifier & claude-haiku-4-5-20251001 & gemini-3.5-flash & qwen2.5:7b-instruct \\
+Version / digest & as served (API string) & as served, thinking disabled & digest 845dbda0ea48 \\
+Quantisation & -- & -- & Q4\_K\_M (7.6B parameters) \\
+Endpoint & Messages API & Gemini API & Ollama 0.34.4, local VM \\
+Temperature & 0.7 (and 0) & 0.7 (and 0) & 0.7 (and 0) \\
+Max output tokens & 16 & 16 & 16 \\
+Query dates & 25 Sept 2026 & 25--26 Sept 2026 & 25 Sept 2026 \\
+Calls & 12,800 & [9,872 of 12,800 to date] & 12,800 \\
+Missing (\%) & 0.00 & [0.10 to date] & 0.00 \\
+Cost (USD) & 1.63 & [to fill] & 0 \\
 \bottomrule
 \end{tabular}
-% TODO-AUTHOR: Gemini row (calls, missing, cost) and the date range are filled after the quota-limited
+% TODO-AUTHOR: Gemini column (calls, missing, cost) and its date range are filled after the quota-limited
 % remainder of the Gemini run completes on 26 Sept 2026.
 \end{table}
