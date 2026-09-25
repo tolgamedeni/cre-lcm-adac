@@ -26,3 +26,5 @@ manuscript/*.fdb_latexmk manuscript/*.fls manuscript/*.synctex.gz manuscript/*.s
 .RData
 .Rproj.user/
 *.swp
+data/source/
+data/raw/
