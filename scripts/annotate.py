@@ -149,7 +149,10 @@ def done_keys(path):
             for line in f:
                 try:
                     d = json.loads(line)
-                    if d.get("final"): keys.add((d["bill_id"], d["prompt"], d["run"], d["temperature"]))
+                    # a record counts as done only if it was answered (label or a genuine non-digit
+                    # answer); transport/quota failures (raw None with an error) are retried on resume
+                    if d.get("final") and not (d.get("raw") is None and d.get("error")):
+                        keys.add((d["bill_id"], d["prompt"], d["run"], d["temperature"]))
                 except json.JSONDecodeError:
                     pass
     return keys
@@ -223,7 +226,9 @@ def export():
                 d = json.loads(line)
                 key = (d["bill_id"], d["provider"], d["prompt"], d["run"], d["temperature"])
                 prev = rows.get(key)
-                if prev is None or (prev["label"] is None and d["label"] is not None) or d["attempt"] > prev["attempt"]:
+                answered = d.get("raw") is not None
+                prev_answered = prev is not None and prev.get("raw") is not None
+                if prev is None or (answered and not prev_answered) or (answered == prev_answered and d["attempt"] > prev["attempt"]):
                     rows[key] = d
     def write(fn, temp):
         with open(fn, "w", newline="") as f:
