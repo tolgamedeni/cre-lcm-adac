@@ -73,7 +73,7 @@ kap <- data.frame(model = c(models, "all 45 configurations"),
 between <- sapply(1:M, function(a) sapply(1:M, function(b) mean(agree[cfg$m == a, cfg$m == b][cfg$p[cfg$m == a] == rep(cfg$p[cfg$m == b], each = 1)])))
 write.csv(kap, file.path(OUT, "fleiss_kappa.csv"), row.names = FALSE)
 write_booktabs(data.frame(model = kap$model, k = kap$n_config, kappa = fmt(kap$fleiss_kappa), agree = fmt(kap$mean_pairwise_agreement), p1 = fmt(kap$pct_label_1, 1), miss = fmt(kap$pct_missing, 2)),
-  file.path(OUT, "table7_agreement.tex"),
+  file.path(OUT, "table8_agreement.tex"),
   caption = "Agreement among the LLM configurations on the 800 bills: Fleiss' $\\kappa$ and mean pairwise agreement within each model (15 configurations: 5 prompts $\\times$ 3 runs) and over all 45 configurations; percentage of labels equal to 1 and of missing (unparsable) answers",
   label = "tab:agreement", header = "Model & configurations & Fleiss' $\\kappa$ & pairwise agreement & \\% label 1 & \\% missing", align = "lrrrrr")
 
@@ -129,7 +129,7 @@ ev <- do.call(rbind, lapply(names(posts), function(nm) rbind(
 ev$true_prev <- ifelse(grepl("validation", ev$set), mean(bills$y[val]), mean(bills$y[nonanch]))
 write.csv(ev, file.path(OUT, "evaluation.csv"), row.names = FALSE)
 write_booktabs(data.frame(method = ev$method, set = ev$set, acc = fmt(ev$accuracy), brier = fmt(ev$brier), sens = fmt(ev$sens), spec = fmt(ev$spec), prev = fmt(ev$prev_hat), tp = fmt(ev$true_prev)),
-  file.path(OUT, "table8_evaluation.tex"),
+  file.path(OUT, "table9_evaluation.tex"),
   caption = "Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the non-anchored working bills",
   label = "tab:app_eval", header = "Method & Set & Accuracy & Brier & Sens. & Spec. & $\\hat\\pi_1$ & $\\pi_1$ (CAP)", align = "llrrrrrr", size = "\\scriptsize")
 
@@ -142,7 +142,7 @@ write.csv(shares, file.path(OUT, "variance_shares.csv"), row.names = FALSE)
 lab_q <- c(pi1 = "$\\pi_1$", s_th = "$\\sigma_\\theta$", s_ph = "$\\sigma_\\phi$", s_ps = "$\\sigma_\\psi$", share_item = "item share", share_model = "model share", share_prompt = "prompt share", share_run = "run share")
 write_booktabs(data.frame(q = lab_q[shares$quantity], a = sprintf("%s [%s, %s]", fmt(shares$q_mean), fmt(shares$q_lo, 2), fmt(shares$q_hi, 2)),
                           b = sprintf("%s [%s, %s]", fmt(shares$anchored_mean), fmt(shares$anchored_lo, 2), fmt(shares$anchored_hi, 2)), ess = fmt(shares$q_ess, 0)),
-  file.path(OUT, "table9_shares.tex"),
+  file.path(OUT, "table10_shares.tex"),
   caption = "CRE-LCM estimates on the bills: prevalence, random-effect standard deviations and variance shares (posterior mean and 95\\% credible interval) without and with 30 anchored bills; bulk ESS of the unanchored fit",
   label = "tab:app_shares", header = "Quantity & CRE-LCM & CRE-LCM, anchored & ESS", align = "llll")
 
@@ -162,7 +162,7 @@ names(percfg) <- gsub("\\.2\\.5%|\\.97\\.5%", "", names(percfg))
 write.csv(percfg, file.path(OUT, "per_configuration_accuracy.csv"), row.names = FALSE)
 write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(percfg$sens_h), sds = fmt(percfg$sens_ds), sq = sprintf("%s [%s, %s]", fmt(percfg$sens), fmt(percfg$sens_lo, 2), fmt(percfg$sens_hi, 2)),
                           ph = fmt(percfg$spec_h), pds = fmt(percfg$spec_ds), pq = sprintf("%s [%s, %s]", fmt(percfg$spec), fmt(percfg$spec_lo, 2), fmt(percfg$spec_hi, 2))),
-  file.path(OUT, "table10_per_configuration.tex"),
+  file.path(OUT, "table11_per_configuration.tex"),
   caption = "Sensitivity and specificity of each model--prompt configuration (averaged over its three runs): against the CAP human codes, as estimated by Dawid--Skene, and as implied by CRE-LCM (marginal over the item effects, posterior mean and 95\\% interval)",
   label = "tab:app_percfg", header = "Model & Prompt & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}\n & & CAP & DS & CRE-LCM & CAP & DS & CRE-LCM", align = "llrrlrrl", size = "\\scriptsize", colsep = "3pt")
 
@@ -220,6 +220,6 @@ md <- c("# Application: policy-topic coding of US congressional bills (Section 5
   "", "## Posterior predictive check (agreement counts per bill)", "", md_tab(ppc_stat),
   "", "## Per-chain means (unanchored fit)", "", md_tab(data.frame(parameter = rownames(fq$per_chain), round(fq$per_chain, 3))),
   if (!is.null(t0tab)) c("", "## Temperature-0 sensitivity (prompt 1)", "", md_tab(t0tab), "", md_tab(t0pair)) else "",
-  "", "Figures: figures/Fig5 (calibration), figures/Fig6 (posterior predictive check). Tables: results/application/table7-10*.tex.")
+  "", "Figures: figures/Fig5 (calibration), figures/Fig6 (posterior predictive check). Tables: results/application/table8-11*.tex.")
 writeLines(md, file.path(OUT, "summary.md"))
 cat("[app] done ->", OUT, "\n")

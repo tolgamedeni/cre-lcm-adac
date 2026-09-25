@@ -1,9 +1,53 @@
 \section{Application: policy-topic coding}\label{sec:application}
-% TODO-AUTHOR: v5 plan only (section5_data_plan.md); placeholder below.
+% TODO-AUTHOR: 5.1 and the first paragraph of 5.2 are Claude's factual drafts from data/README.md and
+% the annotation logs; the "choice of models" paragraph is the author's text (manuscript/model_and_environment.md).
+% 5.3 waits for the analysis (results/application/summary.md).
 
-[DATA: this section waits on the annotation of Comparative Agendas Project texts;
-design as planned: $M = 3$--4 model families including one open-weights model,
-$P = 5$ semantically equivalent prompts, $R = 3$ runs at temperature above zero, with
-version strings and dates recorded; human-coded major topics held out from estimation and
-used as the gold standard for evaluation; variance decomposition, comparison of
-Dawid--Skene and CRE-LCM against the held-out codes, and posterior predictive checks.]
+\subsection{Data}\label{sec:app_data}
+
+We use bill titles from the Comparative Agendas Project's Congressional Bills dataset (version 19.3),
+in which every bill carries one major policy topic assigned by trained human coders under the
+Policy Agendas codebook. From the 37,007 bills of the 111th to 116th Congresses (2009--2020) with a
+title and one of the 20 major topics we drew a stratified sample of 800: 240 bills coded as Health
+(topic 3; 11.6\% of the population) and 560 from the other 19 topics in proportion to their
+frequency, with a fixed seed. The binary target is whether the bill's major topic is Health. A
+random 200 bills form a validation set whose human codes are never used in estimation; the
+remaining 600 are the working set from which 30 anchors (5\%) are drawn for the anchored fit. Titles
+have a median length of 25 words. The derived file (bill identifier, Congress, title, CAP major
+topic and our labels) is redistributed under the dataset's CC BY-NC-SA 4.0 licence with attribution.
+
+\subsection{Annotation design}\label{sec:app_design}
+
+Each bill was labelled by $M = 3$ model families $\times$ $P = 5$ prompts $\times$ $R = 3$ decoding
+runs at temperature 0.7, giving 45 labels per bill and 12,000 calls per provider, plus one
+temperature-0 pass of prompt 1 (800 calls per provider). The five prompt templates, written by the
+authors and reproduced verbatim in the supplementary material, range from a bare question to a
+codebook definition, a contrast with other topics, a role instruction and an instruction to
+consider the purpose before answering. Every call asked for a single digit with a 16-token output
+budget; the first digit of the answer was parsed as the label, an answer without a 0/1 digit was
+re-queried once and then recorded as missing. Calls were made from a script that stores every raw
+response with timestamp, model version, prompt, run and temperature (Table~\ref{tab:providers}).
+
+The three model families were chosen to span the design space that the method is meant to
+describe rather than to maximise accuracy. First, each family comes from a different developer
+with a different training corpus and alignment procedure (Anthropic, Google, Alibaba), so that the
+item-by-model effect $\phi_{im}$ captures genuine between-family dependence rather than variation
+among versions of one model. Second, the two commercial models are the efficiency tier of their
+families (Claude Haiku 4.5, Gemini 3.5 Flash), which is the tier practitioners use for annotation
+at scale: \citet{Carlson2025} report that such models match or approach the larger tiers on binary
+classification at a fraction of the cost, and cost is what makes the model $\times$ prompt
+$\times$ run design affordable. Third, one family is an open-weights model run locally (Qwen 2.5
+7B Instruct, 4-bit quantised, served by Ollama): its weights and digest are archived, so this arm
+of the ensemble is exactly reproducible, which no API-served model can guarantee once its version
+is retired \citep{Barrie2025}. Larger or reasoning-oriented models were deliberately excluded:
+they raise cost by one to two orders of magnitude, their suitability for plain classification is
+unclear \citep{Carlson2025}, and the question of the paper is not which model is best but how
+dependent the members of an ensemble are. Model identifiers, quantisation, decoding parameters,
+query dates, call counts, missing rates and cost are given in Table~\ref{tab:providers}; all raw
+responses are archived.
+\input{../tables/table7_providers}
+
+\subsection{Results}\label{sec:app_results}
+% TODO-AUTHOR: to be written from results/application/summary.md (agreement, variance shares,
+% evaluation against CAP, per-configuration accuracy, calibration Fig. 5, posterior predictive check Fig. 6).
+[To be completed when the analysis has run.]

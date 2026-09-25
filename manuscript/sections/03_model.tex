@@ -134,3 +134,21 @@ Stan programs are listed in Appendix~\ref{app:stan}.
 %  - interval filled: pi1 95% CI [0.219, 0.353] from the 15-node fit (draws_q.rds); mean 0.283.
 %  - verified unchanged: 4.75x runtime (11.4 vs 2.4 min), 40x ESS per minute (226.8 vs 5.6), Brier 0.059,
 %    node agreement 0.285/0.283/0.283 (prevalence) and 0.946/0.946/0.943 (sigma_theta).
+
+\subsection{Computational environment}\label{sec:environment}
+% Author's text (manuscript/model_and_environment.md) with placeholders filled from the system
+% on 25 Sept 2026 (sessionInfo, renv.lock, cmdstan_version, nproc, free, ollama, run logs).
+All computations were run on a single Apple Mac mini (M4 Pro, 64 GB unified memory) hosting a
+Linux arm64 virtual machine (Ubuntu 26.04.1 LTS, 30 GB RAM, 10 cores allocated).
+% TODO-AUTHOR: the host's core count could not be read from inside the virtual machine; add it if wanted.
+Statistical analyses used R 4.5.3 with cmdstanr 0.9.0 and CmdStan 2.40.0, posterior 1.7.0 and
+ggplot2 4.0.3; all package versions are pinned in an renv lockfile in the repository. The
+simulation grid ran on nine parallel workers, one chain per core: about 24 hours for the 2,500
+replications with sampled item effects and 36 hours for the 1,300 replications with quadrature;
+per-replication runtimes are given in Table~\ref{tab:labels}. LLM queries used the Anthropic
+Messages API (claude-haiku-4-5-20251001), the Gemini API (gemini-3.5-flash, thinking disabled) and
+Ollama 0.34.4 serving qwen2.5:7b-instruct (Q4\_K\_M, digest 845dbda0ea48) on the virtual machine;
+all calls were made between 25 and 26 September 2026 with temperature 0.7, a 16-token output
+budget and the first digit of the response parsed as the label, plus one temperature-0 pass of
+prompt 1. Code development was assisted by an AI coding agent, as declared on the title page.
+% TODO-AUTHOR: "25 and 26 September" assumes the Gemini remainder completes on 26 Sept; adjust if not.
