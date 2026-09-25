@@ -14,5 +14,5 @@ A bill's main subject can be health, or one of twenty other policy areas such as
 P4 (role)
 As an experienced legislative analyst, classify this bill title. Output 1 if the bill's primary purpose concerns health policy, 0 otherwise. Title: "{TITLE}"
 
-P5 (reasoned)
-Read the bill title, identify its primary policy purpose in your own words, then decide whether that purpose falls under health. Give only the final digit, 1 = health, 0 = not health. Title: "{TITLE}"
+P5 (reasoned; revised 25 Sept 2026 after the dry run, see the plan)
+Read the bill title and think about its primary policy purpose, then decide whether that purpose falls under health. Do not write your reasoning. Reply with the final digit only: 1 = health, 0 = not health. Title: "{TITLE}"

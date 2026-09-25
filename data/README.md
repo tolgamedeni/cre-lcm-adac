@@ -43,6 +43,6 @@ attribution. Please cite:
   (timestamp, model id, prompt id, run, temperature, raw text, parse result). Git-ignored raw
   API traffic is archived with the Zenodo release.
 - `labels_long.csv`: parsed labels, one row per (bill, model, prompt, run): `bill_id`, `model`,
-  `model_id`, `prompt`, `run`, `temperature`, `label` (0/1), `missing` (1 if no digit after one retry).
+  `model_id`, `prompt`, `run`, `temperature`, `label` (0/1), `missing` (1 if no 0/1 digit after one retry). All providers: max_tokens 16, first digit parsed (decision of 25 Sept 2026, see the plan).
 - `labels_temp0.csv`: the temperature-0 sensitivity pass (prompt 1 only, one run per model).
 - `prompts.md`: the five prompt templates verbatim (written by the author).
