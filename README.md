@@ -120,7 +120,7 @@ about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per
 
 ## Application (Section 5, 25-26 Sept 2026)
 
-800 CAP bill titles (Congresses 111-116; 240 Health, 560 other; validation 200 / working 600), labelled by
+800 CAP bill titles (Congresses 111-114, 2009-2016, the most recent in CAP v19.3; 240 Health, 560 other; validation 200 / working 600), labelled by
 3 models x 5 prompts x 3 runs at T = 0.7 plus a T = 0 pass (`data/`, `scripts/annotate.py`; run record
 in `data/README.md`; API cost USD 3.31). Analysis `scripts/analyze_application.R` -> `results/application/`
 (summary.md with every number quoted in Section 5, tables 8-12, Fig5 calibration, Fig6 PPC).

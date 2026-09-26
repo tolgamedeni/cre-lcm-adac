@@ -32,8 +32,7 @@ attribution. Please cite:
 
 ## Derived files
 
-- `bills_sample.csv` (`scripts/01_sample_bills.R`): 800 bills from the 111th-116th Congresses
-  (2009-2020) with a non-missing title and one of the 20 CAP major topics (1-10, 12-21; code 99
+- `bills_sample.csv` (`scripts/01_sample_bills.R`): 800 bills from the 111th-114th Congresses (2009-2016; v19.3 ends with the 114th) with a non-missing title and one of the 20 CAP major topics (1-10, 12-21; code 99
   "other" excluded). Stratified sample with seed 2026: 240 bills with major topic 3 (Health) and
   560 drawn from the other 19 topics in proportion to their frequency (largest-remainder rounding).
   Columns: `bill_id`, `congress`, `title`, `cap_majtopic`, `health` (1 if major topic 3),

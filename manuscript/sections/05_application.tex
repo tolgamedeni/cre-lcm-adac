@@ -5,11 +5,9 @@
 \subsection{Data}\label{sec:app_data}
 
 We apply the model to the classification of US congressional bill titles by policy topic. The
-Congressional Bills Project \citep{Wilkerson2025} provides the title of every bill introduced in
-Congress together with a major-topic code assigned by trained human coders under the Comparative
+Congressional Bills Project \citep{Wilkerson2025} provides the title of every bill introduced in the 80th--114th Congresses (1947--2016) together with a major-topic code assigned by trained human coders under the Comparative
 Agendas Project (CAP) codebook \citep{Jones2025}, which makes the human code a genuine reference
-label rather than a label produced by the raters under study. From the 37,007 bills of the 111th
-to 116th Congresses (2009--2020) we drew a stratified sample of 800 titles: 240 coded as
+label rather than a label produced by the raters under study. From the 37,007 bills of the 111th to 114th Congresses (2009--2016), the most recent covered by the dataset, we drew a stratified sample of 800 titles: 240 coded as
 \emph{Health} (CAP major topic 3) and 560 from the other nineteen substantive topics in proportion
 to their frequency, giving a prevalence of 0.30 for the binary target ``the bill's main subject
 is health''. Health accounts for 11.6\% of the eligible bills; the stratification raises the
@@ -40,8 +38,7 @@ with a different training corpus and alignment procedure (Anthropic, Google, Ali
 item-by-model effect $\phi_{im}$ captures genuine between-family dependence rather than variation
 among versions of one model. Second, the two commercial models are the efficiency tier of their
 families (Claude Haiku 4.5, Gemini 3.5 Flash), which is the tier practitioners use for annotation
-at scale: \citet{Carlson2025} report that such models match or approach the larger tiers on binary
-classification at a fraction of the cost, and cost is what makes the model $\times$ prompt
+at scale: \citet{Carlson2025} found that an efficiency-oriented model (GPT-4o) outperformed the larger models they tested on binary classification at a fraction of their cost, although the smallest models they tested were markedly less accurate; cost is what makes the model $\times$ prompt
 $\times$ run design affordable. Third, one family is an open-weights model run locally (Qwen 2.5
 7B Instruct, 4-bit quantised, served by Ollama): its weights and digest are archived, so this arm
 of the ensemble is exactly reproducible, which no API-served model can guarantee once its version
@@ -163,9 +160,7 @@ is health as the LLMs read it rather than the CAP topic. Anchoring a small coded
 remedy, because the anchors tie the latent class to the reference coding; but it works only if the
 anchors include boundary bills. The 30 anchors drawn at random here contain one non-Health bill
 with a substantial share of Health labels, and the anchored fit makes the same six validation
-errors. This is the measurement counterpart of the reliability-without-validity finding of
-\citet{Norman2026}: LLM raters agree with one another more closely than with task-specific human
-coding, and no model of their agreement alone can recover the difference.
+errors. This parallels the reliability-without-validity finding of \citet{Norman2026}, who show that an LLM judge can be almost perfectly consistent from run to run while remaining systematically biased: within-model run-to-run consistency does not guarantee validity. Here the same holds across models---the LLM raters agree with one another more closely than with the CAP coding---and no model of their agreement alone can recover the difference.
 
 \subsection{Design implications for this task}\label{sec:app_design_implications}
 

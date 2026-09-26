@@ -3,7 +3,7 @@
 # Build the application sample from the Comparative Agendas Project (CAP)
 # Congressional Bills dataset (data/source/congressional_bills_19.3.csv,
 # downloaded from comparativeagendas.net, see data/README.md).
-#   - Congresses 111-116 (2009-2020); fields: bill id, congress, title, CAP major topic
+#   - Congresses 111-114 (2009-2016; CAP v19.3 ends with the 114th); fields: bill id, congress, title, CAP major topic
 #     (the 20 CAP major topics 1-10, 12-21; code 99 'other' excluded)
 #   - stratified sample, seed 2026: 240 bills with major topic 3 (Health) and
 #     560 from all other topics, proportional to their frequency
@@ -23,7 +23,7 @@ CAP_TOPICS <- c(1:10, 12:21)                   # the 20 CAP major topics (99 = o
 b <- b[!is.na(b$cap_majtopic) & b$cap_majtopic %in% CAP_TOPICS & !is.na(b$title) & nzchar(trimws(b$title)) & !duplicated(b$bill_id), ]
 b$title <- trimws(gsub("\\s+", " ", b$title))
 b <- b[order(b$bill_id), ]                     # deterministic order before sampling
-cat(sprintf("[sample] Congresses 111-116 with title and topic: %d bills; Health (3): %d (%.1f%%)\n",
+cat(sprintf("[sample] Congresses 111-114 with title and topic: %d bills; Health (3): %d (%.1f%%)\n",
             nrow(b), sum(b$cap_majtopic == 3), 100 * mean(b$cap_majtopic == 3)))
 
 N_HEALTH <- 240; N_OTHER <- 560
