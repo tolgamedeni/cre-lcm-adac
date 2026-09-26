@@ -43,3 +43,15 @@ release/
 manuscript/cover_letter.tex
 manuscript/cover_letter.pdf
 manuscript/submission_package.md
+
+# --- identifying title page and internal planning notes (kept locally, not in the public/anonymised repo) ---
+/manuscript/title_page.tex
+/manuscript/title_page.pdf
+/ADAC_submission_checklist.md
+/manuscript/section5_data_plan.md
+/manuscript/model_and_environment.md
+/manuscript/manuscript_draft_v3.md
+/manuscript/manuscript_draft_v4.md
+/manuscript/manuscript_draft_v5.md
+/manuscript/section5_draft.md
+/manuscript_skeleton_litreview.md
