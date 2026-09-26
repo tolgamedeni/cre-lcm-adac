@@ -1,4 +1,5 @@
 // crossed_lcre_q_app.stan -- application version of the quadrature model
+// (prior scales for mu, the three SDs and tau_b are passed as data)
 // (crossed_lcre_q_quad.stan) with two additions needed for real annotations:
 //   * the number of valid runs varies by (item, model, prompt): R_imp is data
 //     (runs whose answer could not be parsed are missing at random);
@@ -16,6 +17,9 @@ data {
   int<lower=0, upper=N> N_anchor;
   array[N_anchor] int<lower=1, upper=N> anchor_idx;
   array[N_anchor] int<lower=0, upper=1> anchor_lab;
+  real<lower=0> prior_mu_sd;                  // N(0, prior_mu_sd) on the class intercepts (2 in the simulations)
+  real<lower=0> prior_s_sd;                   // half-normal(0, prior_s_sd) on s_th, s_ph, s_ps (1 in the simulations)
+  real<lower=0> prior_tau_sd;                 // half-normal(0, prior_tau_sd) on tau_b (0.5 in the simulations)
 }
 transformed data {
   int MP = M * P;
@@ -46,13 +50,13 @@ transformed parameters {
 }
 model {
   pi1 ~ beta(1, 1);
-  mu ~ normal(0, 2);
+  mu ~ normal(0, prior_mu_sd);
   to_vector(a_raw) ~ normal(0, 1);
   to_vector(b_z) ~ std_normal();
-  tau_b ~ normal(0, 0.5);
-  s_th ~ normal(0, 1);
-  s_ph ~ normal(0, 1);
-  s_ps ~ normal(0, 1);
+  tau_b ~ normal(0, prior_tau_sd);
+  s_th ~ normal(0, prior_s_sd);
+  s_ph ~ normal(0, prior_s_sd);
+  s_ps ~ normal(0, prior_s_sd);
   to_vector(ph_z) ~ std_normal();
   to_vector(ps_z) ~ std_normal();
   {

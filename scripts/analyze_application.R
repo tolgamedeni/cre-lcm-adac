@@ -7,14 +7,20 @@
 #          never used except for the 30 anchors (working items only) and for evaluation.
 # Outputs: results/application/  (tables as csv + tex, Fig5 calibration, Fig6 PPC, summary.md)
 # Env    : APP_DATA_DIR (default data), APP_OUT (default results/application),
-#          APP_WARMUP / APP_SAMPLING (default 750 / 750 = 1500 iterations), APP_CHAINS (4)
+#          APP_WARMUP / APP_SAMPLING (default 2000 / 2000 = 4000 iterations), APP_CHAINS (4),
+#          APP_PRIOR wide|original (default wide), APP_FIT_ONLY q|anchor (fit one model and stop)
 # =============================================================================
 if (!exists("STAN_BACKEND")) source("R/00_setup.R")
 source("R/01_simulate.R"); source("R/02_baselines.R")
 suppressPackageStartupMessages({library(ggplot2); library(dplyr); library(tidyr)})
 DATA <- Sys.getenv("APP_DATA_DIR", "data"); OUT <- Sys.getenv("APP_OUT", "results/application")
-WARMUP <- as.integer(Sys.getenv("APP_WARMUP", "750")); SAMPLING <- as.integer(Sys.getenv("APP_SAMPLING", "750"))
+WARMUP <- as.integer(Sys.getenv("APP_WARMUP", "2000")); SAMPLING <- as.integer(Sys.getenv("APP_SAMPLING", "2000"))
 CHAINS <- as.integer(Sys.getenv("APP_CHAINS", "4")); SEED <- 2026; Q <- 15; ANCHOR_N <- 30
+# priors: "wide" = half-normal(0, 5) on the SDs and tau_b, N(0, 10) on mu (author's decision, 26 Sept 2026);
+#         "original" = the simulation-study priors (1, 0.5, 2)
+PRIOR <- Sys.getenv("APP_PRIOR", "wide")
+PRIORS <- if (PRIOR == "wide") list(mu = 10, s = 5, tau = 5) else list(mu = 2, s = 1, tau = 0.5)
+FIT_ONLY <- Sys.getenv("APP_FIT_ONLY", "")     # "q" or "anchor": fit that model and stop (parallel runs)
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 MM <- 1 / 25.4; W1 <- 84 * MM; W2 <- 174 * MM
 theme_j <- function(base = 9) theme_bw(base_size = base, base_family = "Helvetica") +
@@ -101,9 +107,10 @@ init <- function() list(pi1 = ds$pi1, mu = c(qlogis(1 - mean(ds$sp)), qlogis(mea
                         tau_b = c(0.3, 0.3), s_th = 0.5, s_ph = 0.5, s_ps = 0.5, ph_z = matrix(0, N, M), ps_z = matrix(0, N, P))
 mod <- compile_stan("stan/crossed_lcre_q_app.stan")
 fit_app <- function(tag, n_anchor, a_idx, a_lab) {
-  f <- file.path(OUT, paste0("fit_", tag, ".rds"))
+  f <- file.path(OUT, paste0("fit_", tag, if (PRIOR == "wide") "" else "_origprior", ".rds"))
   if (file.exists(f)) { message("[app] reuse ", f); return(readRDS(f)) }
-  data <- list(N = N, M = M, P = P, R_imp = Rv, S = S, Q = Q, x_q = gh$x, log_w_q = log(gh$w), N_anchor = n_anchor, anchor_idx = as.array(a_idx), anchor_lab = as.array(a_lab))
+  data <- list(N = N, M = M, P = P, R_imp = Rv, S = S, Q = Q, x_q = gh$x, log_w_q = log(gh$w), N_anchor = n_anchor, anchor_idx = as.array(a_idx), anchor_lab = as.array(a_lab),
+               prior_mu_sd = PRIORS$mu, prior_s_sd = PRIORS$s, prior_tau_sd = PRIORS$tau)
   s <- sample_stan(mod, data = data, chains = CHAINS, iter_warmup = WARMUP, iter_sampling = SAMPLING, seed = SEED, adapt_delta = 0.9, init = init)
   gv <- c("pi1", "mu", "a", "b", "tau_b", "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run", "lp__")
   g <- posterior::subset_draws(s$draws, variable = gv)
@@ -111,8 +118,11 @@ fit_app <- function(tag, n_anchor, a_idx, a_lab) {
               post1 = colMeans(posterior::as_draws_matrix(posterior::subset_draws(s$draws, variable = "post1"))),
               S_rep = posterior::as_draws_matrix(posterior::subset_draws(s$draws, variable = "S_rep"))[seq(1, CHAINS * SAMPLING, length.out = 200), ],
               per_chain = t(apply(posterior::as_draws_array(posterior::subset_draws(g, variable = c("pi1", "mu", "s_th"))), c(2, 3), mean)),
-              diag = c(s$diag, runtime_sec = s$runtime_sec), anchor_idx = a_idx)
+              diag = c(s$diag, runtime_sec = s$runtime_sec), anchor_idx = a_idx, priors = PRIORS,
+              iter = c(chains = CHAINS, warmup = WARMUP, sampling = SAMPLING))
   saveRDS(out, f); out }
+if (FIT_ONLY == "q") { fit_app("cre_q", 0L, integer(0), integer(0)); quit(save = "no") }
+if (FIT_ONLY == "anchor") { fit_app("cre_q_anchor", ANCHOR_N, anchor_idx, anchor_lab); quit(save = "no") }
 fq <- fit_app("cre_q", 0L, integer(0), integer(0))
 cat(sprintf("[app] CRE-LCM (q): %.1f min, max R-hat %.3f, divergences %d\n", fq$diag[["runtime_sec"]] / 60, max(fq$summ$rhat, na.rm = TRUE), fq$diag[["divergences"]]))
 fa <- fit_app("cre_q_anchor", ANCHOR_N, anchor_idx, anchor_lab)
@@ -207,19 +217,31 @@ if (file.exists(t0f) && nrow(t0 <- read.csv(t0f)) > 0) {
   write.csv(t0tab, file.path(OUT, "temp0_sensitivity.csv"), row.names = FALSE); write.csv(t0pair, file.path(OUT, "temp0_between_models.csv"), row.names = FALSE)
 }
 
+# ---- 9b. comparison with the original-prior fits (if present) --------------------------
+prior_cmp <- NULL
+fo <- file.path(OUT, "fit_cre_q_origprior.rds")
+if (PRIOR == "wide" && file.exists(fo)) {
+  o <- readRDS(fo); keys <- c("pi1", "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run")
+  prior_cmp <- data.frame(quantity = keys,
+    original_prior = o$summ$mean[match(keys, o$summ$variable)], original_ess = o$summ$ess_bulk[match(keys, o$summ$variable)],
+    wide_prior = fq$summ$mean[match(keys, fq$summ$variable)], wide_ess = fq$summ$ess_bulk[match(keys, fq$summ$variable)], wide_rhat = fq$summ$rhat[match(keys, fq$summ$variable)])
+  write.csv(prior_cmp, file.path(OUT, "prior_comparison.csv"), row.names = FALSE)
+}
+
 # ---- 10. summary.md ------------------------------------------------------------------
 md_tab <- function(df, d = 3) { df[] <- lapply(df, function(x) if (is.numeric(x)) formatC(x, digits = d, format = "f") else as.character(x))
   c(paste0("| ", paste(names(df), collapse = " | "), " |"), paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|"), apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))) }
 md <- c("# Application: policy-topic coding of US congressional bills (Section 5)", "",
   sprintf("Generated %s. %d bills (%d validation, %d working, %d anchored), %d models (%s), %d prompts, %d runs; %d labels, %.2f%% missing.",
           format(Sys.time(), "%Y-%m-%d %H:%M"), N, sum(val), sum(bills$split == "working"), ANCHOR_N, M, paste(models, collapse = ", "), P, R, nrow(long), 100 * mean(long$missing == 1)),
-  sprintf("CRE-LCM: quadrature (%d nodes), %d chains x %d iterations (%d warm-up), Dawid-Skene initialisation; unanchored fit %.1f min, max R-hat %.3f; anchored fit %.1f min, max R-hat %.3f. Models fitted to the LLM labels of all 800 bills; CAP labels used only for the 30 anchors and for evaluation.",
-          Q, CHAINS, WARMUP + SAMPLING, WARMUP, fq$diag[["runtime_sec"]] / 60, max(fq$summ$rhat, na.rm = TRUE), fa$diag[["runtime_sec"]] / 60, max(fa$summ$rhat, na.rm = TRUE)),
+  sprintf("CRE-LCM: quadrature (%d nodes), %d chains x %d iterations (%d warm-up), Dawid-Skene initialisation; priors: N(0, %g) on mu, half-normal(0, %g) on s_th/s_ph/s_ps, half-normal(0, %g) on tau_b; unanchored fit %.1f min, max R-hat %.3f; anchored fit %.1f min, max R-hat %.3f. Models fitted to the LLM labels of all 800 bills; CAP labels used only for the 30 anchors and for evaluation.",
+          Q, CHAINS, WARMUP + SAMPLING, WARMUP, PRIORS$mu, PRIORS$s, PRIORS$tau, fq$diag[["runtime_sec"]] / 60, max(fq$summ$rhat, na.rm = TRUE), fa$diag[["runtime_sec"]] / 60, max(fa$summ$rhat, na.rm = TRUE)),
   "", "## Agreement", "", md_tab(kap), "", "## Evaluation against CAP", "", md_tab(ev[, c("method", "set", "n", "accuracy", "brier", "sens", "spec", "prev_hat", "true_prev")]),
   "", sprintf("Dawid-Skene: prevalence %.3f, mean sensitivity %.3f, mean specificity %.3f. CAP prevalence in the sample: %.3f.", ds$pi1, mean(ds$se), mean(ds$sp), mean(bills$y)),
   "", "## Variance shares (CRE-LCM)", "", md_tab(shares), "", "## Per-configuration sensitivity / specificity", "", md_tab(percfg),
   "", "## Posterior predictive check (agreement counts per bill)", "", md_tab(ppc_stat),
   "", "## Per-chain means (unanchored fit)", "", md_tab(data.frame(parameter = rownames(fq$per_chain), round(fq$per_chain, 3))),
+  if (!is.null(prior_cmp)) c("", "## Original (N(0,2), HN(0,1), HN(0,0.5); 4 x 1500) versus wide priors (N(0,10), HN(0,5), HN(0,5); 4 x 4000), unanchored fit", "", md_tab(prior_cmp)) else "",
   if (!is.null(t0tab)) c("", "## Temperature-0 sensitivity (prompt 1)", "", md_tab(t0tab), "", md_tab(t0pair)) else "",
   "", "Figures: figures/Fig5 (calibration), figures/Fig6 (posterior predictive check). Tables: results/application/table8-11*.tex.")
 writeLines(md, file.path(OUT, "summary.md"))
