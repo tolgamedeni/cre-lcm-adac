@@ -2,7 +2,7 @@
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\caption{LLM configurations used in the application. Calls count the $800 \times 5 \times 3$ labels at temperature 0.7 plus the 800-call temperature-0 pass of prompt 1; missing = answers without a 0/1 digit after one retry; cost at list prices from the logged token counts}\label{tab:providers}
+\caption{LLM configurations used in the application. Calls count the $800 \times 5 \times 3$ labels at temperature 0.7 plus the 800-call temperature-0 pass of prompt 1; missing = answers without a 0/1 digit after one retry; cost at list prices from the logged token counts (Haiku 4.5: USD 1.00 / 5.00 per million input / output tokens; Gemini 3.5 Flash: USD 1.50 / 9.00)}\label{tab:providers}
 \begin{tabular}{llll}
 \toprule
 Provider & Anthropic & Google & Alibaba (open weights) \\
@@ -14,11 +14,9 @@ Endpoint & Messages API & Gemini API & Ollama 0.34.4 (local) \\
 Temperature & 0.7 (and 0) & 0.7 (and 0) & 0.7 (and 0) \\
 Max output tokens & 16 & 16 & 16 \\
 Query dates & 25 Sept 2026 & 25--26 Sept 2026 & 25 Sept 2026 \\
-Calls & 12,800 & [9,872 to date] & 12,800 \\
-Missing (\%) & 0.00 & [0.10 to date] & 0.00 \\
-Cost (USD) & 1.63 & [to fill] & 0 \\
+Calls & 12,800 & 12,800 & 12,800 \\
+Missing (\%) & 0.00 & 0.08 & 0.00 \\
+Cost (USD) & 1.63 & 1.68 & 0 \\
 \bottomrule
 \end{tabular}
-% TODO-AUTHOR: Gemini column (calls, missing, cost) and its date range are filled after the quota-limited
-% remainder of the Gemini run completes on 26 Sept 2026.
 \end{table}

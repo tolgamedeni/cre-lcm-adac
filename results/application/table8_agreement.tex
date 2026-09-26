@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Agreement among the LLM configurations on the 800 bills: Fleiss' $\kappa$ and mean pairwise agreement within each model (15 configurations: 5 prompts $\times$ 3 runs) and over all 45 configurations; percentage of labels equal to 1 and of missing (unparsable) answers}\label{tab:agreement}
+\begin{tabular}{lrrrrr}
+\toprule
+Model & configurations & Fleiss' $\kappa$ & pairwise agreement & \% label 1 & \% missing \\
+\midrule
+anthropic & 15 & 0.848 & 0.938 & 28.6 & 0.00 \\
+gemini & 15 & 0.972 & 0.988 & 32.8 & 0.08 \\
+ollama & 15 & 0.844 & 0.940 & 25.9 & 0.00 \\
+all 45 configurations & 45 & 0.842 & 0.935 & 29.1 & 0.03 \\
+\bottomrule
+\end{tabular}
+\end{table}

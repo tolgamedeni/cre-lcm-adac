@@ -46,3 +46,16 @@ attribution. Please cite:
   `model_id`, `prompt`, `run`, `temperature`, `label` (0/1), `missing` (1 if no 0/1 digit after one retry). All providers: max_tokens 16, first digit parsed (decision of 25 Sept 2026, see the plan).
 - `labels_temp0.csv`: the temperature-0 sensitivity pass (prompt 1 only, one run per model).
 - `prompts.md`: the five prompt templates verbatim (written by the author).
+
+## Annotation run record (completed 26 Sept 2026)
+
+| provider | model (as served) | calls | missing labels | input / output tokens | dates (UTC) | cost |
+|---|---|---|---|---|---|---|
+| anthropic | claude-haiku-4-5-20251001 | 12,800 | 0 (0.00 %) | 1,176,994 / 90,493 | 2026-09-25 | USD 1.63 (list: 1.00 / 5.00 per M tokens) |
+| gemini | gemini-3.5-flash, thinking disabled | 12,800 (12,819 answered incl. retries) | 10 (0.08 %) | 1,041,922 / 13,150 | 2026-09-25 to 26 | USD 1.68 (list: 1.50 / 9.00 per M tokens, ai.google.dev/gemini-api/docs/pricing, 26 Sept 2026) |
+| ollama | qwen2.5:7b-instruct, digest 845dbda0ea48…b697e, Q4_K_M, Ollama 0.34.4 | 12,800 | 0 (0.00 %) | 1,399,416 / 56,036 | 2026-09-25 | 0 (local) |
+
+Calls = 800 bills x 5 prompts x 3 runs at temperature 0.7 plus 800 calls of prompt 1 at temperature 0.
+Gemini hit its daily request quota after about 10,000 calls on 25 Sept; the 2,928 remaining calls were made after
+the quota reset on 26 Sept (quota failures were retried, never recorded as missing). The 10 Gemini missing labels are
+answers that began with prose ("Based on the title ...") and contained no digit within 16 output tokens after one retry.
