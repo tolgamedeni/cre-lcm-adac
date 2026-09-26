@@ -69,3 +69,11 @@ Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehta
 
 - Wilkerson2025: Policy Agendas Project: Congressional Bills, dataset version 19.3 (citation text as shown on comparativeagendas.net/project/us/datasets).
 - Jones2023: Policy Agendas Project: Master Codebook. Author list as given in the plan (section5_data_plan.md); verify against the CAP "How to cite" page before submission.
+
+## 2026-09-26: CAP codebook citation updated
+
+- Jones2023 replaced by Jones2025: Jones, Bryan D., Frank R. Baumgartner, Sean M. Theriault, Derek A. Epp,
+  Shruti Khandekar, Daniel Little (2025) Policy Agendas Project: Codebook. Source: the citation given on
+  https://www.comparativeagendas.net/pages/How-to-cite (accessed 26 September 2026). The earlier 2023 entry
+  (with Cheyenne Lee and Miranda E. Sullivan) came from the data plan and is superseded. The same change is
+  made in data/README.md.

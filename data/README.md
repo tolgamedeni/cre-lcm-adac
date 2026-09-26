@@ -25,8 +25,8 @@ attribution. Please cite:
   Theriault, Alison Craig, Derek A. Epp, Miranda E. Sullivan, Shruti Khandekar, Daniel Little. 2025.
   Policy Agendas Project: Congressional Bills. Comparative Agendas Project,
   https://www.comparativeagendas.net/us (accessed 25 September 2026).
-- Jones, Bryan D., Frank R. Baumgartner, Sean M. Theriault, Derek A. Epp, Cheyenne Lee, Miranda E.
-  Sullivan. 2023. Policy Agendas Project: Master Codebook. Comparative Agendas Project,
+- Jones, Bryan D., Frank R. Baumgartner, Sean M. Theriault, Derek A. Epp, Shruti Khandekar, Daniel
+  Little. 2025. Policy Agendas Project: Codebook. Comparative Agendas Project,
   https://www.comparativeagendas.net/pages/master-codebook.
 - Comparative Agendas Project, "How to cite": https://www.comparativeagendas.net/pages/How-to-cite.
 

@@ -8,7 +8,7 @@ Why this corpus
 - Bill titles are short (typically 20–60 words), so API cost is trivial and a local model handles
   them easily; the task is a classic content-analysis task in public policy — Tolga's field.
 - Licence: CAP topic-code variables are CC BY-NC-SA 4.0 (https://www.comparativeagendas.net/pages/Copyright-and-Legal);
-  the master codebook must be cited as Jones et al. (2023) "Policy Agendas Project: Codebook";
+  the master codebook must be cited as Jones et al. (2025) "Policy Agendas Project: Codebook";
   the bills dataset carries its own citation (Congressional Bills Project, Wilkerson et al.),
   see https://www.comparativeagendas.net/pages/How-to-cite. Redistribution of the derived file
   (bill id, title, CAP major topic, our LLM labels) is permitted under CC BY-NC-SA with attribution.
