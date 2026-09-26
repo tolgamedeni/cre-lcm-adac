@@ -1,32 +1,46 @@
-\section{Application: policy-topic coding}\label{sec:application}
-% TODO-AUTHOR: 5.1 and the first paragraph of 5.2 are Claude's factual drafts from data/README.md and
-% the annotation logs; the "choice of models" paragraph is the author's text (manuscript/model_and_environment.md).
-% 5.3 waits for the analysis (results/application/summary.md).
+% Source: manuscript/section5_draft.md (author's draft v1, 26 Sept 2026), converted to LaTeX with the
+% [[ ]] placeholders filled from results/application/summary.md (original priors, primary
+% specification). Sentences that the final numbers contradicted are corrected and flagged with
+% TODO-AUTHOR; findings the draft lacked are marked "added by Claude".
+\section{Application: policy-topic coding of US congressional bills}\label{sec:application}
 
 \subsection{Data}\label{sec:app_data}
 
-We use bill titles from the Comparative Agendas Project's Congressional Bills dataset (version 19.3),
-in which every bill carries one major policy topic assigned by trained human coders under the
-Policy Agendas codebook. From the 37,007 bills of the 111th to 116th Congresses (2009--2020) with a
-title and one of the 20 major topics we drew a stratified sample of 800: 240 bills coded as Health
-(topic 3; 11.6\% of the population) and 560 from the other 19 topics in proportion to their
-frequency, with a fixed seed. The binary target is whether the bill's major topic is Health. A
-random 200 bills form a validation set whose human codes are never used in estimation; the
-remaining 600 are the working set from which 30 anchors (5\%) are drawn for the anchored fit. Titles
-have a median length of 25 words. The derived file (bill identifier, Congress, title, CAP major
-topic and our labels) is redistributed under the dataset's CC BY-NC-SA 4.0 licence with attribution.
+We apply the model to the classification of US congressional bill titles by policy topic. The
+Congressional Bills Project \citep{Wilkerson2025} provides the title of every bill introduced in
+Congress together with a major-topic code assigned by trained human coders under the Comparative
+Agendas Project (CAP) codebook \citep{Jones2023}, which makes the human code a genuine reference
+label rather than a label produced by the raters under study. From the 37,007 bills of the 111th
+to 116th Congresses (2009--2020) we drew a stratified sample of 800 titles: 240 coded as
+\emph{Health} (CAP major topic 3) and 560 from the other nineteen substantive topics in proportion
+to their frequency, giving a prevalence of 0.30 for the binary target ``the bill's main subject
+is health''. Health accounts for 11.6\% of the eligible bills; the stratification raises the
+minority class to the prevalence of the simulation study and keeps the number of positive items
+adequate for the class-specific parameters (Section~\ref{sec:sim_results}). Titles are short
+(median 25 words), which keeps the cost of a full factorial annotation low. Two hundred items were
+set aside at random as a validation set whose human codes are never used in estimation and which
+is never anchored; the remaining 600 form the working set (174 Health, 0.29). The sample, the
+codes and all annotations are archived (see the data availability statement).
+% TODO-AUTHOR: the draft said the validation set is one "that no model sees during estimation".
+% In the fits, the LLM labels of all 800 bills enter the unsupervised models (Dawid-Skene and
+% CRE-LCM); only the CAP codes of the validation bills are withheld. Note that the data plan
+% (section5_data_plan.md, step 5.2) and the step-4 instruction said to fit on the 600 working
+% items; the implemented fits use all 800. Either keep this wording or refit on the 600 working
+% items and compute out-of-sample posteriors for the validation bills.
 
 \subsection{Annotation design}\label{sec:app_design}
 
-Each bill was labelled by $M = 3$ model families $\times$ $P = 5$ prompts $\times$ $R = 3$ decoding
-runs at temperature 0.7, giving 45 labels per bill and 12,000 calls per provider, plus one
-temperature-0 pass of prompt 1 (800 calls per provider). The five prompt templates, written by the
-authors and reproduced verbatim in the supplementary material, range from a bare question to a
-codebook definition, a contrast with other topics, a role instruction and an instruction to
-consider the purpose before answering. Every call asked for a single digit with a 16-token output
-budget; the first digit of the answer was parsed as the label, an answer without a 0/1 digit was
-re-queried once and then recorded as missing. Calls were made from a script that stores every raw
-response with timestamp, model version, prompt, run and temperature (Table~\ref{tab:providers}).
+Each title was labelled by every configuration of $M = 3$ model families, $P = 5$ prompts and
+$R = 3$ decoding runs at temperature 0.7, that is, 45 labels per item and 36,000 labels in total,
+plus one pass at temperature 0 with the first prompt for each model. The five prompts are
+semantically equivalent formulations of the same binary question and differ in framing: a bare
+question (P1), a codebook definition of the Health topic (P2), an explicit contrast with the
+other policy areas (P3), an analyst role (P4), and an instruction to consider the bill's purpose
+before answering (P5). All ask for a single digit; the first digit of the response is taken as
+the label and a response without a digit is retried once and then recorded as missing. The
+templates are given verbatim in Online Resource 1; they were written by the author rather than
+generated by a model. Every call used a 16-token output budget, and every raw response is stored
+with its timestamp, model version, prompt, run and temperature.
 
 The three model families were chosen to span the design space that the method is meant to
 describe rather than to maximise accuracy. First, each family comes from a different developer
@@ -45,54 +59,144 @@ unclear \citep{Carlson2025}, and the question of the paper is not which model is
 dependent the members of an ensemble are. Model identifiers, quantisation, decoding parameters,
 query dates, call counts, missing rates and cost are given in Table~\ref{tab:providers}; all raw
 responses are archived.
+
+Table~\ref{tab:providers} reports, per provider, the model identifier, quantisation, decoding
+settings, query dates, number of calls, missing rate and cost. The three providers answered
+12,800 calls each; Anthropic and the local model returned a digit in every case, Gemini in all but
+10 (0.08\%). Total API cost was USD 3.31; the local model cost nothing. The ten missing labels are
+treated as missing at random, which the binomial formulation accommodates through a reduced run
+count $R_{imp}$ for the affected configuration--item pairs.
 \input{../tables/table7_providers}
 
 \subsection{Results}\label{sec:app_results}
-% TODO-AUTHOR: drafted by Claude from results/application/summary.md (26 Sept 2026); please review.
 
-\emph{Agreement.} The 45 configurations agree closely: Fleiss' $\kappa$ is 0.85 within the
-Anthropic configurations, 0.97 within Gemini and 0.84 within the local Qwen model, and 0.84 over
-all 45 (Table~\ref{tab:agreement}); 29\% of all labels are Health against a CAP prevalence of
-30\%. The temperature-0 pass gives the same accuracy against CAP as the temperature-0.7 runs of the
-same prompt (0.94, 0.96 and 0.92 for the three models), and the three models agree with each other
-on 92\% to 96\% of bills even at temperature 0: ``deterministic'' decoding removes within-model
-noise but not the between-model disagreement that the crossed effects are meant to capture.
+\emph{Agreement.} Fleiss' $\kappa$ across the fifteen prompt $\times$ run configurations is 0.85
+for Claude Haiku, 0.97 for Gemini Flash and 0.84 for Qwen, and 0.84 over all 45 configurations;
+mean pairwise agreement is 0.94, 0.99 and 0.94 within the three models and 0.92 to 0.94 between
+them (Table~\ref{tab:agreement}). Agreement is high: the configurations rarely disagree on a
+title, and when they do, they disagree on the same titles---the boundary cases the design was
+meant to expose. The 116 bills (14.5\%) that receive between 6 and 39 Health labels out of 45 are
+mostly Medicare and Medicaid financing, veterans' health and drug-control bills: 72\% of them are
+coded Health by CAP and the rest mainly law and crime, defence or social welfare.
+% TODO-AUTHOR: the draft listed "veterans' health, health-related social welfare, medical research
+% funding". A check of the 116 disputed bills (summary.md, "disputed_examples") supports veterans'
+% health, Medicaid/Medicare and drug-control bills; medical research funding did not appear among
+% the sampled examples. Adjust the list if you prefer.
 
-\emph{Variance decomposition.} Table~\ref{tab:app_shares} gives the CRE-LCM estimates. On this
-task the item share dominates: 0.60 [0.52, 0.67] of the latent-scale variance is item ambiguity
-shared by every configuration, 0.18 [0.14, 0.23] is item-by-model, 0.16 [0.12, 0.20]
-item-by-prompt and only 0.06 [0.05, 0.07] decoding noise. The design implication is direct:
-a fourth run of the same configurations would buy almost nothing, a fourth model or prompt would
-buy something, and the bulk of the residual disagreement is genuine ambiguity in the titles that
-only better coding rules could remove. The random-effect scales are large ($\sigma_\theta \approx
-5.6$, $\sigma_\phi \approx 3.1$, $\sigma_\psi \approx 2.9$ on the logit scale) because the
-configurations are nearly unanimous on most bills; on that stretched scale the item scale mixes
-slowly in the unanchored fit ($\widehat{R}$ 1.46, bulk ESS 8 from 6,000 draws, all four chains at
-the same values, no merged-class mode), whereas the anchored fit converges cleanly ($\widehat{R}
-\le 1.04$) and gives the same shares (0.59, 0.19, 0.16, 0.06).
+\emph{Dawid--Skene.} Treating the 45 configurations as independent raters, Dawid--Skene
+estimates a prevalence of 0.331 for a sample value of 0.300, mean sensitivity 0.866 and mean
+specificity 0.994; its posterior class probabilities average 0.321 on the working set (CAP 0.291)
+and 0.370 on the validation set (CAP 0.330). The +0.03 bias in prevalence lies between the values
+the simulation study produces at $\delta = 0.5$ and $\delta = 1$ (Table~\ref{tab:prev}), and the
+pattern is the same: the raters' near-unanimity on easy items is read as near-perfect
+specificity, and the items on which they jointly err are read as positives.
+% TODO-AUTHOR: the draft compared 0.331 with the working-set value 0.29 and gave a bias of +0.04
+% "at delta ~ 1". The Dawid-Skene fit uses all 800 bills, whose CAP prevalence is 0.300, so the bias
+% is +0.031; in Table 3 Dawid-Skene's prevalence bias is +0.003 at delta = 0.5 and +0.05 at delta = 1.
 
-\emph{Accuracy against the human codes.} Table~\ref{tab:app_eval} evaluates the posterior labels
-against the CAP codes on the 200 validation bills, never used in estimation, and on the 570
-non-anchored working bills. All aggregators are accurate on this task (0.95 to 0.97), because the
-ensemble is nearly unanimous; the differences are in calibration and in prevalence. CRE-LCM has
-the lowest Brier score on the working bills (0.039 against 0.044 for Dawid--Skene and 0.046 for
-majority vote) and estimates the prevalence at 0.300 against a CAP value of 0.291, whereas
-Dawid--Skene overstates it (0.321) and, on the validation bills, 0.370 against 0.330; the anchored
-fit is marginally better still (Brier 0.038). The posterior probabilities of all model-based
-methods are close to 0 or 1 for almost every bill, so the calibration plot (Fig.~\ref{fig:calib})
-is dominated by its two end bins and is reported for completeness.
+\emph{CRE-LCM.} Without any human label, the crossed random-effects model estimates a prevalence
+of 0.315 [0.284, 0.347], whose interval covers the sample value; the bias is halved, from +0.031
+to +0.015. The variance decomposition is the substantive result (Table~\ref{tab:app_shares},
+reported from the anchored fit, which converges; the unanchored point estimates agree within
+0.01): the shared item effect accounts for 0.59 [0.53, 0.65] of the variance of the
+label propensity, the item-by-model effect for 0.19 [0.15, 0.23], the item-by-prompt effect for
+0.16 [0.13, 0.19] and decoding randomness for only 0.06 [0.05, 0.07]. Three-fifths of the
+disagreement in this ensemble reflects properties of the text that all configurations share; a
+further third reflects which model and which prompt were used, in roughly equal measure; and the
+repeated decoding runs, which a ``self-consistency'' protocol would multiply, contribute almost
+nothing. The class intercepts ($-14.5$ and $+7.1$) and the item scale (5.6) are large because the
+labels are close to deterministic: on this task the logistic scale is stretched. We keep the
+priors of Section~\ref{sec:estimation}, chosen for the simulation, as the primary specification
+and report a refit with wider priors below. In the unanchored fit the item scale and the shares
+mix slowly on this stretched scale (bulk ESS 8 to 16 from 6,000 draws, $\widehat{R}$ up to 1.46),
+while the prevalence mixes well (ESS 1,160); all four chains sit at the same values and none shows
+the merged-class mode.
+% TODO-AUTHOR: the draft said the priors "were widened accordingly (half-normal(0, 5) on the
+% standard deviations, N(0, 10) on the intercepts)" and quoted the ESS of the 4 x 4,000 chains; per
+% the decision of 26 Sept the original priors are primary and the wide priors are the sensitivity
+% analysis below. The draft also attributed the slow mixing to "the reason given in Section 3.6"
+% (the theta/class coupling); here theta is integrated out, and the cause is the near-flat
+% likelihood in the latent scale described in the prior-sensitivity paragraph.
 
-\emph{Do the aggregators overstate accuracy?} Table~\ref{tab:app_percfg} compares, for each of
-the 15 model--prompt configurations, the sensitivity and specificity computed against the CAP
-codes with the Dawid--Skene estimates and the CRE-LCM marginal values. Dawid--Skene reports
-specificities of 0.98 to 1.00 for every configuration against CAP values of 0.93 to 0.98: it
-attributes almost all disagreement with the consensus to the minority class and none to shared
-error, exactly the pattern of the simulation study. CRE-LCM's specificities (0.97 to 0.99) sit
-between the two, and its sensitivities track the CAP values within their intervals for most
-configurations. The posterior predictive check (Fig.~\ref{fig:ppc}; 65\% of bills receive at
-most 5 Health labels and 20\% at least 40, replicated as 66\% and 21\%) shows that the fitted
-model reproduces the strongly bimodal distribution of agreement counts and the 5\% of genuinely
-ambiguous bills in between.
+\emph{Anchoring.} With 5\% of the working items (30) anchored to their CAP code, the prevalence
+estimate is 0.311 [0.281, 0.343] and the shares are unchanged (0.59, 0.19, 0.16 and 0.06 against
+0.60, 0.18, 0.16 and 0.06 without anchors); on the 570 non-anchored items the posterior labels
+reach an accuracy of 0.960 and a Brier score of 0.038. The anchors matter here for mixing rather
+than for the estimates: every parameter converges ($\widehat{R} \le 1.04$, bulk ESS of the shares
+134 to 349).
+
+\emph{Prior sensitivity.} Refitting both models with wider priors ($\mathrm{N}(0, 10)$ on the
+intercepts, half-normal$(0, 5)$ on the three standard deviations and on $\tau_k$; four chains of
+4,000 iterations) moves the latent scale but not the substance
+(Table~\ref{tab:prior_sens}, Appendix~\ref{app:prior_sens}). With near-unanimous labels the
+likelihood is nearly flat in the scale of the latent effects---the data are close to
+quasi-complete separation---so under the wide priors the class intercepts drift to about $-22$
+and $+11$, $\sigma_\theta$ to 7.8--8.5, the chains mix poorly ($\widehat{R}$ up to 1.9), and the
+absolute shares follow the prior: the item share rises to 0.64--0.69 and the run share falls to
+0.03--0.04. The ranking item $\gg$ model $\approx$ prompt $\gg$ run does not change, nor do the
+prevalence (0.31--0.32), the accuracy and Brier score against the CAP codes (to within 0.002), the
+per-configuration sensitivities and specificities (to within 0.025) and the posterior predictive
+check.
+% Added by Claude at the author's request (26 Sept 2026); numbers from prior_sensitivity.csv and the
+% *_wideprior_4x4000 files in results/application/.
+
+\emph{Validation.} On the 200 held-out items, majority vote, Dawid--Skene and CRE-LCM classify
+97.0\%, 96.0\% and 97.0\% correctly, with Brier scores of 0.030, 0.040 and 0.031; on the 570
+non-anchored working items the figures are 95.4\%, 95.6\% and 96.0\% with Brier scores of 0.046,
+0.044 and 0.039 (Table~\ref{tab:app_eval}). CRE-LCM's gain over Dawid--Skene is in calibration
+rather than in accuracy, as in the simulation; against majority vote, whose hard labels make the
+Brier score equal to the error rate, the gain appears only on the larger working set. The
+posterior probabilities of both model-based methods are close to 0 or 1 for almost every bill, so
+the calibration plot (Fig.~\ref{fig:calib}) is dominated by its two end bins.
+% TODO-AUTHOR: the draft said CRE-LCM's gain is in calibration "rather than in accuracy" without
+% qualification; on the validation set majority vote has the lowest Brier score (0.030 vs 0.031).
+Table~\ref{tab:app_percfg} compares, for each of the 15 model $\times$ prompt configurations, the
+sensitivity and specificity implied by CRE-LCM with the values computed against the CAP codes of
+all 800 bills: the model-based values track the observed ones within 0.03 on average (at most
+0.08 for sensitivity and 0.04 for specificity), whereas Dawid--Skene overstates specificity by
+0.02 to 0.05 (0.036 on average) and compresses its range across configurations to 0.021, against
+0.043 in the CAP values. CRE-LCM narrows but does not remove the gap in specificity (+0.026 on
+average, range 0.024), and the CAP value falls inside its 95\% interval for only 6 of the 15
+sensitivities and 2 of the 15 specificities: bills that the ensemble labels Health but CAP codes
+under another topic are, for any latent class model, positives with an ambiguous item rather than
+errors of the raters.
+% TODO-AUTHOR: the draft computed the CAP-based values "on the validation items"; Table 11 uses all
+% 800 bills (more precise, CAP codes are known for all). The last sentence (partial coverage and its
+% interpretation) was added by Claude; the draft's placeholder implied closer tracking.
+The posterior predictive check (Fig.~\ref{fig:ppc}) compares the observed distribution of the
+number of Health labels per item across the 45 configurations with its replicated distribution
+under CRE-LCM and under Dawid--Skene: CRE-LCM reproduces the U-shaped distribution with its thin
+but non-empty middle (5.6\% of bills with 15 to 30 Health labels, replicated 4.9\%; 20.4\% with 40
+or more, replicated 20.6\%), whereas Dawid--Skene, whose raters are independent given the class,
+predicts almost no intermediate counts (0.006\% with 15 to 30) and places the Health bills at 36
+to 41 labels instead of 42 to 45 (13.8\% with 40 or more).
+% TODO-AUTHOR: the draft described the distribution as "U-shaped, heavy-middle"; the middle holds
+% only 5.6% (15-30 labels) or 14.5% (6-39 labels) of the bills, so "thin but non-empty" is used.
+
+\emph{Temperature 0.} The temperature-0 pass with prompt 1 agrees with the temperature-0.7
+majority for the same prompt on 99.9\%, 100\% and 98.5\% of items for Claude Haiku, Gemini Flash
+and Qwen, with the same accuracy against the CAP codes (0.94, 0.96 and 0.92); the three models at
+temperature 0 disagree with one another on 9.6\% of items, so a deterministic decoding setting
+removes the smallest variance component and leaves the two largest untouched.
+
+\subsection{Design implications for this task}\label{sec:app_design_implications}
+
+The decomposition answers the budget question of Section~\ref{sec:discussion} directly. For these
+titles, a fourth decoding run would reduce the residual share of 0.06 and nothing else; a fourth
+prompt or a fourth model family would each act on a share of roughly 0.17; and the item share of
+0.59 can be reduced only by sharpening the coding rule---for example by deciding in advance how
+veterans' health or health-related welfare bills are to be coded---or by adjudicating the flagged
+items by hand. The posterior class probabilities identify few such items: only 5 of the 600
+working items have a posterior between 0.2 and 0.8, and none of the six validation errors of
+CRE-LCM (one of the eight of Dawid--Skene) falls among the flagged items. The errors against the
+CAP codes are confident ones: all six are bills the ensemble labels Health and CAP codes under
+another topic (a medical-isotope supply bill, a mental-health assessment for military recruits,
+controlled-substance and medical-marijuana bills). The agreement count is the better guide for
+adjudication: four of the six errors are among the 32 validation bills with 6 to 39 Health labels
+out of 45, although their Health posterior exceeds 0.8.
+% TODO-AUTHOR: the draft expected the posterior to flag the validation errors ("x% of the validation
+% errors of every method fall among them"). The fitted posteriors are almost all near 0 or 1, so the
+% paragraph now recommends the agreement count for selecting items to adjudicate (added by Claude).
 
 \begin{figure}[htbp]
 \centering
@@ -105,11 +209,14 @@ CRE-LCM and the anchored CRE-LCM; point size is the number of bills in the bin}\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=84mm]{Fig6}
-\caption{Posterior predictive check: distribution of the number of configurations (of 45)
-labelling a bill as Health, observed and replicated from the fitted CRE-LCM}\label{fig:ppc}
+\caption{Posterior predictive check: share of bills by the number of configurations (of 45)
+labelling the bill Health, observed (bars) and replicated from the fitted CRE-LCM (circles, solid
+line) and from Dawid--Skene (triangles, dashed line); square-root vertical scale}\label{fig:ppc}
 \end{figure}
 
 \input{../results/application/table8_agreement}
 \input{../results/application/table10_shares}
 \input{../results/application/table9_evaluation}
 \input{../results/application/table11_per_configuration}
+
+\FloatBarrier

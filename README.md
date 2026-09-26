@@ -123,15 +123,20 @@ about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per
 800 CAP bill titles (Congresses 111-116; 240 Health, 560 other; validation 200 / working 600), labelled by
 3 models x 5 prompts x 3 runs at T = 0.7 plus a T = 0 pass (`data/`, `scripts/annotate.py`; run record
 in `data/README.md`; API cost USD 3.31). Analysis `scripts/analyze_application.R` -> `results/application/`
-(summary.md, tables 8-11, Fig5 calibration, Fig6 PPC):
+(summary.md with every number quoted in Section 5, tables 8-12, Fig5 calibration, Fig6 PPC).
+Primary specification: original priors (as in the simulation study), 4 x 1,500; wide priors (4 x 4,000) are the
+prior-sensitivity analysis (`APP_PRIOR=wide`; Appendix B, table12_prior_sensitivity.tex).
 - agreement: Fleiss kappa 0.85 / 0.97 / 0.84 within Anthropic / Gemini / Qwen, 0.84 over all 45 configurations;
-- CRE-LCM shares: item 0.60 [0.52, 0.67], model 0.18, prompt 0.16, run 0.06 (anchored fit: 0.59 / 0.19 / 0.16 / 0.06);
-  unanchored fit has R-hat 1.46 on the item scale (slow mixing on a stretched logit scale, chains agree),
-  anchored fit converges (R-hat <= 1.04);
-- against CAP: accuracy 0.95-0.97 for all aggregators; CRE-LCM lowest Brier (0.039 vs DS 0.044, MV 0.046 on the
-  570 non-anchored bills) and prevalence 0.300 vs CAP 0.291 (DS 0.321); Dawid-Skene reports specificities of
-  0.98-1.00 per configuration against CAP values of 0.93-0.98;
-- posterior predictive check reproduces the bimodal agreement-count distribution; temperature 0 changes nothing.
+- prevalence (unanchored, no gold standard): 0.315 [0.284, 0.347] vs CAP 0.300 (Dawid-Skene 0.331);
+- variance shares (anchored fit, converged, R-hat <= 1.04): item 0.59 [0.53, 0.65], model 0.19, prompt 0.16,
+  run 0.06; the unanchored fit agrees within 0.01 but mixes slowly on the stretched latent scale (R-hat 1.46);
+- against CAP: accuracy 0.95-0.97 for all aggregators; CRE-LCM Brier 0.039 vs DS 0.044 and MV 0.046 on the 570
+  non-anchored bills; DS overstates per-configuration specificity by 0.036 on average, CRE-LCM by 0.026;
+- PPC: CRE-LCM reproduces the thin middle of the agreement-count distribution, DS predicts none;
+- prior sensitivity: with near-unanimous labels the absolute shares follow the prior (wide: item 0.64-0.69,
+  run 0.03-0.04), the ranking, prevalence, accuracy/Brier, per-configuration results and PPC do not.
+- open point: the fits use the LLM labels of all 800 bills (validation CAP codes withheld); the plan said to
+  fit on the 600 working items (see the TODO-AUTHOR note in Section 5.1).
 
 ## Manuscript
 

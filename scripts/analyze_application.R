@@ -7,19 +7,23 @@
 #          never used except for the 30 anchors (working items only) and for evaluation.
 # Outputs: results/application/  (tables as csv + tex, Fig5 calibration, Fig6 PPC, summary.md)
 # Env    : APP_DATA_DIR (default data), APP_OUT (default results/application),
-#          APP_WARMUP / APP_SAMPLING (default 2000 / 2000 = 4000 iterations), APP_CHAINS (4),
-#          APP_PRIOR wide|original (default wide), APP_FIT_ONLY q|anchor (fit one model and stop)
+#          APP_PRIOR original|wide (default original = primary specification, 4 x 1500;
+#          wide = prior-sensitivity analysis, 4 x 4000), APP_WARMUP / APP_SAMPLING override the
+#          iterations, APP_CHAINS (4), APP_FIT_ONLY q|anchor (fit one model and stop)
 # =============================================================================
 if (!exists("STAN_BACKEND")) source("R/00_setup.R")
 source("R/01_simulate.R"); source("R/02_baselines.R")
 suppressPackageStartupMessages({library(ggplot2); library(dplyr); library(tidyr)})
 DATA <- Sys.getenv("APP_DATA_DIR", "data"); OUT <- Sys.getenv("APP_OUT", "results/application")
-WARMUP <- as.integer(Sys.getenv("APP_WARMUP", "2000")); SAMPLING <- as.integer(Sys.getenv("APP_SAMPLING", "2000"))
 CHAINS <- as.integer(Sys.getenv("APP_CHAINS", "4")); SEED <- 2026; Q <- 15; ANCHOR_N <- 30
-# priors: "wide" = half-normal(0, 5) on the SDs and tau_b, N(0, 10) on mu (author's decision, 26 Sept 2026);
-#         "original" = the simulation-study priors (1, 0.5, 2)
-PRIOR <- Sys.getenv("APP_PRIOR", "wide")
+# priors: "original" = the simulation-study priors (N(0, 2) on mu, half-normal(0, 1) on the SDs,
+#         half-normal(0, 0.5) on tau_b) -- the primary specification (author's decision, 26 Sept 2026);
+#         "wide" = N(0, 10) on mu, half-normal(0, 5) on the SDs and tau_b -- prior-sensitivity analysis
+PRIOR <- Sys.getenv("APP_PRIOR", "original")
 PRIORS <- if (PRIOR == "wide") list(mu = 10, s = 5, tau = 5) else list(mu = 2, s = 1, tau = 0.5)
+PRIOR_SUFFIX <- if (PRIOR == "wide") "_wideprior" else "_origprior"
+WARMUP <- as.integer(Sys.getenv("APP_WARMUP", if (PRIOR == "wide") "2000" else "750"))
+SAMPLING <- as.integer(Sys.getenv("APP_SAMPLING", if (PRIOR == "wide") "2000" else "750"))
 FIT_ONLY <- Sys.getenv("APP_FIT_ONLY", "")     # "q" or "anchor": fit that model and stop (parallel runs)
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 MM <- 1 / 25.4; W1 <- 84 * MM; W2 <- 174 * MM
@@ -107,7 +111,7 @@ init <- function() list(pi1 = ds$pi1, mu = c(qlogis(1 - mean(ds$sp)), qlogis(mea
                         tau_b = c(0.3, 0.3), s_th = 0.5, s_ph = 0.5, s_ps = 0.5, ph_z = matrix(0, N, M), ps_z = matrix(0, N, P))
 mod <- compile_stan("stan/crossed_lcre_q_app.stan")
 fit_app <- function(tag, n_anchor, a_idx, a_lab) {
-  f <- file.path(OUT, paste0("fit_", tag, if (PRIOR == "wide") "" else "_origprior", ".rds"))
+  f <- file.path(OUT, paste0("fit_", tag, PRIOR_SUFFIX, ".rds"))
   if (file.exists(f)) { message("[app] reuse ", f); return(readRDS(f)) }
   data <- list(N = N, M = M, P = P, R_imp = Rv, S = S, Q = Q, x_q = gh$x, log_w_q = log(gh$w), N_anchor = n_anchor, anchor_idx = as.array(a_idx), anchor_lab = as.array(a_lab),
                prior_mu_sd = PRIORS$mu, prior_s_sd = PRIORS$s, prior_tau_sd = PRIORS$tau)
@@ -147,14 +151,15 @@ write_booktabs(data.frame(method = ev$method, set = ev$set, acc = fmt(ev$accurac
 sh <- fq$summ[fq$summ$variable %in% c("s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run", "pi1"), ]
 sha <- fa$summ[fa$summ$variable %in% sh$variable, ]
 shares <- data.frame(quantity = sh$variable, q_mean = sh$mean, q_lo = sh$q2.5, q_hi = sh$q97.5, q_ess = sh$ess_bulk, q_rhat = sh$rhat,
-                     anchored_mean = sha$mean[match(sh$variable, sha$variable)], anchored_lo = sha$q2.5[match(sh$variable, sha$variable)], anchored_hi = sha$q97.5[match(sh$variable, sha$variable)])
+                     anchored_mean = sha$mean[match(sh$variable, sha$variable)], anchored_lo = sha$q2.5[match(sh$variable, sha$variable)], anchored_hi = sha$q97.5[match(sh$variable, sha$variable)],
+                     anchored_ess = sha$ess_bulk[match(sh$variable, sha$variable)], anchored_rhat = sha$rhat[match(sh$variable, sha$variable)])
 write.csv(shares, file.path(OUT, "variance_shares.csv"), row.names = FALSE)
 lab_q <- c(pi1 = "$\\pi_1$", s_th = "$\\sigma_\\theta$", s_ph = "$\\sigma_\\phi$", s_ps = "$\\sigma_\\psi$", share_item = "item share", share_model = "model share", share_prompt = "prompt share", share_run = "run share")
-write_booktabs(data.frame(q = lab_q[shares$quantity], a = sprintf("%s [%s, %s]", fmt(shares$q_mean), fmt(shares$q_lo, 2), fmt(shares$q_hi, 2)),
-                          b = sprintf("%s [%s, %s]", fmt(shares$anchored_mean), fmt(shares$anchored_lo, 2), fmt(shares$anchored_hi, 2)), ess = fmt(shares$q_ess, 0)),
+write_booktabs(data.frame(q = lab_q[shares$quantity], a = sprintf("%s [%s, %s]", fmt(shares$q_mean), fmt(shares$q_lo, 2), fmt(shares$q_hi, 2)), ea = fmt(shares$q_ess, 0), ra = fmt(shares$q_rhat, 2),
+                          b = sprintf("%s [%s, %s]", fmt(shares$anchored_mean), fmt(shares$anchored_lo, 2), fmt(shares$anchored_hi, 2)), eb = fmt(shares$anchored_ess, 0), rb = fmt(shares$anchored_rhat, 2)),
   file.path(OUT, "table10_shares.tex"),
-  caption = "CRE-LCM estimates on the bills: prevalence, random-effect standard deviations and variance shares (posterior mean and 95\\% credible interval) without and with 30 anchored bills; bulk ESS of the unanchored fit",
-  label = "tab:app_shares", header = "Quantity & CRE-LCM & CRE-LCM, anchored & ESS", align = "llll", size = "\\footnotesize", colsep = "4pt")
+  caption = sprintf("CRE-LCM estimates on the bills (priors of Section~\\ref{sec:estimation}; %d chains of %d iterations): prevalence, random-effect standard deviations and variance shares, posterior mean and 95\\%% credible interval, with bulk ESS and $\\widehat{R}$, without any human code and with 30 anchored bills. The prevalence is reported from the unanchored fit and the variance decomposition from the anchored fit, which converges; the unanchored point estimates of the shares agree with it", CHAINS, WARMUP + SAMPLING),
+  label = "tab:app_shares", header = "Quantity & \\multicolumn{3}{c}{CRE-LCM, no human code} & \\multicolumn{3}{c}{CRE-LCM, 30 anchored} \\\\\n\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\n & estimate & ESS & $\\widehat{R}$ & estimate & ESS & $\\widehat{R}$", align = "llrrlrr", size = "\\footnotesize", colsep = "4pt")
 
 # ---- 6. per-configuration sensitivity / specificity ----------------------------------
 gm <- posterior::as_draws_matrix(fq$global); set.seed(1); z0 <- rnorm(4000); idx <- round(seq(1, nrow(gm), length.out = 200))
@@ -194,15 +199,32 @@ save_fig(p5, 5, W1, 110 * MM)
 # ---- 8. Fig 6: posterior predictive check on per-item agreement counts --------------
 obs_cnt <- rowSums(X == 1, na.rm = TRUE); nvalid <- rowSums(!is.na(X))
 rep_cnt <- t(sapply(seq_len(nrow(fq$S_rep)), function(d) { Sr <- matrix(fq$S_rep[d, ], N, M * P); rowSums(Sr) }))
-ppc <- rbind(data.frame(source = "observed", count = obs_cnt),
-             data.frame(source = "replicated", count = as.vector(rep_cnt[1:50, ])))
-p6 <- ggplot(ppc, aes(count, after_stat(density), fill = source)) + geom_histogram(binwidth = 3, position = "identity", alpha = 0.55, colour = "grey30", linewidth = 0.2) +
-  scale_fill_manual(values = c(observed = "#0072B2", replicated = "#E69F00"), name = NULL) +
-  labs(x = sprintf("Configurations labelling the bill Health (of %d)", M * P * R), y = "Density") + theme_j()
-save_fig(p6, 6, W1, 70 * MM)
-ppc_stat <- data.frame(stat = c("mean count", "SD of counts", "share of bills with 0-5", "share with 40-45", "share with 15-30 (ambiguous)"),
-  observed = c(mean(obs_cnt), sd(obs_cnt), mean(obs_cnt <= 5), mean(obs_cnt >= 40), mean(obs_cnt >= 15 & obs_cnt <= 30)),
-  replicated_mean = c(mean(rowMeans(rep_cnt)), mean(apply(rep_cnt, 1, sd)), mean(rep_cnt <= 5), mean(rep_cnt >= 40), mean(rep_cnt >= 15 & rep_cnt <= 30)))
+# Dawid-Skene replicate on the same footing: class drawn from each bill's posterior, then the 45
+# (observed) labels drawn independently from the configuration's sensitivity or 1 - specificity
+obs_mask <- !is.na(X); set.seed(2026)
+ds_cnt <- t(sapply(seq_len(nrow(rep_cnt)), function(d) { c1 <- rbinom(N, 1, ds$post)
+  pr <- outer(c1, ds$se) + outer(1 - c1, 1 - ds$sp); rowSums(matrix(rbinom(length(pr), 1, pr), N) * obs_mask) }))
+brk <- seq(0, M * P * R + 3, by = 3); binlab <- sprintf("%d-%d", head(brk, -1), head(brk, -1) + 2)
+share_bins <- function(v) as.vector(table(cut(v, brk, right = FALSE, labels = binlab))) / length(v)
+ppc <- rbind(data.frame(source = "observed", bin = seq_along(binlab), share = share_bins(obs_cnt)),
+             data.frame(source = "CRE-LCM replicate", bin = seq_along(binlab), share = share_bins(as.vector(rep_cnt))),
+             data.frame(source = "Dawid-Skene replicate", bin = seq_along(binlab), share = share_bins(as.vector(ds_cnt))))
+ppc$x <- (ppc$bin - 1) * 3 + 1
+ppc$source <- factor(ppc$source, levels = c("observed", "CRE-LCM replicate", "Dawid-Skene replicate"))
+p6 <- ggplot(ppc[ppc$source != "observed", ], aes(x, share, colour = source, shape = source, linetype = source)) +
+  geom_col(data = ppc[ppc$source == "observed", ], aes(x, share), inherit.aes = FALSE, width = 2.6, fill = "grey80", colour = "grey45", linewidth = 0.2) +
+  geom_line(linewidth = 0.45) + geom_point(size = 1.5) +
+  scale_colour_manual(values = c(`CRE-LCM replicate` = "#0072B2", `Dawid-Skene replicate` = "#E69F00"), name = NULL) +
+  scale_shape_manual(values = c(`CRE-LCM replicate` = 16, `Dawid-Skene replicate` = 17), name = NULL) +
+  scale_linetype_manual(values = c(`CRE-LCM replicate` = "solid", `Dawid-Skene replicate` = "22"), name = NULL) +
+  scale_y_sqrt(breaks = c(0, 0.005, 0.02, 0.05, 0.1, 0.2, 0.4, 0.6)) +
+  labs(x = sprintf("Configurations labelling the bill Health (of %d)", M * P * R), y = "Share of bills (square-root scale)") + theme_j()
+save_fig(p6, 6, W1, 75 * MM)
+mid <- function(v) mean(v >= 6 & v <= 39)
+ppc_stat <- data.frame(stat = c("mean count", "SD of counts", "share of bills with 0-5", "share with 40-45", "share with 15-30", "share with 6-39 (not near-unanimous)"),
+  observed = c(mean(obs_cnt), sd(obs_cnt), mean(obs_cnt <= 5), mean(obs_cnt >= 40), mean(obs_cnt >= 15 & obs_cnt <= 30), mid(obs_cnt)),
+  replicated_mean = c(mean(rowMeans(rep_cnt)), mean(apply(rep_cnt, 1, sd)), mean(rep_cnt <= 5), mean(rep_cnt >= 40), mean(rep_cnt >= 15 & rep_cnt <= 30), mid(rep_cnt)),
+  dawid_skene_replicated = c(mean(rowMeans(ds_cnt)), mean(apply(ds_cnt, 1, sd)), mean(ds_cnt <= 5), mean(ds_cnt >= 40), mean(ds_cnt >= 15 & ds_cnt <= 30), mid(ds_cnt)))
 write.csv(ppc_stat, file.path(OUT, "ppc_statistics.csv"), row.names = FALSE)
 
 # ---- 9. temperature-0 sensitivity ---------------------------------------------------
@@ -217,16 +239,70 @@ if (file.exists(t0f) && nrow(t0 <- read.csv(t0f)) > 0) {
   write.csv(t0tab, file.path(OUT, "temp0_sensitivity.csv"), row.names = FALSE); write.csv(t0pair, file.path(OUT, "temp0_between_models.csv"), row.names = FALSE)
 }
 
-# ---- 9b. comparison with the original-prior fits (if present) --------------------------
+# ---- 9b. prior sensitivity: original (primary) versus wide priors, both fits ---------------
 prior_cmp <- NULL
-fo <- file.path(OUT, "fit_cre_q_origprior.rds")
-if (PRIOR == "wide" && file.exists(fo)) {
-  o <- readRDS(fo); keys <- c("pi1", "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run")
-  prior_cmp <- data.frame(quantity = keys,
-    original_prior = o$summ$mean[match(keys, o$summ$variable)], original_ess = o$summ$ess_bulk[match(keys, o$summ$variable)],
-    wide_prior = fq$summ$mean[match(keys, fq$summ$variable)], wide_ess = fq$summ$ess_bulk[match(keys, fq$summ$variable)], wide_rhat = fq$summ$rhat[match(keys, fq$summ$variable)])
-  write.csv(prior_cmp, file.path(OUT, "prior_comparison.csv"), row.names = FALSE)
+fw <- file.path(OUT, "fit_cre_q_wideprior.rds"); fwa <- file.path(OUT, "fit_cre_q_anchor_wideprior.rds")
+if (PRIOR == "original" && file.exists(fw) && file.exists(fwa)) {
+  fits4 <- list(orig_q = fq, wide_q = readRDS(fw), orig_a = fa, wide_a = readRDS(fwa))
+  keys <- c("pi1", "mu[1]", "mu[2]", "s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run")
+  cell <- function(f, k) { r <- f$summ[f$summ$variable == k, ]; d <- if (abs(r$mean) >= 1) 1 else 2
+    nz <- function(x) sub("^(-?)0\\.", "\\1.", fmt(x, d))   # drop leading zeros to save width
+    sprintf("%s [%s,%s]", nz(r$mean), nz(r$q2.5), nz(r$q97.5)) }
+  essc <- function(f, k) fmt(f$summ$ess_bulk[f$summ$variable == k], 0)
+  pc <- do.call(rbind, lapply(keys, function(k) data.frame(quantity = k,
+          orig_q = cell(fits4$orig_q, k), orig_q_ess = essc(fits4$orig_q, k), wide_q = cell(fits4$wide_q, k), wide_q_ess = essc(fits4$wide_q, k),
+          orig_a = cell(fits4$orig_a, k), orig_a_ess = essc(fits4$orig_a, k), wide_a = cell(fits4$wide_a, k), wide_a_ess = essc(fits4$wide_a, k))))
+  evalrow <- function(f, sub, what) { p <- f$post1[sub]; y <- bills$y[sub]; if (what == "brier") mean((p - y)^2) else mean((p > 0.5) == y) }
+  extra <- data.frame(quantity = c("max $\\widehat{R}$", "acc., working", "Brier, working", "acc., validation", "Brier, validation"),
+    orig_q = c(fmt(max(fits4$orig_q$summ$rhat, na.rm = TRUE), 2), fmt(evalrow(fits4$orig_q, nonanch, "acc")), fmt(evalrow(fits4$orig_q, nonanch, "brier")), fmt(evalrow(fits4$orig_q, val, "acc")), fmt(evalrow(fits4$orig_q, val, "brier"))),
+    orig_q_ess = "", wide_q = c(fmt(max(fits4$wide_q$summ$rhat, na.rm = TRUE), 2), fmt(evalrow(fits4$wide_q, nonanch, "acc")), fmt(evalrow(fits4$wide_q, nonanch, "brier")), fmt(evalrow(fits4$wide_q, val, "acc")), fmt(evalrow(fits4$wide_q, val, "brier"))),
+    wide_q_ess = "", orig_a = c(fmt(max(fits4$orig_a$summ$rhat, na.rm = TRUE), 2), fmt(evalrow(fits4$orig_a, nonanch, "acc")), fmt(evalrow(fits4$orig_a, nonanch, "brier")), fmt(evalrow(fits4$orig_a, val, "acc")), fmt(evalrow(fits4$orig_a, val, "brier"))),
+    orig_a_ess = "", wide_a = c(fmt(max(fits4$wide_a$summ$rhat, na.rm = TRUE), 2), fmt(evalrow(fits4$wide_a, nonanch, "acc")), fmt(evalrow(fits4$wide_a, nonanch, "brier")), fmt(evalrow(fits4$wide_a, val, "acc")), fmt(evalrow(fits4$wide_a, val, "brier"))),
+    wide_a_ess = "")
+  prior_cmp <- rbind(pc, extra)
+  write.csv(prior_cmp, file.path(OUT, "prior_sensitivity.csv"), row.names = FALSE)
+  lab_ps <- c(lab_q, `mu[1]` = "$\\mu_0$", `mu[2]` = "$\\mu_1$")
+  tq <- prior_cmp; tq$quantity <- ifelse(tq$quantity %in% names(lab_ps), lab_ps[tq$quantity], tq$quantity)
+  write_booktabs(tq, file.path(OUT, "table12_prior_sensitivity.tex"),
+    caption = "Prior sensitivity of the application fits. Original priors (the simulation-study priors of Section~\\ref{sec:estimation}: $\\mathrm{N}(0, 2)$ on $\\mu$, half-normal$(0, 1)$ on the three standard deviations, half-normal$(0, 0.5)$ on $\\tau_k$; four chains of 1500 iterations) against wide priors ($\\mathrm{N}(0, 10)$ on $\\mu$, half-normal$(0, 5)$ on the standard deviations and on $\\tau_k$; four chains of 4000 iterations), without human codes and with 30 anchored bills: posterior mean [95\\% interval] and bulk ESS; largest $\\widehat{R}$ over the global parameters; accuracy and Brier score of the posterior labels against the CAP codes on the 570 non-anchored working bills and the 200 validation bills",
+    label = "tab:prior_sens",
+    header = "Quantity & \\multicolumn{4}{c}{No human code} & \\multicolumn{4}{c}{30 anchored} \\\\\n\\cmidrule(lr){2-5}\\cmidrule(lr){6-9}\n & original & ESS & wide & ESS & original & ESS & wide & ESS",
+    align = "llrlrlrlr", size = "\\tiny", colsep = "2.5pt")
 }
+
+# ---- 9c. numbers quoted in the Section 5 text ---------------------------------------------
+tn <- list()
+tn$sample_prev <- mean(bills$y); tn$working_prev <- mean(bills$y[bills$split == "working"])
+tn$ds_prev <- ds$pi1; tn$ds_bias <- ds$pi1 - mean(bills$y)
+r_pi <- fq$summ[fq$summ$variable == "pi1", ]; tn$cre_prev <- r_pi$mean; tn$cre_prev_lo <- r_pi$q2.5; tn$cre_prev_hi <- r_pi$q97.5; tn$cre_bias <- r_pi$mean - mean(bills$y)
+r_pa <- fa$summ[fa$summ$variable == "pi1", ]; tn$anch_prev <- r_pa$mean; tn$anch_prev_lo <- r_pa$q2.5; tn$anch_prev_hi <- r_pa$q97.5
+for (k in c("mu[1]", "mu[2]", "s_th")) { tn[[paste0("q_", k)]] <- fq$summ$mean[fq$summ$variable == k]; tn[[paste0("a_", k)]] <- fa$summ$mean[fa$summ$variable == k] }
+tn$q_max_rhat <- max(fq$summ$rhat, na.rm = TRUE); tn$a_max_rhat <- max(fa$summ$rhat, na.rm = TRUE)
+tn$q_min_share_ess <- min(shares$q_ess[grepl("share", shares$quantity)]); tn$a_min_share_ess <- min(shares$anchored_ess[grepl("share", shares$quantity)])
+bm <- sapply(1:M, function(a) sapply(1:M, function(b) mean(agree[cfg$m == a, cfg$m == b]))); dimnames(bm) <- list(models, models)
+tn$between_model_agreement <- bm
+if (exists("W")) {
+  maj07 <- sapply(1:M, function(m) as.integer(rowMeans(X[, cfg$m == m & cfg$p == 1, drop = FALSE], na.rm = TRUE) > 0.5))
+  tn$t0_vs_t07_majority <- setNames(sapply(1:M, function(m) mean(W[, m] == maj07[, m], na.rm = TRUE)), models)
+  tn$t0_not_unanimous <- mean(apply(W, 1, function(v) length(unique(na.omit(v))) > 1))
+}
+disp <- obs_cnt >= 6 & obs_cnt <= 39
+tn$n_disputed <- sum(disp); tn$disputed_topics <- sort(table(bills$cap_majtopic[disp]), decreasing = TRUE)
+tn$disputed_health_share <- mean(bills$y[disp])
+set.seed(3); tn$disputed_examples <- bills[disp, c("cap_majtopic", "title")][sample(sum(disp), min(12, sum(disp))), ]
+flag <- fq$post1 >= 0.2 & fq$post1 <= 0.8
+tn$n_flag_working <- sum(flag & bills$split == "working"); tn$n_flag_validation <- sum(flag & val)
+tn$val_errors_in_flag <- sapply(posts, function(p) { e <- val & ((p > 0.5) != bills$y); c(errors = sum(e), in_flagged = sum(e & flag)) })
+tn$percfg_cre_vs_cap_maxabs <- c(sens = max(abs(percfg$sens - percfg$sens_h)), spec = max(abs(percfg$spec - percfg$spec_h)))
+tn$percfg_cre_vs_cap_meanabs <- c(sens = mean(abs(percfg$sens - percfg$sens_h)), spec = mean(abs(percfg$spec - percfg$spec_h)))
+tn$percfg_ds_minus_cap_spec <- range(percfg$spec_ds - percfg$spec_h); tn$percfg_ds_minus_cap_spec_mean <- mean(percfg$spec_ds - percfg$spec_h)
+tn$percfg_cre_minus_cap_spec_mean <- mean(percfg$spec - percfg$spec_h)
+tn$spec_range <- c(cap = diff(range(percfg$spec_h)), ds = diff(range(percfg$spec_ds)), cre = diff(range(percfg$spec)))
+tn$sens_range <- c(cap = diff(range(percfg$sens_h)), ds = diff(range(percfg$sens_ds)), cre = diff(range(percfg$sens)))
+tn$sens_in_ci <- mean(percfg$sens_h >= percfg$sens_lo & percfg$sens_h <= percfg$sens_hi); tn$spec_in_ci <- mean(percfg$spec_h >= percfg$spec_lo & percfg$spec_h <= percfg$spec_hi)
+capture <- function(x) capture.output(print(x))
+tn_md <- c("", "## Numbers quoted in the Section 5 text", "", "```",
+  unlist(lapply(names(tn), function(n) c(paste0("# ", n), capture(tn[[n]])))), "```")
 
 # ---- 10. summary.md ------------------------------------------------------------------
 md_tab <- function(df, d = 3) { df[] <- lapply(df, function(x) if (is.numeric(x)) formatC(x, digits = d, format = "f") else as.character(x))
@@ -241,8 +317,9 @@ md <- c("# Application: policy-topic coding of US congressional bills (Section 5
   "", "## Variance shares (CRE-LCM)", "", md_tab(shares), "", "## Per-configuration sensitivity / specificity", "", md_tab(percfg),
   "", "## Posterior predictive check (agreement counts per bill)", "", md_tab(ppc_stat),
   "", "## Per-chain means (unanchored fit)", "", md_tab(data.frame(parameter = rownames(fq$per_chain), round(fq$per_chain, 3))),
-  if (!is.null(prior_cmp)) c("", "## Original (N(0,2), HN(0,1), HN(0,0.5); 4 x 1500) versus wide priors (N(0,10), HN(0,5), HN(0,5); 4 x 4000), unanchored fit", "", md_tab(prior_cmp)) else "",
+  if (!is.null(prior_cmp)) c("", "## Prior sensitivity: original (primary; N(0,2), HN(0,1), HN(0,0.5); 4 x 1500) versus wide (N(0,10), HN(0,5), HN(0,5); 4 x 4000)", "", md_tab(prior_cmp)) else "",
   if (!is.null(t0tab)) c("", "## Temperature-0 sensitivity (prompt 1)", "", md_tab(t0tab), "", md_tab(t0pair)) else "",
-  "", "Figures: figures/Fig5 (calibration), figures/Fig6 (posterior predictive check). Tables: results/application/table8-11*.tex.")
+  tn_md,
+  "", "Figures: figures/Fig5 (calibration), figures/Fig6 (posterior predictive check). Tables: results/application/table8-12*.tex.")
 writeLines(md, file.path(OUT, "summary.md"))
 cat("[app] done ->", OUT, "\n")

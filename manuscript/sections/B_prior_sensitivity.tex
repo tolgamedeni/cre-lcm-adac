@@ -1,0 +1,14 @@
+\section{Prior sensitivity of the application fits}\label{app:prior_sens}
+Table~\ref{tab:prior_sens} compares the application fits under the priors of
+Section~\ref{sec:estimation} (the primary specification) with a refit under wider priors. When
+almost every configuration gives the same label, the likelihood is nearly flat in the scale of the
+latent effects (quasi-complete separation): larger intercepts and random-effect standard deviations
+fit the near-unanimous counts almost equally well, so their absolute values, and with them the
+absolute variance shares, are set by the prior. Under the wide priors the intercepts and
+$\sigma_\theta$ grow, the chains mix poorly and the item share rises at the expense of the run
+share. The quantities used in Section~\ref{sec:app_results} do not depend on this choice: the
+ranking of the shares, the prevalence, the accuracy and Brier score of the posterior labels
+against the CAP codes, the per-configuration sensitivities and specificities (which differ by at
+most 0.025 and 0.005) and the posterior predictive distribution of the agreement counts.
+\input{../results/application/table12_prior_sensitivity}
+\FloatBarrier

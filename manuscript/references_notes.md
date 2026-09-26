@@ -64,3 +64,8 @@ Carpenter2017 (Stan, JSS 76(1)), Whitehill2009 (GLAD, NeurIPS 22, no DOI), Vehta
 - Liu2026: "Working paper, Boston University. DOI not found in PDF" (entry is now the arXiv record 2604.16413 supplied by the author).
 - Whitehill2009: "No DOI (NeurIPS proceedings)" (NeurIPS 22 proceedings have no DOI).
 - Oberski2013: second author corrected to "van Kollenburg, G. H." at the author's request.
+
+## 2026-09-26: data citations added by hand (from data/README.md and the CAP "How to cite" page)
+
+- Wilkerson2025: Policy Agendas Project: Congressional Bills, dataset version 19.3 (citation text as shown on comparativeagendas.net/project/us/datasets).
+- Jones2023: Policy Agendas Project: Master Codebook. Author list as given in the plan (section5_data_plan.md); verify against the CAP "How to cite" page before submission.

@@ -1,6 +1,7 @@
-"stat","observed","replicated_mean"
-"mean count",13.08375,12.5923375
-"SD of counts",18.8032227934941,18.7222481845207
-"share of bills with 0-5",0.65125,0.6663875
-"share with 40-45",0.20375,0.21190625
-"share with 15-30 (ambiguous)",0.05625,0.04729375
+"stat","observed","replicated_mean","dawid_skene_replicated"
+"mean count",13.08375,12.74529375,13.08854375
+"SD of counts",18.8032227934941,18.6274000272588,18.2637413929253
+"share of bills with 0-5",0.65125,0.66121875,0.66875
+"share with 40-45",0.20375,0.20584375,0.137975
+"share with 15-30",0.05625,0.04916875,6.25e-05
+"share with 6-39 (not near-unanimous)",0.145,0.1329375,0.193275

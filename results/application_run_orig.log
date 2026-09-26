@@ -1,0 +1,8 @@
+[app] 800 bills, 3 models (anthropic/gemini/ollama), 5 prompts, 3 runs, 36000 labels, 0.03% missing
+[app] Dawid-Skene: prevalence 0.331, mean sens 0.866, mean spec 0.994 (8 iterations)
+[app] reuse results/application/fit_cre_q_origprior.rds
+[app] CRE-LCM (q): 94.2 min, max R-hat 1.457, divergences 0
+[app] reuse results/application/fit_cre_q_anchor_origprior.rds
+[app] CRE-LCM (q, anchored): 90.9 min, max R-hat 1.035, divergences 0
+[app] done -> results/application 
+There were 50 or more warnings (use warnings() to see the first 50)
