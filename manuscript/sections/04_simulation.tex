@@ -1,10 +1,4 @@
 \section{Simulation study}\label{sec:simulation}
-% TODO-AUTHOR: the v5 draft has only a bullet skeleton for Section 4; the text below is
-% Claude's draft from the implemented design (R/05_grid.R). Note two differences from the
-% v5 skeleton: the implemented competitors are majority vote, Dawid-Skene (EM) and CRE-LCM;
-% the Bayesian DS-GLM (Zhang et al. 2025) and partial-identification bounds (Chen et al. 2026)
-% listed in v5 are NOT implemented. The identifiability subsection duplicates Section 3.4 in
-% part and can be shortened to a pointer to Table 2 once Section 3.4 is final.
 
 \subsection{Design}\label{sec:sim_design}
 
@@ -31,8 +25,6 @@ iterations, 300 warm-up). The two routes target the same posterior: on 20 replic
 $\delta = 0.5$, $N = 300$ fitted both ways, the prevalence estimates differ by $-0.001$ on
 average (SD 0.002, correlation 0.995) and every other quantity agrees within Monte Carlo
 error, and 10, 15 and 20 nodes give identical results on the scenario-B data.
-% TODO-AUTHOR: sentence on the two estimation routes added by Claude (results/grid/quad_consistency.md,
-% results/identifiability/quadrature_test*.md).
 For each replication we record the bias of the estimated prevalence, of mean sensitivity and of mean
 specificity (averaged over the $M \times P$ configurations; for CRE-LCM these are the
 posterior means of the marginal accuracies implied by the model, integrating over the
@@ -79,10 +71,6 @@ reducing the shrinkage. We therefore retain the Dawid--Skene initialisation thro
 
 \subsection{Results over the grid}\label{sec:sim_results}
 
-% TODO-AUTHOR: results paragraphs drafted by Claude from results/grid/grid_cells.csv and
-% results/grid/summary.md (2500 replications, variant e, 2 chains x 1500). The convergence
-% finding in the last paragraph is material and must be resolved before submission; see the
-% step-5 report and results/grid/summary.md.
 Figure~\ref{fig:bias} shows the bias of prevalence, sensitivity and specificity;
 Figure~\ref{fig:labels} the accuracy and Brier score of the posterior labels;
 Figure~\ref{fig:coverage} the coverage of the CRE-LCM 95\% intervals; and
@@ -132,8 +120,6 @@ by anchoring a small labelled subset as in Section~\ref{sec:ident}, is the remed
 this strength of dependence. Runtime per replication with quadrature is
 3.5 and 6 minutes at $N = 150$ ($P = 3$ and $5$), 8 and 14 minutes at $N = 300$, and 21
 and 37 minutes at $N = 600$ on one core.
-% TODO-AUTHOR: paragraph drafted by Claude from results/grid/grid_cells_q.csv and summary_q.md
-% (quadrature rerun, 100 replications per cell, 2 x 600 iterations, 15 nodes).
 
 \begin{figure}[htbp]
 \centering
@@ -173,7 +159,6 @@ $P = 5$, by dependence level $\delta$; crosses mark the true shares}\label{fig:s
 
 \subsection{Misspecification}\label{sec:sim_misspec}
 
-% TODO-AUTHOR: drafted by Claude from results/grid/misspecification_summary.csv.
 Table~\ref{tab:shares} compares the Gaussian and $t_4$ data-generating processes at
 $\delta = 1$, $N = 300$, $P = 5$. Heavy-tailed random effects do not degrade CRE-LCM:
 prevalence bias $+0.009$ against $+0.001$ under the Gaussian process (Dawid--Skene:
@@ -186,5 +171,4 @@ to the crossed effects and to the run-level residual. Point estimates of prevale
 accuracy, and the posterior labels, are therefore robust to the tail behaviour of the
 random effects at this design size; the variance decomposition is the quantity to
 interpret with care when heavy tails are suspected.
-% TODO-AUTHOR: drafted by Claude from results/grid/misspecification_summary.csv and grid_cells_q.csv.
 \input{../tables/table6_shares_misspec}

@@ -1,7 +1,5 @@
 \section{Model}\label{sec:model}
 
-% TODO-AUTHOR: Sections 3.1-3.3 are written from the v5 skeleton (bullet points only in
-% manuscript_draft_v5.md); please review the wording. Sections 3.4 and 3.6 are the v5 prose.
 \subsection{Setting and notation}
 
 Items $i = 1, \dots, N$ have an unobserved binary class $c_i \in \{0, 1\}$ ($K$ classes in
@@ -78,11 +76,9 @@ Two questions arise. Are the parameters of CRE-LCM identified without a gold sta
 \emph{Model comparison.} Leave-one-out cross-validation \citep{Vehtari2017} is not usable here: each item carries $1 + M + P$ random effects of its own, so removing an item changes the posterior substantially ($p_{\mathrm{loo}} \approx 750$ for $N = 300$; 88--93\% of Pareto-$k$ values above 0.7 in every variant). Comparisons between variants therefore rest on parameter recovery in simulation, not on predictive criteria.
 
 \subsection{Multiclass extension}\label{sec:multiclass}
-% TODO-AUTHOR: short paragraph written by Claude to the author's specification (25 Sept 2026).
 A $K$-class version replaces the ordered pair of intercepts by $K - 1$ class-specific linear predictors per configuration, in a multinomial or one-vs-rest formulation, with the same item, item$\times$model and item$\times$prompt effects entering each predictor. Identification follows the same replication argument as in Section~\ref{sec:ident}, with the class ordering replaced by a reference category. We leave the extension for future work; the binary case is sufficient for the application of Section~\ref{sec:application}.
 
 % Source: author's replacement text for Section 3.6 (24 Sept 2026), converted to LaTeX.
-% Numbers checked against results/ (see references in the TODO-AUTHOR comment at the end).
 \subsection{Estimation}\label{sec:estimation}
 
 We marginalise the discrete class analytically and the shared item effect $\theta_i$
@@ -121,24 +117,12 @@ merged-class mode, in which case a small labelled subset should be anchored
 the variance shares are computed in generated quantities; convergence is summarised by
 split-$\widehat{R}$ and bulk and tail effective sample sizes \citep{Vehtari2021}. The
 Stan programs are listed in Appendix~\ref{app:stan}.
-% TODO-AUTHOR: corrections made to the supplied text after checking results/:
-%  - "per 8,000 draws" -> "per 4,000 post-warm-up draws (four chains of 2,000 iterations)"
-%    (results/identifiability/quadrature_test.md: ESS 2585 from 4000 post-warm-up draws; (e): 13.4).
-%  - "about 250 at delta = 0 ... about 100 at delta = 0.5" -> "135-290 ... 90-130": summary.md records,
-%    per cell, the median over replications of the smallest bulk ESS among the global parameters
-%    (delta = 0: 134.5-290.5; delta = 0.5: 90.5-129.0; delta >= 1: 4.6-12.4), not the prevalence ESS alone.
-%  - "at delta <= 0.5 ... coincide" -> "at delta = 0.5": the consistency check was run at delta = 0.5 only
-%    (results/grid/quad_consistency.md; N = 300, P = 3 and 5, 10 replications each).
-%  - interval filled: pi1 95% CI [0.219, 0.353] from the 15-node fit (draws_q.rds); mean 0.283.
-%  - verified unchanged: 4.75x runtime (11.4 vs 2.4 min), 40x ESS per minute (226.8 vs 5.6), Brier 0.059,
-%    node agreement 0.285/0.283/0.283 (prevalence) and 0.946/0.946/0.943 (sigma_theta).
 
 \subsection{Computational environment}\label{sec:environment}
 % Author's text (manuscript/model_and_environment.md) with placeholders filled from the system
 % on 25 Sept 2026 (sessionInfo, renv.lock, cmdstan_version, nproc, free, ollama, run logs).
 All computations were run on a single Apple Mac mini (M4 Pro, 64 GB unified memory) hosting a
 Linux arm64 virtual machine (Ubuntu 26.04.1 LTS, 30 GB RAM, 10 cores allocated).
-% TODO-AUTHOR: the host's core count could not be read from inside the virtual machine; add it if wanted.
 Statistical analyses used R 4.5.3 with cmdstanr 0.9.0 and CmdStan 2.40.0, posterior 1.7.0 and
 ggplot2 4.0.3; all package versions are pinned in an renv lockfile in the repository. The
 simulation grid ran on nine parallel workers, one chain per core: about 24 hours for the 2,500

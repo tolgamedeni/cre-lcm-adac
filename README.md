@@ -135,8 +135,9 @@ prior-sensitivity analysis (`APP_PRIOR=wide`; Appendix B, table12_prior_sensitiv
 - PPC: CRE-LCM reproduces the thin middle of the agreement-count distribution, DS predicts none;
 - prior sensitivity: with near-unanimous labels the absolute shares follow the prior (wide: item 0.64-0.69,
   run 0.03-0.04), the ranking, prevalence, accuracy/Brier, per-configuration results and PPC do not.
-- open point: the fits use the LLM labels of all 800 bills (validation CAP codes withheld); the plan said to
-  fit on the 600 working items (see the TODO-AUTHOR note in Section 5.1).
+- estimation sample (decision): every fit uses the LLM labels of all 800 bills; only the CAP codes of the 200
+  validation bills are held out, and they are never used in estimation or anchoring (Section 5.1). The primary
+  fit is unsupervised: no CAP code enters it. The anchored variant uses the CAP codes of 30 working bills (5%).
 
 ## Manuscript
 
@@ -144,7 +145,7 @@ prior-sensitivity analysis (`APP_PRIOR=wide`; Appendix B, table12_prior_sensitiv
 `manuscript/sections/`, `references.bib` (from `refs/` PDFs; provenance in `references_notes.md`),
 `title_page.tex` and `cover_letter.tex` separate. Build: `pdflatex main; bibtex main; pdflatex main; pdflatex main`
 (TeX Live with `sttools`, `ncctools`, `threeparttable`, `float` and the usual AMS packages).
-Passages drafted from results rather than by the author are marked `% TODO-AUTHOR`.
+
 
 ## Original task plan
 1. Full pilot 4 x 2000 -- done. 2. Identifiability variants -- done (a-e). 3. Grid -- done
