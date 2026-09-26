@@ -39,6 +39,7 @@ data/raw/
 # --- Zenodo release bundle (uploaded as a release asset, not committed) ---
 release/
 
-# --- cover letter (names suggested reviewers; kept locally, never committed) ---
+# --- files naming the suggested reviewers (kept locally, never committed) ---
 manuscript/cover_letter.tex
 manuscript/cover_letter.pdf
+manuscript/submission_package.md
