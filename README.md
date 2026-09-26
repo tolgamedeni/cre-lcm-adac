@@ -118,6 +118,21 @@ resumable; outputs in `results/grid/reps_q/`, `grid_cells_q.csv`, `summary_q.md`
 replication and node count recorded). Runtime of the present grid:
 about 24 h on 9 cores (N = 150: 1-2 min, N = 300: 3-5 min, N = 600: 8-13 min per replication).
 
+## Application (Section 5, 25-26 Sept 2026)
+
+800 CAP bill titles (Congresses 111-116; 240 Health, 560 other; validation 200 / working 600), labelled by
+3 models x 5 prompts x 3 runs at T = 0.7 plus a T = 0 pass (`data/`, `scripts/annotate.py`; run record
+in `data/README.md`; API cost USD 3.31). Analysis `scripts/analyze_application.R` -> `results/application/`
+(summary.md, tables 8-11, Fig5 calibration, Fig6 PPC):
+- agreement: Fleiss kappa 0.85 / 0.97 / 0.84 within Anthropic / Gemini / Qwen, 0.84 over all 45 configurations;
+- CRE-LCM shares: item 0.60 [0.52, 0.67], model 0.18, prompt 0.16, run 0.06 (anchored fit: 0.59 / 0.19 / 0.16 / 0.06);
+  unanchored fit has R-hat 1.46 on the item scale (slow mixing on a stretched logit scale, chains agree),
+  anchored fit converges (R-hat <= 1.04);
+- against CAP: accuracy 0.95-0.97 for all aggregators; CRE-LCM lowest Brier (0.039 vs DS 0.044, MV 0.046 on the
+  570 non-anchored bills) and prevalence 0.300 vs CAP 0.291 (DS 0.321); Dawid-Skene reports specificities of
+  0.98-1.00 per configuration against CAP values of 0.93-0.98;
+- posterior predictive check reproduces the bimodal agreement-count distribution; temperature 0 changes nothing.
+
 ## Manuscript
 
 `manuscript/main.tex` (anonymised, Springer Nature `sn-jnl` with `sn-mathphys-ay`), sections in

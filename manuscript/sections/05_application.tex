@@ -48,6 +48,68 @@ responses are archived.
 \input{../tables/table7_providers}
 
 \subsection{Results}\label{sec:app_results}
-% TODO-AUTHOR: to be written from results/application/summary.md (agreement, variance shares,
-% evaluation against CAP, per-configuration accuracy, calibration Fig. 5, posterior predictive check Fig. 6).
-[To be completed when the analysis has run.]
+% TODO-AUTHOR: drafted by Claude from results/application/summary.md (26 Sept 2026); please review.
+
+\emph{Agreement.} The 45 configurations agree closely: Fleiss' $\kappa$ is 0.85 within the
+Anthropic configurations, 0.97 within Gemini and 0.84 within the local Qwen model, and 0.84 over
+all 45 (Table~\ref{tab:agreement}); 29\% of all labels are Health against a CAP prevalence of
+30\%. The temperature-0 pass gives the same accuracy against CAP as the temperature-0.7 runs of the
+same prompt (0.94, 0.96 and 0.92 for the three models), and the three models agree with each other
+on 92\% to 96\% of bills even at temperature 0: ``deterministic'' decoding removes within-model
+noise but not the between-model disagreement that the crossed effects are meant to capture.
+
+\emph{Variance decomposition.} Table~\ref{tab:app_shares} gives the CRE-LCM estimates. On this
+task the item share dominates: 0.60 [0.52, 0.67] of the latent-scale variance is item ambiguity
+shared by every configuration, 0.18 [0.14, 0.23] is item-by-model, 0.16 [0.12, 0.20]
+item-by-prompt and only 0.06 [0.05, 0.07] decoding noise. The design implication is direct:
+a fourth run of the same configurations would buy almost nothing, a fourth model or prompt would
+buy something, and the bulk of the residual disagreement is genuine ambiguity in the titles that
+only better coding rules could remove. The random-effect scales are large ($\sigma_\theta \approx
+5.6$, $\sigma_\phi \approx 3.1$, $\sigma_\psi \approx 2.9$ on the logit scale) because the
+configurations are nearly unanimous on most bills; on that stretched scale the item scale mixes
+slowly in the unanchored fit ($\widehat{R}$ 1.46, bulk ESS 8 from 6,000 draws, all four chains at
+the same values, no merged-class mode), whereas the anchored fit converges cleanly ($\widehat{R}
+\le 1.04$) and gives the same shares (0.59, 0.19, 0.16, 0.06).
+
+\emph{Accuracy against the human codes.} Table~\ref{tab:app_eval} evaluates the posterior labels
+against the CAP codes on the 200 validation bills, never used in estimation, and on the 570
+non-anchored working bills. All aggregators are accurate on this task (0.95 to 0.97), because the
+ensemble is nearly unanimous; the differences are in calibration and in prevalence. CRE-LCM has
+the lowest Brier score on the working bills (0.039 against 0.044 for Dawid--Skene and 0.046 for
+majority vote) and estimates the prevalence at 0.300 against a CAP value of 0.291, whereas
+Dawid--Skene overstates it (0.321) and, on the validation bills, 0.370 against 0.330; the anchored
+fit is marginally better still (Brier 0.038). The posterior probabilities of all model-based
+methods are close to 0 or 1 for almost every bill, so the calibration plot (Fig.~\ref{fig:calib})
+is dominated by its two end bins and is reported for completeness.
+
+\emph{Do the aggregators overstate accuracy?} Table~\ref{tab:app_percfg} compares, for each of
+the 15 model--prompt configurations, the sensitivity and specificity computed against the CAP
+codes with the Dawid--Skene estimates and the CRE-LCM marginal values. Dawid--Skene reports
+specificities of 0.98 to 1.00 for every configuration against CAP values of 0.93 to 0.98: it
+attributes almost all disagreement with the consensus to the minority class and none to shared
+error, exactly the pattern of the simulation study. CRE-LCM's specificities (0.97 to 0.99) sit
+between the two, and its sensitivities track the CAP values within their intervals for most
+configurations. The posterior predictive check (Fig.~\ref{fig:ppc}; 65\% of bills receive at
+most 5 Health labels and 20\% at least 40, replicated as 66\% and 21\%) shows that the fitted
+model reproduces the strongly bimodal distribution of agreement counts and the 5\% of genuinely
+ambiguous bills in between.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=84mm]{Fig5}
+\caption{Reliability diagram of the posterior probability of Health against the observed share
+of Health bills (CAP codes) on the validation and non-anchored working bills, for Dawid--Skene,
+CRE-LCM and the anchored CRE-LCM; point size is the number of bills in the bin}\label{fig:calib}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=84mm]{Fig6}
+\caption{Posterior predictive check: distribution of the number of configurations (of 45)
+labelling a bill as Health, observed and replicated from the fitted CRE-LCM}\label{fig:ppc}
+\end{figure}
+
+\input{../results/application/table8_agreement}
+\input{../results/application/table10_shares}
+\input{../results/application/table9_evaluation}
+\input{../results/application/table11_per_configuration}

@@ -158,7 +158,7 @@ empirical <- t(sapply(seq_len(nrow(cfg_mp)), function(j) { cols <- which(cfg$m =
   c(sens_h = mean(xs[bills$y == 1, ] == 1, na.rm = TRUE), spec_h = mean(xs[bills$y == 0, ] == 0, na.rm = TRUE),
     sens_ds = mean(ds$se[cols]), spec_ds = mean(ds$sp[cols])) }))
 percfg <- data.frame(model = models[cfg_mp$m], prompt = cfg_mp$p, model_based, empirical)
-names(percfg) <- gsub("\\.2\\.5%|\\.97\\.5%", "", names(percfg))
+names(percfg) <- gsub("\\.2\\.5\\.$|\\.97\\.5\\.$|\\.2\\.5%|\\.97\\.5%", "", names(percfg))
 write.csv(percfg, file.path(OUT, "per_configuration_accuracy.csv"), row.names = FALSE)
 write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(percfg$sens_h), sds = fmt(percfg$sens_ds), sq = sprintf("%s [%s, %s]", fmt(percfg$sens), fmt(percfg$sens_lo, 2), fmt(percfg$sens_hi, 2)),
                           ph = fmt(percfg$spec_h), pds = fmt(percfg$spec_ds), pq = sprintf("%s [%s, %s]", fmt(percfg$spec), fmt(percfg$spec_lo, 2), fmt(percfg$spec_hi, 2))),

@@ -1,0 +1,4 @@
+"model","acc_vs_CAP_T0","acc_vs_CAP_T07_P1","within_model_T07_P1_agreement"
+"anthropic",0.93875,0.938333333333333,0.993333333333333
+"gemini",0.96,0.96,1
+"ollama",0.91875,0.920416666666667,0.98
