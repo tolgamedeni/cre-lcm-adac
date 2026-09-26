@@ -1,7 +1,5 @@
-% Source: manuscript/section5_draft.md (author's draft v1, 26 Sept 2026), converted to LaTeX with the
-% [[ ]] placeholders filled from results/application/summary.md (original priors, primary
-% specification). Sentences that the final numbers contradicted are corrected and flagged with
-% TODO-AUTHOR; findings the draft lacked are marked "added by Claude".
+% Source: manuscript/section5_draft.md (author's draft), completed with the final numbers in
+% results/application/summary.md (original priors, primary specification).
 \section{Application: policy-topic coding of US congressional bills}\label{sec:application}
 
 \subsection{Data}\label{sec:app_data}
@@ -21,12 +19,6 @@ adequate for the class-specific parameters (Section~\ref{sec:sim_results}). Titl
 set aside at random as a validation set whose human codes are never used in estimation and which
 is never anchored; the remaining 600 form the working set (174 Health, 0.29). The sample, the
 codes and all annotations are archived (see the data availability statement).
-% TODO-AUTHOR: the draft said the validation set is one "that no model sees during estimation".
-% In the fits, the LLM labels of all 800 bills enter the unsupervised models (Dawid-Skene and
-% CRE-LCM); only the CAP codes of the validation bills are withheld. Note that the data plan
-% (section5_data_plan.md, step 5.2) and the step-4 instruction said to fit on the 600 working
-% items; the implemented fits use all 800. Either keep this wording or refit on the 600 working
-% items and compute out-of-sample posteriors for the validation bills.
 
 \subsection{Annotation design}\label{sec:app_design}
 
@@ -78,10 +70,6 @@ title, and when they do, they disagree on the same titles---the boundary cases t
 meant to expose. The 116 bills (14.5\%) that receive between 6 and 39 Health labels out of 45 are
 mostly Medicare and Medicaid financing, veterans' health and drug-control bills: 72\% of them are
 coded Health by CAP and the rest mainly law and crime, defence or social welfare.
-% TODO-AUTHOR: the draft listed "veterans' health, health-related social welfare, medical research
-% funding". A check of the 116 disputed bills (summary.md, "disputed_examples") supports veterans'
-% health, Medicaid/Medicare and drug-control bills; medical research funding did not appear among
-% the sampled examples. Adjust the list if you prefer.
 
 \emph{Dawid--Skene.} Treating the 45 configurations as independent raters, Dawid--Skene
 estimates a prevalence of 0.331 for a sample value of 0.300, mean sensitivity 0.866 and mean
@@ -90,9 +78,6 @@ and 0.370 on the validation set (CAP 0.330). The +0.03 bias in prevalence lies b
 the simulation study produces at $\delta = 0.5$ and $\delta = 1$ (Table~\ref{tab:prev}), and the
 pattern is the same: the raters' near-unanimity on easy items is read as near-perfect
 specificity, and the items on which they jointly err are read as positives.
-% TODO-AUTHOR: the draft compared 0.331 with the working-set value 0.29 and gave a bias of +0.04
-% "at delta ~ 1". The Dawid-Skene fit uses all 800 bills, whose CAP prevalence is 0.300, so the bias
-% is +0.031; in Table 3 Dawid-Skene's prevalence bias is +0.003 at delta = 0.5 and +0.05 at delta = 1.
 
 \emph{CRE-LCM.} Without any human label, the crossed random-effects model estimates a prevalence
 of 0.315 [0.284, 0.347], whose interval covers the sample value; the bias is halved, from +0.031
@@ -111,12 +96,6 @@ and report a refit with wider priors below. In the unanchored fit the item scale
 mix slowly on this stretched scale (bulk ESS 8 to 16 from 6,000 draws, $\widehat{R}$ up to 1.46),
 while the prevalence mixes well (ESS 1,160); all four chains sit at the same values and none shows
 the merged-class mode.
-% TODO-AUTHOR: the draft said the priors "were widened accordingly (half-normal(0, 5) on the
-% standard deviations, N(0, 10) on the intercepts)" and quoted the ESS of the 4 x 4,000 chains; per
-% the decision of 26 Sept the original priors are primary and the wide priors are the sensitivity
-% analysis below. The draft also attributed the slow mixing to "the reason given in Section 3.6"
-% (the theta/class coupling); here theta is integrated out, and the cause is the near-flat
-% likelihood in the latent scale described in the prior-sensitivity paragraph.
 
 \emph{Anchoring.} With 5\% of the working items (30) anchored to their CAP code, the prevalence
 estimate is 0.311 [0.281, 0.343] and the shares are unchanged (0.59, 0.19, 0.16 and 0.06 against
@@ -137,8 +116,6 @@ absolute shares follow the prior: the item share rises to 0.64--0.69 and the run
 prevalence (0.31--0.32), the accuracy and Brier score against the CAP codes (to within 0.002), the
 per-configuration sensitivities and specificities (to within 0.025) and the posterior predictive
 check.
-% Added by Claude at the author's request (26 Sept 2026); numbers from prior_sensitivity.csv and the
-% *_wideprior_4x4000 files in results/application/.
 
 \emph{Validation.} On the 200 held-out items, majority vote, Dawid--Skene and CRE-LCM classify
 97.0\%, 96.0\% and 97.0\% correctly, with Brier scores of 0.030, 0.040 and 0.031; on the 570
@@ -148,8 +125,6 @@ rather than in accuracy, as in the simulation; against majority vote, whose hard
 Brier score equal to the error rate, the gain appears only on the larger working set. The
 posterior probabilities of both model-based methods are close to 0 or 1 for almost every bill, so
 the calibration plot (Fig.~\ref{fig:calib}) is dominated by its two end bins.
-% TODO-AUTHOR: the draft said CRE-LCM's gain is in calibration "rather than in accuracy" without
-% qualification; on the validation set majority vote has the lowest Brier score (0.030 vs 0.031).
 Table~\ref{tab:app_percfg} compares, for each of the 15 model $\times$ prompt configurations, the
 sensitivity and specificity implied by CRE-LCM with the values computed against the CAP codes of
 all 800 bills: the model-based values track the observed ones within 0.03 on average (at most
@@ -160,9 +135,6 @@ average, range 0.024), and the CAP value falls inside its 95\% interval for only
 sensitivities and 2 of the 15 specificities: bills that the ensemble labels Health but CAP codes
 under another topic are, for any latent class model, positives with an ambiguous item rather than
 errors of the raters.
-% TODO-AUTHOR: the draft computed the CAP-based values "on the validation items"; Table 11 uses all
-% 800 bills (more precise, CAP codes are known for all). The last sentence (partial coverage and its
-% interpretation) was added by Claude; the draft's placeholder implied closer tracking.
 The posterior predictive check (Fig.~\ref{fig:ppc}) compares the observed distribution of the
 number of Health labels per item across the 45 configurations with its replicated distribution
 under CRE-LCM and under Dawid--Skene: CRE-LCM reproduces the U-shaped distribution with its thin
@@ -170,14 +142,30 @@ but non-empty middle (5.6\% of bills with 15 to 30 Health labels, replicated 4.9
 or more, replicated 20.6\%), whereas Dawid--Skene, whose raters are independent given the class,
 predicts almost no intermediate counts (0.006\% with 15 to 30) and places the Health bills at 36
 to 41 labels instead of 42 to 45 (13.8\% with 40 or more).
-% TODO-AUTHOR: the draft described the distribution as "U-shaped, heavy-middle"; the middle holds
-% only 5.6% (15-30 labels) or 14.5% (6-39 labels) of the bills, so "thin but non-empty" is used.
 
 \emph{Temperature 0.} The temperature-0 pass with prompt 1 agrees with the temperature-0.7
 majority for the same prompt on 99.9\%, 100\% and 98.5\% of items for Claude Haiku, Gemini Flash
 and Qwen, with the same accuracy against the CAP codes (0.94, 0.96 and 0.92); the three models at
 temperature 0 disagree with one another on 9.6\% of items, so a deterministic decoding setting
 removes the smallest variance component and leaves the two largest untouched.
+
+\emph{Shared construct bias.} All six validation errors of CRE-LCM are confident (posterior
+probability of Health above 0.99) and point in the same direction: the ensemble labels as Health
+bills that CAP coded under another topic---two drug-control bills (controlled-substance analogues,
+medical marijuana), a mental-health screening of military recruits, a medical-isotope supply bill,
+a restriction on research involving wards of the State and a fuel-tax refund for mobile
+mammography vehicles. The per-configuration comparison shows the same pattern, with the CAP values
+often outside the CRE-LCM intervals. Both reflect a difference between the LLMs' shared notion of
+``health'' and the CAP coding rule, which assigns such bills to their legal or institutional home,
+and the difference is common to every configuration. A latent class model cannot identify a bias
+shared by all raters without a gold standard: the bias becomes part of the latent class, which here
+is health as the LLMs read it rather than the CAP topic. Anchoring a small coded subset is the
+remedy, because the anchors tie the latent class to the reference coding; but it works only if the
+anchors include boundary bills. The 30 anchors drawn at random here contain one non-Health bill
+with a substantial share of Health labels, and the anchored fit makes the same six validation
+errors. This is the measurement counterpart of the reliability-without-validity finding of
+\citet{Norman2026}: LLM raters agree with one another more closely than with task-specific human
+coding, and no model of their agreement alone can recover the difference.
 
 \subsection{Design implications for this task}\label{sec:app_design_implications}
 
@@ -189,14 +177,9 @@ veterans' health or health-related welfare bills are to be coded---or by adjudic
 items by hand. The posterior class probabilities identify few such items: only 5 of the 600
 working items have a posterior between 0.2 and 0.8, and none of the six validation errors of
 CRE-LCM (one of the eight of Dawid--Skene) falls among the flagged items. The errors against the
-CAP codes are confident ones: all six are bills the ensemble labels Health and CAP codes under
-another topic (a medical-isotope supply bill, a mental-health assessment for military recruits,
-controlled-substance and medical-marijuana bills). The agreement count is the better guide for
+CAP codes are the confident, shared ones described above. The agreement count is the better guide for
 adjudication: four of the six errors are among the 32 validation bills with 6 to 39 Health labels
 out of 45, although their Health posterior exceeds 0.8.
-% TODO-AUTHOR: the draft expected the posterior to flag the validation errors ("x% of the validation
-% errors of every method fall among them"). The fitted posteriors are almost all near 0 or 1, so the
-% paragraph now recommends the agreement count for selecting items to adjudicate (added by Claude).
 
 \begin{figure}[htbp]
 \centering
