@@ -144,7 +144,7 @@ write_booktabs(data.frame(q = lab_q[shares$quantity], a = sprintf("%s [%s, %s]",
                           b = sprintf("%s [%s, %s]", fmt(shares$anchored_mean), fmt(shares$anchored_lo, 2), fmt(shares$anchored_hi, 2)), ess = fmt(shares$q_ess, 0)),
   file.path(OUT, "table10_shares.tex"),
   caption = "CRE-LCM estimates on the bills: prevalence, random-effect standard deviations and variance shares (posterior mean and 95\\% credible interval) without and with 30 anchored bills; bulk ESS of the unanchored fit",
-  label = "tab:app_shares", header = "Quantity & CRE-LCM & CRE-LCM, anchored & ESS", align = "llll")
+  label = "tab:app_shares", header = "Quantity & CRE-LCM & CRE-LCM, anchored & ESS", align = "llll", size = "\\footnotesize", colsep = "4pt")
 
 # ---- 6. per-configuration sensitivity / specificity ----------------------------------
 gm <- posterior::as_draws_matrix(fq$global); set.seed(1); z0 <- rnorm(4000); idx <- round(seq(1, nrow(gm), length.out = 200))
@@ -165,7 +165,7 @@ write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(perc
                           ph = fmt(percfg$spec_h, 2), pds = fmt(percfg$spec_ds, 2), pq = ci(percfg$spec, percfg$spec_lo, percfg$spec_hi)),
   file.path(OUT, "table11_per_configuration.tex"),
   caption = "Sensitivity and specificity of each model--prompt configuration (averaged over its three runs): against the CAP human codes, as estimated by Dawid--Skene, and as implied by CRE-LCM (marginal over the item effects, posterior mean and 95\\% interval)",
-  label = "tab:app_percfg", header = "Model & Prompt & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}\n & & CAP & DS & CRE-LCM & CAP & DS & CRE-LCM", align = "llrrlrrl", size = "\\scriptsize", colsep = "2.5pt")
+  label = "tab:app_percfg", header = "Model & Prompt & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}\n & & CAP & DS & CRE-LCM & CAP & DS & CRE-LCM", align = "llrrlrrl", size = "\\tiny", colsep = "2.5pt")
 
 # ---- 7. Fig 5: calibration (reliability diagram) ------------------------------------
 sub <- val | nonanch

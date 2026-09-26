@@ -1,6 +1,6 @@
 # Application: policy-topic coding of US congressional bills (Section 5)
 
-Generated 2026-09-26 13:45. 800 bills (200 validation, 600 working, 30 anchored), 3 models (anthropic, gemini, ollama), 5 prompts, 3 runs; 36000 labels, 0.03% missing.
+Generated 2026-09-26 13:46. 800 bills (200 validation, 600 working, 30 anchored), 3 models (anthropic, gemini, ollama), 5 prompts, 3 runs; 36000 labels, 0.03% missing.
 CRE-LCM: quadrature (15 nodes), 4 chains x 1500 iterations (750 warm-up), Dawid-Skene initialisation; unanchored fit 94.2 min, max R-hat 1.457; anchored fit 90.9 min, max R-hat 1.035. Models fitted to the LLM labels of all 800 bills; CAP labels used only for the 30 anchors and for evaluation.
 
 ## Agreement
