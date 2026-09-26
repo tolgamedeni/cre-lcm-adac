@@ -19,8 +19,15 @@ renv/python/
 renv/sandbox/
 renv/staging/
 # --- LaTeX build ---
-manuscript/*.aux manuscript/*.log manuscript/*.out manuscript/*.bbl manuscript/*.blg
-manuscript/*.fdb_latexmk manuscript/*.fls manuscript/*.synctex.gz manuscript/*.spl
+manuscript/*.aux
+manuscript/*.log
+manuscript/*.out
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.fdb_latexmk
+manuscript/*.fls
+manuscript/*.synctex.gz
+manuscript/*.spl
 # --- misc ---
 .Rhistory
 .RData
@@ -28,3 +35,10 @@ manuscript/*.fdb_latexmk manuscript/*.fls manuscript/*.synctex.gz manuscript/*.s
 *.swp
 data/source/
 data/raw/
+
+# --- Zenodo release bundle (uploaded as a release asset, not committed) ---
+release/
+
+# --- cover letter (names suggested reviewers; kept locally, never committed) ---
+manuscript/cover_letter.tex
+manuscript/cover_letter.pdf

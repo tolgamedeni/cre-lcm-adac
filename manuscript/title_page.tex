@@ -1,15 +1,13 @@
 % title_page.tex -- separate title page (NOT part of the anonymised manuscript).
-% Compile on its own: pdflatex title_page
+% Source: submission_package.md, section 1 (final). Compile on its own: pdflatex title_page
 \documentclass[pdflatex,sn-mathphys-ay]{sn-jnl}
 \usepackage{amsmath,amssymb,graphicx}
 \begin{document}
 \title[CRE-LCM for LLM annotation ensembles]{A crossed random-effects latent class model for annotation ensembles of large language models}
 
-\author*[1]{\fnm{Tolga} \sur{Medeni}}\email{tmedeni@aybu.edu.tr}
-% \author[2]{\fnm{Second} \sur{Author}}\email{second@example.org}   % add co-authors here
+\author*[1]{\fnm{\.{I}hsan Tolga} \sur{Medeni}}\email{ihsantolgamedeni@aybu.edu.tr}
 
-\affil*[1]{\orgdiv{Department of Management Information Systems}, \orgname{Ankara Y{\i}ld{\i}r{\i}m Beyaz{\i}t University}, \orgaddress{\city{Ankara}, \country{T\"urkiye}}}
-% ORCID: 0000-0002-0642-7908
+\affil*[1]{\orgdiv{Department of Management Information Systems, Faculty of Business}, \orgname{Ankara Y{\i}ld{\i}r{\i}m Beyaz{\i}t University}, \orgaddress{\city{Ankara}, \country{T\"urkiye}}}
 
 \abstract{See anonymised manuscript.}
 \keywords{latent class model, crossed random effects, Dawid--Skene, large language models, annotation, conditional dependence}
@@ -17,17 +15,16 @@
 
 \maketitle
 
-\section*{Acknowledgements}
-[To be added after acceptance.]
+\noindent ORCID: \.{I}hsan Tolga Medeni, 0000-0002-0642-7908.
 
 \section*{Declarations}
 \begin{itemize}
-\item \textbf{Funding:} The authors did not receive support from any organization for the submitted work.
-\item \textbf{Competing interests:} The authors have no relevant financial or non-financial interests to disclose. [Consider disclosing ITM Software LLC / Tuulrik as a non-financial interest; see submission checklist C.]
-\item \textbf{Ethics approval and consent:} Not applicable (no human participants; simulated and public text data).
-\item \textbf{Data availability:} All simulated data are reproducible from the archived code (seeds recorded). [Application data: Comparative Agendas Project (URL, accessed DATE); LLM annotations, prompt templates and model version identifiers archived at Zenodo (DOI).]
-\item \textbf{Code availability:} R and Stan code reproducing all simulations, figures and tables: Zenodo (DOI) / GitHub (URL).
-\item \textbf{Author contributions (CRediT):} T.M.: conceptualisation, methodology, software, formal analysis, writing. [Update for co-authors.]
-\item \textbf{Use of LLMs:} Large language models are the object of study. Code drafting and copy-editing were assisted by an LLM-based coding assistant (Claude, Anthropic); all analyses were specified, checked and interpreted by the authors.
+\item \textbf{Funding:} The author received no specific funding for this work.
+\item \textbf{Competing interests:} The author declares no competing interests.
+\item \textbf{Ethics approval and consent:} Not applicable. The study uses simulated data and publicly available legislative texts with published human codes; no human participants were involved.
+\item \textbf{Data availability:} The Congressional bill titles and their human-coded major topics are from the Comparative Agendas Project / Congressional Bills Project (\url{https://www.comparativeagendas.net}, accessed 25 September 2026) and are redistributed under CC BY-NC-SA 4.0 with attribution. All LLM annotations generated for this study, the five prompt templates, model version identifiers and query dates, and the full per-replication simulation output are archived at Zenodo: \url{https://doi.org/10.5281/zenodo.22956083}.
+\item \textbf{Code availability:} R and Stan code reproducing all simulations, the application, figures and tables is available at \url{https://github.com/tolgamedeni/cre-lcm-adac} and archived at the Zenodo record above.
+\item \textbf{Author contributions:} Sole author: conceptualisation, methodology, software, analysis, writing.
+\item \textbf{Use of AI tools:} Large language models are the object of study in Section~5 and are documented there (model versions, prompts, dates). In addition, an AI coding assistant (Claude Code, Anthropic) was used to write and test parts of the R and Stan code and to assist with LaTeX formatting and copy-editing; all methodological decisions, results and text were reviewed and are the responsibility of the author.
 \end{itemize}
 \end{document}
