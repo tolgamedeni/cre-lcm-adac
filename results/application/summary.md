@@ -22,8 +22,8 @@ CRE-LCM: quadrature (15 nodes), 4 chains x 1500 iterations (750 warm-up), Dawid-
 | Dawid--Skene | working, non-anchored | 570.000 | 0.956 | 0.044 | 0.976 | 0.948 | 0.321 | 0.291 |
 | CRE-LCM | validation | 200.000 | 0.970 | 0.031 | 1.000 | 0.955 | 0.361 | 0.330 |
 | CRE-LCM | working, non-anchored | 570.000 | 0.960 | 0.039 | 0.946 | 0.965 | 0.300 | 0.291 |
-| CRE-LCM, 5\% anchored | validation | 200.000 | 0.970 | 0.030 | 1.000 | 0.955 | 0.359 | 0.330 |
-| CRE-LCM, 5\% anchored | working, non-anchored | 570.000 | 0.960 | 0.038 | 0.940 | 0.968 | 0.297 | 0.291 |
+| CRE-LCM anchored | validation | 200.000 | 0.970 | 0.030 | 1.000 | 0.955 | 0.359 | 0.330 |
+| CRE-LCM anchored | working, non-anchored | 570.000 | 0.960 | 0.038 | 0.940 | 0.968 | 0.297 | 0.291 |
 
 Dawid-Skene: prevalence 0.331, mean sensitivity 0.866, mean specificity 0.994. CAP prevalence in the sample: 0.300.
 

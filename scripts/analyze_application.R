@@ -75,7 +75,7 @@ write.csv(kap, file.path(OUT, "fleiss_kappa.csv"), row.names = FALSE)
 write_booktabs(data.frame(model = kap$model, k = kap$n_config, kappa = fmt(kap$fleiss_kappa), agree = fmt(kap$mean_pairwise_agreement), p1 = fmt(kap$pct_label_1, 1), miss = fmt(kap$pct_missing, 2)),
   file.path(OUT, "table8_agreement.tex"),
   caption = "Agreement among the LLM configurations on the 800 bills: Fleiss' $\\kappa$ and mean pairwise agreement within each model (15 configurations: 5 prompts $\\times$ 3 runs) and over all 45 configurations; percentage of labels equal to 1 and of missing (unparsable) answers",
-  label = "tab:agreement", header = "Model & configurations & Fleiss' $\\kappa$ & pairwise agreement & \\% label 1 & \\% missing", align = "lrrrrr")
+  label = "tab:agreement", header = "Model & Configs & Fleiss' $\\kappa$ & Agreement & \\% label 1 & \\% missing", align = "lrrrrr", size = "\\footnotesize", colsep = "4pt")
 
 # ---- 2. Dawid-Skene (EM, missing-aware) and majority vote -----------------------
 ds_missing <- function(X, max_iter = 500, tol = 1e-8, eps = 1e-6) {
@@ -122,7 +122,7 @@ cat(sprintf("[app] CRE-LCM (q, anchored): %.1f min, max R-hat %.3f, divergences 
 val <- bills$split == "validation"; nonanch <- bills$split == "working" & !(bills$idx %in% anchor_idx)
 metrics <- function(post, sub) { y <- bills$y[sub]; p <- post[sub]; c(n = sum(sub), accuracy = mean((p > 0.5) == y), brier = mean((p - y)^2),
   sens = mean(p[y == 1] > 0.5), spec = mean(p[y == 0] <= 0.5), prev_hat = mean(p)) }
-posts <- list(`Majority vote` = mv, `Dawid--Skene` = ds$post, `CRE-LCM` = fq$post1, `CRE-LCM, 5\\% anchored` = fa$post1)
+posts <- list(`Majority vote` = mv, `Dawid--Skene` = ds$post, `CRE-LCM` = fq$post1, `CRE-LCM anchored` = fa$post1)
 ev <- do.call(rbind, lapply(names(posts), function(nm) rbind(
   data.frame(method = nm, set = "validation", t(metrics(posts[[nm]], val))),
   data.frame(method = nm, set = "working, non-anchored", t(metrics(posts[[nm]], nonanch))))))
@@ -131,7 +131,7 @@ write.csv(ev, file.path(OUT, "evaluation.csv"), row.names = FALSE)
 write_booktabs(data.frame(method = ev$method, set = ev$set, acc = fmt(ev$accuracy), brier = fmt(ev$brier), sens = fmt(ev$sens), spec = fmt(ev$spec), prev = fmt(ev$prev_hat), tp = fmt(ev$true_prev)),
   file.path(OUT, "table9_evaluation.tex"),
   caption = "Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the 570 non-anchored working bills",
-  label = "tab:app_eval", header = "Method & Set & Acc. & Brier & Sens. & Spec. & $\\hat\\pi_1$ & $\\pi_1$ (CAP)", align = "llrrrrrr", size = "\\scriptsize", colsep = "3pt")
+  label = "tab:app_eval", header = "Method & Set & Acc. & Brier & Sens. & Spec. & $\\hat\\pi_1$ & $\\pi_1$ (CAP)", align = "llrrrrrr", size = "\\scriptsize", colsep = "2.5pt")
 
 # ---- 5. variance shares ------------------------------------------------------------
 sh <- fq$summ[fq$summ$variable %in% c("s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run", "pi1"), ]
@@ -169,7 +169,7 @@ write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(perc
 
 # ---- 7. Fig 5: calibration (reliability diagram) ------------------------------------
 sub <- val | nonanch
-short <- c(`Dawid--Skene` = "Dawid-Skene", `CRE-LCM` = "CRE-LCM", `CRE-LCM, 5\\% anchored` = "CRE-LCM anchored")
+short <- c(`Dawid--Skene` = "Dawid-Skene", `CRE-LCM` = "CRE-LCM", `CRE-LCM anchored` = "CRE-LCM anchored")
 cal <- do.call(rbind, lapply(names(short), function(nm) { p <- posts[[nm]][sub]; y <- bills$y[sub]
   b <- cut(p, breaks = seq(0, 1, 0.1), include.lowest = TRUE)
   data.frame(method = short[[nm]], bin = b, p_mean = tapply(p, b, mean), y_rate = tapply(y, b, mean), n = as.vector(table(b))) }))
