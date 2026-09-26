@@ -124,14 +124,14 @@ metrics <- function(post, sub) { y <- bills$y[sub]; p <- post[sub]; c(n = sum(su
   sens = mean(p[y == 1] > 0.5), spec = mean(p[y == 0] <= 0.5), prev_hat = mean(p)) }
 posts <- list(`Majority vote` = mv, `Dawid--Skene` = ds$post, `CRE-LCM` = fq$post1, `CRE-LCM, 5\\% anchored` = fa$post1)
 ev <- do.call(rbind, lapply(names(posts), function(nm) rbind(
-  data.frame(method = nm, set = "validation (200)", t(metrics(posts[[nm]], val))),
-  data.frame(method = nm, set = sprintf("working, non-anchored (%d)", sum(nonanch)), t(metrics(posts[[nm]], nonanch))))))
+  data.frame(method = nm, set = "validation", t(metrics(posts[[nm]], val))),
+  data.frame(method = nm, set = "working, non-anchored", t(metrics(posts[[nm]], nonanch))))))
 ev$true_prev <- ifelse(grepl("validation", ev$set), mean(bills$y[val]), mean(bills$y[nonanch]))
 write.csv(ev, file.path(OUT, "evaluation.csv"), row.names = FALSE)
 write_booktabs(data.frame(method = ev$method, set = ev$set, acc = fmt(ev$accuracy), brier = fmt(ev$brier), sens = fmt(ev$sens), spec = fmt(ev$spec), prev = fmt(ev$prev_hat), tp = fmt(ev$true_prev)),
   file.path(OUT, "table9_evaluation.tex"),
-  caption = "Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the non-anchored working bills",
-  label = "tab:app_eval", header = "Method & Set & Accuracy & Brier & Sens. & Spec. & $\\hat\\pi_1$ & $\\pi_1$ (CAP)", align = "llrrrrrr", size = "\\scriptsize")
+  caption = "Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the 570 non-anchored working bills",
+  label = "tab:app_eval", header = "Method & Set & Acc. & Brier & Sens. & Spec. & $\\hat\\pi_1$ & $\\pi_1$ (CAP)", align = "llrrrrrr", size = "\\scriptsize", colsep = "3pt")
 
 # ---- 5. variance shares ------------------------------------------------------------
 sh <- fq$summ[fq$summ$variable %in% c("s_th", "s_ph", "s_ps", "share_item", "share_model", "share_prompt", "share_run", "pi1"), ]
@@ -160,11 +160,12 @@ empirical <- t(sapply(seq_len(nrow(cfg_mp)), function(j) { cols <- which(cfg$m =
 percfg <- data.frame(model = models[cfg_mp$m], prompt = cfg_mp$p, model_based, empirical)
 names(percfg) <- gsub("\\.2\\.5\\.$|\\.97\\.5\\.$|\\.2\\.5%|\\.97\\.5%", "", names(percfg))
 write.csv(percfg, file.path(OUT, "per_configuration_accuracy.csv"), row.names = FALSE)
-write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(percfg$sens_h), sds = fmt(percfg$sens_ds), sq = sprintf("%s [%s, %s]", fmt(percfg$sens), fmt(percfg$sens_lo, 2), fmt(percfg$sens_hi, 2)),
-                          ph = fmt(percfg$spec_h), pds = fmt(percfg$spec_ds), pq = sprintf("%s [%s, %s]", fmt(percfg$spec), fmt(percfg$spec_lo, 2), fmt(percfg$spec_hi, 2))),
+ci <- function(m, lo, hi) sprintf("%s [%s, %s]", fmt(m, 2), sub("^0", "", fmt(lo, 2)), sub("^0", "", fmt(hi, 2)))
+write_booktabs(data.frame(model = percfg$model, p = percfg$prompt, sh = fmt(percfg$sens_h, 2), sds = fmt(percfg$sens_ds, 2), sq = ci(percfg$sens, percfg$sens_lo, percfg$sens_hi),
+                          ph = fmt(percfg$spec_h, 2), pds = fmt(percfg$spec_ds, 2), pq = ci(percfg$spec, percfg$spec_lo, percfg$spec_hi)),
   file.path(OUT, "table11_per_configuration.tex"),
   caption = "Sensitivity and specificity of each model--prompt configuration (averaged over its three runs): against the CAP human codes, as estimated by Dawid--Skene, and as implied by CRE-LCM (marginal over the item effects, posterior mean and 95\\% interval)",
-  label = "tab:app_percfg", header = "Model & Prompt & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}\n & & CAP & DS & CRE-LCM & CAP & DS & CRE-LCM", align = "llrrlrrl", size = "\\scriptsize", colsep = "3pt")
+  label = "tab:app_percfg", header = "Model & Prompt & \\multicolumn{3}{c}{Sensitivity} & \\multicolumn{3}{c}{Specificity} \\\\\n\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}\n & & CAP & DS & CRE-LCM & CAP & DS & CRE-LCM", align = "llrrlrrl", size = "\\scriptsize", colsep = "2.5pt")
 
 # ---- 7. Fig 5: calibration (reliability diagram) ------------------------------------
 sub <- val | nonanch

@@ -1,19 +1,20 @@
 \begin{table}[htbp]
 \centering
 \scriptsize
-\caption{Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the non-anchored working bills}\label{tab:app_eval}
+\setlength{\tabcolsep}{3pt}
+\caption{Posterior labels against the CAP human codes: accuracy, Brier score, sensitivity and specificity of the labels (threshold 0.5) and the estimated prevalence, on the 200 validation bills (never anchored) and on the 570 non-anchored working bills}\label{tab:app_eval}
 \begin{tabular}{llrrrrrr}
 \toprule
-Method & Set & Accuracy & Brier & Sens. & Spec. & $\hat\pi_1$ & $\pi_1$ (CAP) \\
+Method & Set & Acc. & Brier & Sens. & Spec. & $\hat\pi_1$ & $\pi_1$ (CAP) \\
 \midrule
-Majority vote & validation (200) & 0.970 & 0.030 & 0.970 & 0.970 & 0.340 & 0.330 \\
-Majority vote & working, non-anchored (570) & 0.954 & 0.046 & 0.952 & 0.955 & 0.309 & 0.291 \\
-Dawid--Skene & validation (200) & 0.960 & 0.040 & 1.000 & 0.940 & 0.370 & 0.330 \\
-Dawid--Skene & working, non-anchored (570) & 0.956 & 0.044 & 0.976 & 0.948 & 0.321 & 0.291 \\
-CRE-LCM & validation (200) & 0.970 & 0.031 & 1.000 & 0.955 & 0.361 & 0.330 \\
-CRE-LCM & working, non-anchored (570) & 0.960 & 0.039 & 0.946 & 0.965 & 0.300 & 0.291 \\
-CRE-LCM, 5\% anchored & validation (200) & 0.970 & 0.030 & 1.000 & 0.955 & 0.359 & 0.330 \\
-CRE-LCM, 5\% anchored & working, non-anchored (570) & 0.960 & 0.038 & 0.940 & 0.968 & 0.297 & 0.291 \\
+Majority vote & validation & 0.970 & 0.030 & 0.970 & 0.970 & 0.340 & 0.330 \\
+Majority vote & working, non-anchored & 0.954 & 0.046 & 0.952 & 0.955 & 0.309 & 0.291 \\
+Dawid--Skene & validation & 0.960 & 0.040 & 1.000 & 0.940 & 0.370 & 0.330 \\
+Dawid--Skene & working, non-anchored & 0.956 & 0.044 & 0.976 & 0.948 & 0.321 & 0.291 \\
+CRE-LCM & validation & 0.970 & 0.031 & 1.000 & 0.955 & 0.361 & 0.330 \\
+CRE-LCM & working, non-anchored & 0.960 & 0.039 & 0.946 & 0.965 & 0.300 & 0.291 \\
+CRE-LCM, 5\% anchored & validation & 0.970 & 0.030 & 1.000 & 0.955 & 0.359 & 0.330 \\
+CRE-LCM, 5\% anchored & working, non-anchored & 0.960 & 0.038 & 0.940 & 0.968 & 0.297 & 0.291 \\
 \bottomrule
 \end{tabular}
 \end{table}

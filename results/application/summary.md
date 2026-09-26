@@ -1,6 +1,6 @@
 # Application: policy-topic coding of US congressional bills (Section 5)
 
-Generated 2026-09-26 13:44. 800 bills (200 validation, 600 working, 30 anchored), 3 models (anthropic, gemini, ollama), 5 prompts, 3 runs; 36000 labels, 0.03% missing.
+Generated 2026-09-26 13:45. 800 bills (200 validation, 600 working, 30 anchored), 3 models (anthropic, gemini, ollama), 5 prompts, 3 runs; 36000 labels, 0.03% missing.
 CRE-LCM: quadrature (15 nodes), 4 chains x 1500 iterations (750 warm-up), Dawid-Skene initialisation; unanchored fit 94.2 min, max R-hat 1.457; anchored fit 90.9 min, max R-hat 1.035. Models fitted to the LLM labels of all 800 bills; CAP labels used only for the 30 anchors and for evaluation.
 
 ## Agreement
@@ -16,14 +16,14 @@ CRE-LCM: quadrature (15 nodes), 4 chains x 1500 iterations (750 warm-up), Dawid-
 
 | method | set | n | accuracy | brier | sens | spec | prev_hat | true_prev |
 |---|---|---|---|---|---|---|---|---|
-| Majority vote | validation (200) | 200.000 | 0.970 | 0.030 | 0.970 | 0.970 | 0.340 | 0.330 |
-| Majority vote | working, non-anchored (570) | 570.000 | 0.954 | 0.046 | 0.952 | 0.955 | 0.309 | 0.291 |
-| Dawid--Skene | validation (200) | 200.000 | 0.960 | 0.040 | 1.000 | 0.940 | 0.370 | 0.330 |
-| Dawid--Skene | working, non-anchored (570) | 570.000 | 0.956 | 0.044 | 0.976 | 0.948 | 0.321 | 0.291 |
-| CRE-LCM | validation (200) | 200.000 | 0.970 | 0.031 | 1.000 | 0.955 | 0.361 | 0.330 |
-| CRE-LCM | working, non-anchored (570) | 570.000 | 0.960 | 0.039 | 0.946 | 0.965 | 0.300 | 0.291 |
-| CRE-LCM, 5\% anchored | validation (200) | 200.000 | 0.970 | 0.030 | 1.000 | 0.955 | 0.359 | 0.330 |
-| CRE-LCM, 5\% anchored | working, non-anchored (570) | 570.000 | 0.960 | 0.038 | 0.940 | 0.968 | 0.297 | 0.291 |
+| Majority vote | validation | 200.000 | 0.970 | 0.030 | 0.970 | 0.970 | 0.340 | 0.330 |
+| Majority vote | working, non-anchored | 570.000 | 0.954 | 0.046 | 0.952 | 0.955 | 0.309 | 0.291 |
+| Dawid--Skene | validation | 200.000 | 0.960 | 0.040 | 1.000 | 0.940 | 0.370 | 0.330 |
+| Dawid--Skene | working, non-anchored | 570.000 | 0.956 | 0.044 | 0.976 | 0.948 | 0.321 | 0.291 |
+| CRE-LCM | validation | 200.000 | 0.970 | 0.031 | 1.000 | 0.955 | 0.361 | 0.330 |
+| CRE-LCM | working, non-anchored | 570.000 | 0.960 | 0.039 | 0.946 | 0.965 | 0.300 | 0.291 |
+| CRE-LCM, 5\% anchored | validation | 200.000 | 0.970 | 0.030 | 1.000 | 0.955 | 0.359 | 0.330 |
+| CRE-LCM, 5\% anchored | working, non-anchored | 570.000 | 0.960 | 0.038 | 0.940 | 0.968 | 0.297 | 0.291 |
 
 Dawid-Skene: prevalence 0.331, mean sensitivity 0.866, mean specificity 0.994. CAP prevalence in the sample: 0.300.
 
